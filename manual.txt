@@ -1,0 +1,37 @@
+テーブル表示
+
+	$columnsprop	カラムのプロパティ(type、size、commentを表示に使う)
+	$items		表示するアイテムリスト([name => type,] name:カラム名、ボタン名など、type:data、buttonなど
+
+リスト	$rows		リスト本体 カラム名と内容のオブジェクト
+カード　$row		リストから抽出された行のデータ
+
+
+
+
+Service
+	CommonService	データに依存しない汎用関数など
+	DbioService	データベースに直接アクセスする
+	SortService	ソートの準備をする
+	ModelService	モデルの情報を整理する
+	TableService	テーブル単体を管理するための情報を揃える
+	QueryService	クエリーの情報を管理する
+
+	SessionService	セッションを過多用しないために変数名を管理する
+
+
+
+/* 表示カラムの一覧:$columnsprop
+    ['columnname' =>   // 表示カラム名 ★参照カラムの場合はforeign_id_?????(referensdcolum)
+        [
+            'tablename' => '',  // 実テーブル名:参照カラムで参照テーブル名
+            'type'      => '',  // 変数タイプ
+            'length'    => '',  // 変数の長さ
+            'comment'   => '',  // カラムの和名
+            'notnull'   => '',  // NULL許可   
+            'default'   => '',  // 初期値
+            'realcolumn'=> '',  // 実カラム名:参照カラムで参照テーブル状のカラム名
+            'sortcolumn'=> '',  // ソート時に使う実カラム名：'name'に対する'name_kana'
+        ],
+    ]
+    */
