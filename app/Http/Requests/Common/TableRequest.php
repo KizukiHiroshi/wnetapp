@@ -45,6 +45,6 @@ class TableRequest extends FormRequest
         $targetrequest = 'App\Http\Requests\\'.$modeldirname.'\\'.$modelname.'Request';
         $myrequest = app()->make($targetrequest);
         $rule = $myrequest->rules();
-        return $rule;
+        return $rule;    
     }
 }

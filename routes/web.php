@@ -27,9 +27,9 @@ Route::get('/home', [MenuController::class, 'index']);
 Route::middleware('auth')->group(function () {
     Route::get('/menu',[MenuController::class, 'index']);
 
+    Route::get('/table/{tablename}/csvupload',[TableController::class, 'csvupload']);                   // アップロード画面
     Route::get('/table/{tablename}/create',[TableController::class, 'create']);         // 新規作成
     Route::get('/table/{tablename}/download',[TableController::class, 'download']);     // ダウンロード
-    Route::get('/table/{tablename}/upload',[TableController::class, 'upload']);         // アップロード画面
     Route::get('/table/{tablename}/{id}/show',[TableController::class, 'show']);        // 一件表示
     Route::get('/table/{tablename}/{id}',[TableController::class, 'show']);             // 一件表示
     Route::get('/table/{tablename}/{id}/edit',[TableController::class, 'edit']);        // 編集
@@ -37,8 +37,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/table/{tablename}/{id}/forcedelete',[TableController::class, 'forcedelete']);    // 完全削除
     Route::get('/table/{tablename}/{id}/restore',[TableController::class, 'restore']);  // 復活
     Route::get('/table/{tablename?}',[TableController::class, 'index']);                // 一覧表示
+
+    Route::post('/table/csvupload_action',[TableController::class, 'csvupload_action']);    // アップロード実行
     Route::post('/table/{tablename}/{id}/update',[TableController::class, 'update']);   // 更新
     Route::post('/table/{tablename}/store',[TableController::class, 'store']);          // 追加
-    Route::post('/table/{tablename}/upload_action',[TableController::class, 'upload_action']); // アップロード実行
+
 
 });

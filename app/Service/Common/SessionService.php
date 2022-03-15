@@ -32,6 +32,7 @@ class SessionService
             foreach ($this->wnetsessions AS $wanetsession => $value) {
                 if ($sessionname == $wanetsession) {
                     $sessionvalue = $this->makeSessionvalue($value, ...$params);
+                    break;
                 }
             }
             if ($sessionvalue) {

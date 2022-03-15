@@ -59,7 +59,6 @@ class TableController extends Controller
 
     // (POST) http://wnet2020.com/table/{tablename}　・・・　追加。store()
     /**
-     * 新しいブログ投稿を保存
      *
      * @param  \App\Http\Requests\Common\TableRequest  $request
      * @return Illuminate\Http\Response
@@ -81,9 +80,10 @@ class TableController extends Controller
     }
 
     // (PUT) http://wnet2020.com/table/{tablename}/{id}　・・・　更新。update()
-    public function update(Request $request) {
+    public function update(TableRequest $request) {
         // $requestのValidation
         $tablename = $request->tablename;
+        $form = $request->validated();
         $form = $this->modelservice->getForm($request);
         $id = $request->id;
         // 更新実行
@@ -165,15 +165,22 @@ class TableController extends Controller
     }
 
     // アップロード画面
-    public function upload(Request $request) {
+    public function csvupload(Request $request) {
         $params = $this->tableservice->getUploadParams($request);
         return view('common/table')->with($params);
     }
 
     // アップロード実行
-    public function upload_action(Request $request) {
-        $params = $this->tableservice->getUploadParams($request);
-        return view('common/table')->with($params);
+    public function csvupload_action(Request $request) {
+        $uploadresult = $this->tableservice->csvUpload($request);
+        if ($uploadresult['error'] == NULL) {
+            // 完了メッセージ
+            $success = 'アップロードしました';
+            return redirect('/table/'.$uploadresult['tablename'].'?success='.$success);
+        } else {
+
+        }
+
     }
 
 }

@@ -52,7 +52,7 @@
             'formaction'=> '/table/'.$tablename.'/store',
         ])
     @endif
-    <?php if ($mode == 'show') {
+    <?php if ($mode == 'show' || $mode == 'create') {
         $href = '/table/'.$tablename.'?page='.$page;
     } else {
         $href = '/table/'.$tablename.'/'.$row->id.'/show';

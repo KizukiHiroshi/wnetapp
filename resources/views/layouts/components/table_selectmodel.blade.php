@@ -6,12 +6,15 @@
             <div class="d-flex justify-content-between ml-2 mt-1">
                 <p class="mt-1 mb-0">テーブル</p>
                 @include('layouts/components/button', [
-                    'margin'    => 'mt-0',
                     'value'     => '選択',
-                    'formaction'=> '/table',
+                    'formaction'=> '/table/'.$tablename,
                 ])
                 @include('layouts/components/button', [
-                    'margin'    => 'mt-0',
+                    'value'     => '一括登録',
+                    'color'     => 'info',
+                    'formaction'=> '/table/'.$tablename.'/csvupload',
+                ])
+                @include('layouts/components/button', [
                     'value'     => '戻る',
                     'color'     => 'secondary',
                     'formaction'=> '/menu',
@@ -38,11 +41,6 @@
                     'value'     => '新規登録',
                     'color'     => 'warning',
                     'formaction'=> '/table/'.$tablename.'/create',
-                ])
-                @include('layouts/components/button', [
-                    'value'     => '一括登録',
-                    'color'     => 'info',
-                    'formaction'=> '/table/'.$tablename.'/upload',
                 ])
             </div>
             @endif

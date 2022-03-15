@@ -9,7 +9,7 @@
             'margin'    => 'm-2',
             'value'     => '送信',
             'color'     => 'info',
-            'formaction'=> '/table/'.$tablename.'/upload_action',
+            'formaction'=> '/table/csvupload_action',
         ])
     </div>
 </form>

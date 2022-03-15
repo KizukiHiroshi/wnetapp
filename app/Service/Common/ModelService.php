@@ -192,49 +192,27 @@ class ModelService {
     // columnspropのforeignをcard表示用に変更する
     public function arangeColumnspropToCard($columnsprop) {
         $cardcolumnsprop = [];
-        $referencecolumns = $this->getReferenceColumns($columnsprop);
+        $foreigncolumn = '';
+        // $referencecolumns = $this->getReferenceColumns($columnsprop);
         foreach ($columnsprop AS $columnname => $prop) {
             if (strpos($columnname, '_id_')===false) {
                 $cardcolumnsprop[$columnname] = $prop;
                 if (strpos($columnname, '_id')!==false) {
+                    $foreigncolumn = $columnname;
                     // foreign_idの後にreferenceを入れる
-                    $cardcolumnsprop[key($referencecolumns[$columnname])] = current($referencecolumns[$columnname]);
+                    $prop['type'] = 'string';
+                    $cardcolumnsprop[substr($columnname, 0, -3).'_reference'] = $prop;
+                    // $cardcolumnsprop[key($referencecolumns[$columnname])] = current($referencecolumns[$columnname]);
                 }
-            } elseif (strpos($columnname, '_id_')!==false) {
-                // スルー(削除)する
+            } elseif (strpos($columnname, $foreigncolumn)!==false && strpos($columnname, '_id_')!==false) {
+                if (intval($prop['length'])>0) {
+                    $length = intval($cardcolumnsprop[substr($foreigncolumn, 0, -3).'_reference']['length']);
+                    $length +=intval($prop['length']);
+                    $cardcolumnsprop[substr($foreigncolumn, 0, -3).'_reference']['length'] = strval($length);
+                }
             }
         }
         return $cardcolumnsprop;
-    }
-
-    // card表示用に参照カラムをreferenceにまとめる
-    private function getReferenceColumns($columnsprop) {
-        $referencecolumns = [];
-        $foreigncolumn = '';
-        $foreigncolumncomment ='';
-        $length = 0;
-        foreach ($columnsprop AS $columnname => $prop) {
-            if (substr($columnname,-3)=='_id') {
-                // 参照カラムを取得
-                $foreigncolumn = $columnname;
-                $foreigncolumncomment = $prop['comment'];
-            } elseif ($foreigncolumn!='') {
-                if (strpos($columnname, $foreigncolumn)!==false && strpos($columnname, '_id_')!==false) {
-                    // 参照カラムをスルーして
-                    if (intval($prop['length'])>0) {$length +=intval($prop['length']);}
-                } else {
-                    // 参照カラムが終わった時点でまとめ参照カラムを作る
-                    $forerignreferencename = substr($foreigncolumn,0,-3).'_reference';
-                    $referencecolumns[$foreigncolumn] = [$forerignreferencename => [
-                        'type'      => 'string',
-                        'length'      => strval($length),
-                        'comment'   => $foreigncolumncomment,
-                    ]];
-                    $foreigncolumn = '';
-                }
-            }
-        }
-        return $referencecolumns;
     }
     
     // 表示する行の空データを作る
@@ -259,6 +237,12 @@ class ModelService {
                 $form[$key] = $value;
             }
         }
+        $form = $this->addBytoForm($columnnames, $form, $id);
+        return $form;
+    }
+
+    // Formに_byを加える
+    public function addBytoForm($columnnames, $form, $id = null) {
         if (Auth::check()) {
             $username = Auth::user()->name;
         } else {
@@ -270,8 +254,6 @@ class ModelService {
         if (in_array('updated_by', $columnnames)) {
             $form['updated_by'] = $username;
         }        
-        return $form;
-
+        return $form;        
     }
-    
 }

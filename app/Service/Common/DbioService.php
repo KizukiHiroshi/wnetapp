@@ -92,26 +92,28 @@ class DbioService
         $referencetablename = '';    // 参照先テーブル名
         $foreignidname = '';    // 参照元カラム名
         $concats = [];           // 合体する参照先カラムの配列
+        // 必要なセレクトをまず決める
         foreach ($columnsprop AS $columnname => $prop) {
             if (substr($columnname,-3)=='_id') {
                 // 参照元カラム名を取得する
-                $foreignidname = $columnname;
-                $referencetablename = Str::plural(substr($foreignidname, 0, -3));
-            } elseif ($foreignidname!='') {
-                if (strpos($columnname, $foreignidname)!==false && strpos($columnname, '_id_')!==false) {
-                    // カラム名が、参照元カラム名＋参照先カラム名の場合は、合体対象
+                $forerignreferencename = substr($columnname,0,-3).'_reference';
+                $foreignselects[] = $forerignreferencename;
+            }
+        }
+        // セレクトの実体を得る
+        foreach ($foreignselects AS $forerignreferencename) {
+            foreach ($columnsprop AS $columnname => $prop) {
+                if (Str::before($columnname,'_id_')==Str::before($forerignreferencename,'_reference')) {
+                    // 参照元カラム名を取得する
+                    $referencetablename = Str::plural(Str::before($columnname,'_id_'));
                     $concats[] = $prop['tablename'].'.'.$prop['realcolumn'];
-                } else {
-                    // カラム名が参照元カラム名を含まなくなったら、
-                    // 合体したカラムのセレクトリストを作成する
-                    $foreignselectrows = $this->getIdReferenceSelects($referencetablename, $concats);
-                    $forerignreferencename = substr($foreignidname,0,-3).'_reference';
-                    $foreignselects[$forerignreferencename] = $foreignselectrows;
-                    // 参照内容を初期化
-                    $foreignidname = '';
-                    $concats = [];
                 }
             }
+            $foreignselectrows = $this->getIdReferenceSelects($referencetablename, $concats);
+            $foreignselects[$forerignreferencename] = $foreignselectrows;
+            // 参照内容を初期化
+            $foreignidname = '';
+            $concats = [];
         }
         return $foreignselects;
     }
