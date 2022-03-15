@@ -15,12 +15,14 @@ if (isset($row)) {$title .='>行の';
     if ($mode == 'show') {$title .='表示';}
     if ($mode == 'edit') {$title .='編集';}
     if ($mode == 'create') {$title .='新規登録';}
+} else {
+    if ($mode == 'upload') {$title .='>一括登録';}
 }
 ?>
 @section('title', $title )
 
 @section('menu')
-<div class="col-md-2 border-bottom-3 border-primary">
+<div class="col-md-2 border-bottom border-primary">
     @if ($modelselects)
         <?php if(!isset($selectedtable)) {$selectedtable = '';} ?>
         @include('layouts/components/table_selectmodel', [
@@ -34,7 +36,7 @@ if (isset($row)) {$title .='>行の';
 @endsection
 
 @section('content')
-<div class="col-md-10 border-bottom-3 border-primary">
+<div class="col-md-10 border-bottom border-primary">
     <?php if(!isset($success)) {$success = '';} ?>
     @if ($success!='')
     <div class="alert alert-success">
@@ -64,6 +66,10 @@ if (isset($row)) {$title .='>行の';
                 'tablename'     => $tablename,
                 'row'           => $row,
                 'cardcolumnsprop'   => $cardcolumnsprop,
+            ])
+        @elseif ($mode=='upload')
+            @include ('layouts/components/table_upload', [
+                'tablename'     => $tablename,
             ])
         @endif
     @else

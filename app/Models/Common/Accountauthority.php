@@ -22,5 +22,8 @@ class Accountauthority extends Model
     ];
     static $referencedcolumns = [
     ];
+    static $uniquekeys = [
+        'accountuser_id', 'jobtype_id', 
+    ]; 
 }
 

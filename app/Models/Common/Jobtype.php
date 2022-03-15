@@ -16,7 +16,10 @@ class Jobtype extends Model
     static $referencedcolumns = [
        'code', 'name', 
     ];
-    
+    static $uniquekeys = [
+        'code', 'name_system', 
+    ];
+     
     public function concerns() {
         return $this->hasMany(Concern::class);
     }

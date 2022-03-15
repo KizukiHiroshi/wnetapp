@@ -19,10 +19,12 @@ class Department extends Model
         'code' => 'asc',
     ];
     static $referencedcolumns = [
-       'code', 
-       'name', 
+        'code', 'name', 
     ];
-    public function businessunits() {
+    static $uniquekeys = [
+        'code', 'name', 
+    ];
+     public function businessunits() {
         return $this->hasMany(Businessunit::class);
     }
     public function accountusers() {

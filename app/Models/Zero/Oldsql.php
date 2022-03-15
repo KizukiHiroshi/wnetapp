@@ -11,7 +11,7 @@ class Oldsql extends Model
     static $modelzone = 'システム開発';
     static $defaultsort = [
     ];
-    static $referencedcolumns = [
-    ];
+    static $referencedcolumns = [];
+    static $uniquekeys = [];
 }
 

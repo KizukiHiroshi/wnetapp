@@ -147,7 +147,7 @@ class TableController extends Controller
      * Export List with csv
      * @return Symfony\Component\HttpFoundation\StreamedResponse
      */
-    public function download_csv(Request $request) {
+    public function download(Request $request) {
         $downloadcsv = $this->tableservice->getDownloadCSV($request);
         $response = new StreamedResponse (function() use ($downloadcsv){
             $stream = fopen('php://output', 'w');
@@ -163,5 +163,17 @@ class TableController extends Controller
         $response->headers->set('Content-Disposition', 'attachment; filename="'.$filename.'"');
         return $response;
     }
-    
+
+    // アップロード画面
+    public function upload(Request $request) {
+        $params = $this->tableservice->getUploadParams($request);
+        return view('common/table')->with($params);
+    }
+
+    // アップロード実行
+    public function upload_action(Request $request) {
+        $params = $this->tableservice->getUploadParams($request);
+        return view('common/table')->with($params);
+    }
+
 }

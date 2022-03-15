@@ -23,6 +23,9 @@ class Concern extends Model
         'priority' => 'asc',
     ];
     static $referencedcolumns = [
-       'name', 
+        'name', 
     ];
+    static $uniquekeys = [
+        'name', 
+    ]; 
 }

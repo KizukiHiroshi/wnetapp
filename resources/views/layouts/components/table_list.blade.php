@@ -7,7 +7,7 @@
         <div class="p-0">{{ $rows->appends(['tablename' => $tablename])->links() }}</div>
         <div class="p-3">全{{ $rows->total() }}件</div>
         @if ($withbutton) 
-        <?php $href = '/table/'.$tablename.'/download_csv'; ?>
+        <?php $href = '/table/'.$tablename.'/download'; ?>
         <div class="pt-0 mr-2">
         <form id="table_download" action="{{ $href }}" method="get">
         @include('layouts/components/button', [

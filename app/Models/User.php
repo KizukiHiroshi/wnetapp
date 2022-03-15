@@ -20,7 +20,10 @@ class User extends Authenticatable
         'id' => 'asc',
     ];
     static $referencedcolumns = [
-        ['name']
+        'name'
+    ];
+    static $uniquekeys = [
+        'email',
     ];
     /**
      * The attributes that are mass assignable.

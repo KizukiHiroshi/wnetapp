@@ -18,6 +18,9 @@ class Company extends Model
         'code', 
         'name', 
     ];
+    static $uniquekeys = [
+        'code', 
+    ];
     public function departments() {
         return $this->hasMany(Department::class);
     }

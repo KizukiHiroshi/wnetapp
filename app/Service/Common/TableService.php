@@ -153,7 +153,7 @@ class TableService  {
         return $params;
     }
 
-    // 表示Listのダウンロード用CSVを取得する   
+    // 表示Listのダウンロード用CSVを取得する
     public function getDownloadCSV($request) {
         $modelindex = $this->sessionservice->getSession('modelindex');
         $tablename = $request->tablename;
@@ -166,12 +166,13 @@ class TableService  {
         }
         // table名部分
         $downloadcsv = [
-            [$modelindex[$tablename]['tablecomment'],$tablename]
+            [$modelindex[$tablename]['tablecomment'], $tablename]
         ];
         // Property部分
-        $downloadcsv[] = array_keys($columnsprop);
+        $downloadcsv[] = array_keys($columnsprop);  // columnname
         $downloadcsv[] = array_column($columnsprop, 'type');
         $downloadcsv[] = array_column($columnsprop, 'notnull');
+        $downloadcsv[] = array_column($columnsprop, 'isunique');
         $downloadcsv[] = array_column($columnsprop, 'comment');
         // List実体部分
         $downloadsql = $this->sessionservice->getSession('downloadsql');
@@ -186,5 +187,25 @@ class TableService  {
         return $downloadcsv;
     }
 
+    // Upload表示用のパラメータを取得する
+    public function getUploadParams($request){
+        $tablename = $request->tablename;
+        $modelindex = $this->sessionservice->getSession('modelindex');
+        $modelselects = $this->sessionservice->getSession('modelselects', $modelindex);
+        $selectedtable = $tablename;
+        $success = $request->success != '' ? $request->success : '';
+        // テーブルの和名
+        $tablecomment = $modelindex[$tablename]['tablecomment'];
+        $params = [
+            'mode'          => 'upload',
+            'modelselects'  => $modelselects,
+            'selectedtable' => $selectedtable,
+            'tablename'     => $tablename,
+            'success'       => $success,
+            'tablecomment'  => $tablecomment,
+        ];
+        return $params;
+    }
+    
 }
 

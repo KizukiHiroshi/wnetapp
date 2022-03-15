@@ -165,6 +165,9 @@ return [
         /*
          * Package Service Providers...
          */
+        // 20220315 kizuki start
+        Maatwebsite\Excel\ExcelServiceProvider::class,
+        // 20220315 kizuki end
 
         /*
          * Application Service Providers...
@@ -209,6 +212,9 @@ return [
         'DB' => Illuminate\Support\Facades\DB::class,
         'Eloquent' => Illuminate\Database\Eloquent\Model::class,
         'Event' => Illuminate\Support\Facades\Event::class,
+        // 20220315 kizuki start
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        // 20220315 kizuki end
         'File' => Illuminate\Support\Facades\File::class,
         'Gate' => Illuminate\Support\Facades\Gate::class,
         'Hash' => Illuminate\Support\Facades\Hash::class,

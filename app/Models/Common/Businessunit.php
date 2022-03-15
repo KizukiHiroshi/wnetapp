@@ -18,10 +18,13 @@ class Businessunit extends Model
         'code' => 'asc',
     ];
     static $referencedcolumns = [
-       'code', 
-       'name', 
+        'code', 
+        'name', 
     ];
-    
+    static $uniquekeys = [
+        'code', 'name', 
+    ];
+ 
     public function companies() {
         return $this->belongsTo(Company::class)->withDefault();
     }

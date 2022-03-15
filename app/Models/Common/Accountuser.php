@@ -20,6 +20,7 @@ class Accountuser extends Model
        'businessunit_id', 
        'name', 
     ];
+    static $uniquekeys = [];
 
     public function users() {
         return $this->belongsTo(User::class)->withDefault();

@@ -8,6 +8,7 @@ namespace App\Service\Common;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ModelService {
@@ -111,11 +112,17 @@ class ModelService {
     ]
     */
     public function getColumnsProp($modelindex, $tablename) {
-        $columnnames = Schema::getColumnListing($tablename);
+        // $columnnames = Schema::getColumnListing($tablename);
+        $columns = DB::select('show full columns from '.$tablename);
         $columnsprop = [];
-        foreach ($columnnames as $columnname) {
+        // テーブルのuniquekey取得
+        $model = $modelindex[$tablename];
+        $uniquekeys = $model['modelname']::$uniquekeys;
+        foreach ($columns as $column) {
+            $columnname = $column->Field;
             $sortcolumn = $columnname;
-            $columnsprop[$columnname] = $this->getColumnProp($tablename, $columnname, $sortcolumn);
+            $isunique = in_array($columnname, $uniquekeys) ? TRUE : NULL;
+            $columnsprop[$columnname] = $this->getColumnProp($tablename, $columnname, $sortcolumn, $isunique);
             // foreign_idの場合
             if (substr($columnname,-3)=='_id') {
                 $foreigntablename = Str::plural(substr($columnname, 0, -3));
@@ -145,7 +152,7 @@ class ModelService {
     }
 
     // $columnsprop取得
-    private function getColumnProp($tablename, $realcolumn, $sortcolumn) {
+    private function getColumnProp($tablename, $realcolumn, $sortcolumn, $isunique = NULL) {
         $tgtschema = Schema::getConnection()->getDoctrineColumn($tablename, $realcolumn);
         $columnprop = [
             'tablename' => $tablename,
@@ -154,6 +161,7 @@ class ModelService {
             'comment'   => $tgtschema->toArray()['comment'],
             'notnull'   => $tgtschema->toArray()['notnull'],
             'default'   => $tgtschema->toArray()['default'],
+            'isunique'      => $isunique,
             'realcolumn'    => $realcolumn,
             'sortcolumn'    => $sortcolumn,
         ];
