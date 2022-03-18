@@ -170,9 +170,10 @@ class TableController extends Controller
         return view('common/table')->with($params);
     }
 
-    // アップロード実行
-    public function csvupload_action(Request $request) {
-        $uploadresult = $this->tableservice->csvUpload($request);
+    // アップロード確認
+    public function csvupload_check(Request $request) {
+        $mode = 'check';
+        $uploadresult = $this->tableservice->csvUpload($request, $mode);
         if ($uploadresult['error'] == NULL) {
             // 完了メッセージ
             $success = 'アップロードしました';

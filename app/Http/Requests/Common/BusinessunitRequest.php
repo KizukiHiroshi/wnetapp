@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Common;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class BusinessunitRequest extends FormRequest
 {
@@ -26,8 +27,10 @@ class BusinessunitRequest extends FormRequest
         return [
             'company_id' => ['required','integer','numeric',],
             'department_id' => ['required','integer','numeric',],
-            'code' => ['required','string','max:5','unique:businessunits','regex:/[0-9]{5}/'],
-            'name' => ['required','string','max:30','unique:businessunits','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
+            'code' => ['required','string','max:5',
+                Rule::unique('businessunits')->ignore($this->input('id')),'regex:/[0-9]{5}/'],
+            'name' => ['required','string','max:30',
+                Rule::unique('businessunits')->ignore($this->input('id')),'regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
             'name_short' => ['required','string','max:10','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
             'postalcode' => ['required','string','max:8','regex:/[0-9]{3}-?[0-9]{4}/'],
             'address1' => ['required','string','max:40',],

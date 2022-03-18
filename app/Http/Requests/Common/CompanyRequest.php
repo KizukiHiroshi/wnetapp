@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Common;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CompanyRequest extends FormRequest
 {
@@ -25,7 +26,8 @@ class CompanyRequest extends FormRequest
     {
         
         return [
-            'code' => ['required','string','max:4','unique:companies','regex:/\d{4}/'],
+            'code' => ['required','string','max:4',
+                Rule::unique('companies')->ignore($this->input('id')),'regex:/\d{4}/'],
             'name' => ['required','string','max:30','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
             'name_kana' => ['required','string','max:30','regex:/^[ァ-ンヴー]+$/'],
             'name_short' => ['required','string','max:10','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Common;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class AccountuserRequest extends FormRequest
 {
@@ -24,8 +25,12 @@ class AccountuserRequest extends FormRequest
     public function rules()
     {
         return [
-            'user_id' => ['required','integer','numeric',],
-            'name' => ['required','string','max:12',],
+            'user_id' => ['required','integer','numeric',
+                Rule::unique('accountusers')->ignore($this->input('id')),],
+            'name' => ['required','string','max:12',
+                Rule::unique('accountusers')->ignore($this->input('id'))->where(function($query) {
+                $query->where('user_id', $this->input('user_id'));
+            }),],
             'password' => ['required','string','max:16','regex:/^[a-zA-Z0-9-_]+$/'],
             'company_id' => ['required','integer','numeric',],
             'department_id' => ['required','integer','numeric',],

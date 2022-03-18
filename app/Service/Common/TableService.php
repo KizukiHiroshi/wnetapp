@@ -10,6 +10,7 @@ use App\Service\Common\DbioService;
 use App\Service\Common\SortService;
 use App\Service\Common\ModelService;
 use App\Service\Common\SessionService;
+use Illuminate\Support\Str;
 use SplFileObject;
 
 class TableService  {
@@ -46,6 +47,79 @@ class TableService  {
         $this->sessionservice = $sessionservice;
     }
     
+    // upload実行
+    public function csvUpload($request, $mode) {
+        // // ロケールを設定(日本語に設定)
+        // setlocale(LC_ALL, 'ja_JP.UTF-8');
+        // // アップロードしたファイルを取得
+        // // 'csv_file' はビューの inputタグのname属性
+        // $uploaded_file = $request->file('upload_file');
+        //     // アップロードしたファイルの絶対パスを取得
+        // $file_path = $request->file('upload_file')->path($uploaded_file);
+        // //SplFileObjectを生成
+        // $file = new SplFileObject($file_path);
+        // //SplFileObject::READ_CSV が最速らしい
+        // $file->setFlags(SplFileObject::READ_CSV);
+        // $tablename = '';
+        // $row_count = 1;
+        // $error = NULL;
+        // $rule = [];
+        // $columnlist = [];
+        // $rawform = [];
+        // $form =[];
+        // foreach ($file as $row) {
+        //     // 最終行の処理(最終行が空っぽの場合の対策
+        //     if ($row === [null]) continue; 
+        //     if ($row_count == 1) {          // 1行目はテーブル名
+        //         $tablename = $row[0];
+        //         // validation rule 取得
+        //         $rule = $this->getRule($tablename);
+        //     } elseif ($row_count == 2) {    // 2行目はカラム名リスト
+        //         // form決定
+        //         $columnlist = $row;
+        //     } else {                        // 3行目以後がデータ
+        //         // uplaodしたままのデータを$rawform[]に入れる
+        //         $colcnt = 0;
+        //         foreach ($row AS $columnvalue) {
+        //             // CSVの文字コードがSJISなのでUTF-8に変更
+        //             $rawform[$columnlist[$colcnt]] = mb_convert_encoding($columnvalue, 'UTF-8', 'SJIS');
+        //             $colcnt += 1;
+        //         }
+        //         // 他テーブル参照値からidを取得
+
+        //         // validation
+                
+        //         // id検索
+        //         // 1件ずつINSERT又はUPDATE
+        //         //     Oldsql::insert(array(
+        //         //         'sqltype' => $sqltype, 
+        //         //         'sqltext' => $sqltext, 
+        //         //         'is_checked' => $is_checked, 
+        //         // ));
+        //     }
+        //     $row_count++;
+        // }
+        // $uploadresult = [
+        //     'tablename' => $tablename,
+        //     'row_count' => $row_count,
+        //     'error'     => $error,
+        // ];
+        // return $uploadresult;
+    }
+
+    // private function getRule($tablename) {
+    //     $modelindex = $this->sessionservice->getSession('modelindex');
+    //     $modelfullname = $modelindex[$tablename]['modelname'];
+    //     $modelpathname = Str::beforeLast($modelfullname, '\\');
+    //     $modelname = Str::afterLast($modelfullname, '\\');
+    //     $modeldirname = Str::afterLast($modelpathname, '\\');
+    //     $targetrequest = 'App\Http\Requests\\'.$modeldirname.'\\'.$modelname.'Request';
+    //     $myrequest = app()->make($targetrequest);
+    //     $rule = $myrequest->rules();
+    //     return $rule;    
+    // }
+
+
     // List表示用のパラメータを取得する
     public function getListParams($request) {
         $tablename = $request->tablename;
@@ -203,67 +277,9 @@ class TableService  {
             'tablename'     => $tablename,
             'success'       => $success,
             'tablecomment'  => $tablecomment,
+            'tgtuploadfile' => $tablecomment.'_upload.csv',
         ];
         return $params;
-    }
-    
-    // upload実行
-    public function csvUpload($request) {
-        // ロケールを設定(日本語に設定)
-        setlocale(LC_ALL, 'ja_JP.UTF-8');
-        // アップロードしたファイルを取得
-        // 'csv_file' はビューの inputタグのname属性
-        $uploaded_file = $request->file('upload_file');
-         // アップロードしたファイルの絶対パスを取得
-        $file_path = $request->file('upload_file')->path($uploaded_file);
-        //SplFileObjectを生成
-        $file = new SplFileObject($file_path);
-        //SplFileObject::READ_CSV が最速らしい
-        $file->setFlags(SplFileObject::READ_CSV);
-        $tablename = '';
-        $row_count = 1;
-        $error = NULL;
-        $rule = [];
-        $columnlist = [];
-        $form = [];
-        foreach ($file as $row) {
-            // 最終行の処理(最終行が空っぽの場合の対策
-            if ($row === [null]) continue; 
-            if ($row_count == 1) {          // 1行目はテーブル名
-                $tablename = $row[0];
-                // validation rule 取得
-                // $rule = $this->tablerequest->getRule($tablename);
-            } elseif ($row_count == 2) {    // 2行目はカラム名リスト
-                // form決定
-                $columnlist = $row;
-            } else {                        // 3行目以後がデータ
-                // CSVの文字コードがSJISなのでUTF-8に変更
-                $colcnt = 0;
-
-                $sqltype = mb_convert_encoding($row[0], 'UTF-8', 'SJIS');
-                $sqltext = mb_convert_encoding($row[1], 'UTF-8', 'SJIS');
-                $is_checked = mb_convert_encoding($row[2], 'UTF-8', 'SJIS');
-                // validation
-                
-                // id検索
-                // 1件ずつINSERT又はUPDATE
-                //     Oldsql::insert(array(
-                //         'sqltype' => $sqltype, 
-                //         'sqltext' => $sqltext, 
-                //         'is_checked' => $is_checked, 
-                // ));
-            }
-            $row_count++;
-        }
-        $uploadresult = [
-            'tablename' => $tablename,
-            'row_count' => $row_count,
-            'error'     => $error,
-        ];
-        // DATAパターン
-        // validation
-        // 既存レコード(id)の有無確認:id_dictionary
-        return $uploadresult;
     }
 }
 

@@ -9,10 +9,10 @@ use Illuminate\Support\Str;
 
 class TableRequest extends FormRequest
 {
-    private $modelindex;
+    private $sessionservice;
     public function __construct(SessionService $sessionservice) {
-        $this->modelindex = $sessionservice->getSession('modelindex');
-    }
+            $this->sessionservice = $sessionservice;
+        }
 
     /**
      * Determine if the user is authorized to make this request.
@@ -37,7 +37,7 @@ class TableRequest extends FormRequest
 
     private function getRule($request) {
         $tablename = $request->tablename;
-        $modelindex = $this->modelindex;
+        $modelindex = $this->sessionservice->getSession('modelindex');
         $modelfullname = $modelindex[$tablename]['modelname'];
         $modelpathname = Str::beforeLast($modelfullname, '\\');
         $modelname = Str::afterLast($modelfullname, '\\');
@@ -47,4 +47,5 @@ class TableRequest extends FormRequest
         $rule = $myrequest->rules();
         return $rule;    
     }
+
 }

@@ -29,6 +29,7 @@ class CreateAccountusersTable extends Migration
             $table->string('created_by', 12)->comment('作成者');
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'))->comment('更新日時');
             $table->string('updated_by', 12)->comment('更新者');
+            $table->unique(['user_id','name',]);
         });
         DB::statement("alter table wnetdb_test.accountusers comment 'アカウントユーザー';");
     }

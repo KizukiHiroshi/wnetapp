@@ -26,9 +26,11 @@ class ConcernRequest extends FormRequest
     {
         return [
             'jobtype_id' => ['required','integer','numeric',],
-            'name' => ['required','string','max:40','unique:concerns',],
+            'name' => ['required','string','max:40',
+                Rule::unique('concerns')->ignore($this->input('id')),],
             'content' => ['required','string','max:255',],
-            'importance' => ['required','string','max:2',Rule::in(['A', 'B', 'C', 'D', 'E', 'X']),],
+            'importance' => ['required','string','max:2',
+                Rule::in(['A', 'B', 'C', 'D', 'E', 'X']),],
             'priority' => ['required','integer','numeric','between:1, 100'],
             'solution' => ['required','string','max:255',],
             'is_solved' => ['required','boolean',],

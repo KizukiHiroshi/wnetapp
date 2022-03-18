@@ -1,4 +1,4 @@
-<form id="table_card" action="" method="post">
+<form id="table_card" action="" method="">
     {{-- ボタン --}}
     @csrf
     @if ($mode == 'create')
@@ -64,6 +64,7 @@
         'href'      => $href,
     ])
     <input type="hidden" name="page" value={{ $page }}>
+    <input type="hidden" name="id" value={{ $row->id }}>
     <table class="table table-striped table-hover table-sm table-responsive">
         @foreach ($cardcolumnsprop as $columnname => $prop)
         @if ($columnname != 'id' && substr($columnname,-3)!='_id')
