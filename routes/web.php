@@ -27,12 +27,11 @@ Route::get('/home', [MenuController::class, 'index']);
 Route::middleware('auth')->group(function () {
     Route::get('/menu',[MenuController::class, 'index']);
 
-    Route::post('/table/{tablename}/csvupload_check',[TableController::class, 'csvupload_check']);      // アップロード確認
-    Route::post('/table/{tablename}/csvupload_action',[TableController::class, 'csvupload_action']);    // アップロード実行
+    Route::post('/table/csvupload/{csvmode}',[TableController::class, 'csvupload']);    // アップロード処理
     Route::post('/table/{tablename}/{id}/update',[TableController::class, 'update']);   // 更新
     Route::post('/table/{tablename}/store',[TableController::class, 'store']);          // 追加
 
-    Route::get('/table/csvupload',[TableController::class, 'csvupload']);                   // アップロード画面
+    Route::get('/table/csvupload/{csvmode}',[TableController::class, 'csvupload']);     // アップロード画面
     Route::get('/table/{tablename}/create',[TableController::class, 'create']);         // 新規作成
     Route::get('/table/{tablename}/download',[TableController::class, 'download']);     // ダウンロード
     Route::get('/table/{tablename}/{id}/show',[TableController::class, 'show']);        // 一件表示

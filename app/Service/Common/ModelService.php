@@ -6,16 +6,16 @@
 declare(strict_types=1);
 namespace App\Service\Common;
 
-use Illuminate\Support\Facades\Auth;
+use App\Service\Common\SessionService;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use App\ValidateOnCheck;
 
 class ModelService {
 
+    private $sessionservice;
     public function __construct() {
-
     }
 
     /* modelindex:全てのモデルの一覧
@@ -267,24 +267,16 @@ class ModelService {
 
     // Formに_byを加える
     public function addBytoForm($columnnames, $form, $mode) {
-        if (Auth::check()) {
-            $username = Auth::user()->name;
-        } else {
-            $username = 'noLogin';
-        }
+        $sessionservice = new SessionService;
+        $accountuser = $sessionservice->getSession('accountuser');
+        if ($accountuser==null) {Auth::logout();}
         if (in_array('created_by', $columnnames) && $mode=='store') {
-            $form['created_by'] = $username;
+            $form['created_by'] = $accountuser;
         }        
         if (in_array('updated_by', $columnnames)) {
-            $form['updated_by'] = $username;
+            $form['updated_by'] = $accountuser;
         }        
         return $form;        
     }
-
-    // DB::save前にcheckするだけのValdation
-    use ValidateOnCheck;
-    public function checkValidation() {
-
-    } 
 
 }

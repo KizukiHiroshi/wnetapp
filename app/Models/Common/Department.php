@@ -5,13 +5,14 @@ namespace App\Models\Common;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Validation\Rule;
-use App\ValidateOnSave;
+use App\ValidateTrait;
 use App\Models\Common\Company;
 
 class Department extends Model
 {
     use SoftDeletes;
-    use ValidateOnSave;
+    use ValidateTrait;
+
     public function companies() {
         return $this->belongsTo(Company::class)->withDefault();
     }
@@ -47,5 +48,4 @@ class Department extends Model
             'end_on' => ['nullable','date',],
         ];
     }
-
 }

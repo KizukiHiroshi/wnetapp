@@ -22,22 +22,6 @@ class DbioService
         $this->sessionservice = $sessionservice;
     }
 
-    // 登録実行
-    public function createdId($tablename, $form) {
-        $modelname = $this->modelindex[$tablename]['modelname'];
-        $targetrow = new $modelname;
-        $targetrow->fill($form)->save();
-        return $targetrow->id;
-    }
-
-    // 更新実行
-    public function is_Updated($tablename, $form, $id) {
-        $modelname = $this->modelindex[$tablename]['modelname'];
-        $targetrow = $modelname::findOrFail($id);
-        $is_updated = $targetrow->fill($form)->save();
-        return $is_updated;
-    }
-
     // 削除実行
     public function is_Deleted($tablename, $id) {
         $modelname = $this->modelindex[$tablename]['modelname'];
@@ -96,11 +80,11 @@ class DbioService
             if (substr($columnname,-3)=='_id') {
                 // 参照元カラム名を取得する
                 $forerignreferencename = substr($columnname,0,-3).'_reference';
-                $foreignselects[] = $forerignreferencename;
+                $foreignselects[$forerignreferencename] = [];
             }
         }
         // セレクトの実体を得る
-        foreach ($foreignselects AS $forerignreferencename) {
+        foreach ($foreignselects AS $forerignreferencename => $blank) {
             foreach ($columnsprop AS $columnname => $prop) {
                 if (Str::before($columnname,'_id_') == Str::before($forerignreferencename,'_reference')) {
                     // 参照元カラム名を取得する
@@ -165,6 +149,60 @@ class DbioService
             $foundid = 'many';
         }
         return $foundid;
+    }
+
+    // Upload前のチェック
+    public function checkForm($tablename, $form, $id) {
+        $modelname = $this->modelindex[$tablename]['modelname'];
+        if (!$id) {
+            $targetrow = new $modelname;
+        } else {
+            $targetrow = $modelname::findOrFail($id);
+        }
+        $errors = $targetrow->fill($form)->check();
+        return $errors->toArray();     
+    }
+
+    // table変更:store or update、実行かテスト:save or check
+    // tablename:対象のテーブル
+    // $form:挿入変更するカラムと値
+    // $id:isnull->STORE,not null->UPDATE
+    // $mode:save->実行してERRORを発生する、check->チェックしてTEXTを返す
+    // return:ERRORであればException又はText、正常であれば$id
+    public function excuteProcess($tablename, $form, $id, $mode){
+        $modelname = $this->modelindex[$tablename]['modelname'];
+        if (!$id) {
+            $targetrow = new $modelname;
+        } else {
+            $targetrow = $modelname::findOrFail($id);
+        }
+        if ($mode=='save') {
+            if($targetrow->fill($form)->save()) {
+                return $targetrow->id;
+            }
+        } elseif ($mode=='check') {
+            if($targetrow->fill($form)->check()) {
+                return $targetrow->id;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    // 登録実行
+    public function createdId($tablename, $form) {
+        $modelname = $this->modelindex[$tablename]['modelname'];
+        $targetrow = new $modelname;
+        $targetrow->fill($form)->save();
+        return $targetrow->id;
+    }
+
+    // 更新実行
+    public function is_Updated($tablename, $form, $id) {
+        $modelname = $this->modelindex[$tablename]['modelname'];
+        $targetrow = $modelname::findOrFail($id);
+        $is_updated = $targetrow->fill($form)->save();
+        return $is_updated;
     }
 
 }

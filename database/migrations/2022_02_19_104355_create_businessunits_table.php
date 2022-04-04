@@ -16,17 +16,16 @@ class CreateBusinessunitsTable extends Migration
     {
         Schema::create('businessunits', function (Blueprint $table) {
             $table->id()->comment('id');
-            $table->foreignId('company_id')->comment('企業');
-            $table->foreignId('department_id')->comment('部門');
+            $table->foreignId('department_id')->references('id')->on('departments')->comment('部門');
             $table->string('code', 5)->unique()->comment('code');
             $table->string('name', 30)->unique()->comment('事業所名');
             $table->string('name_short', 10)->comment('略称');
             $table->string('postalcode', 8)->comment('郵便番号');
             $table->string('address1', 40)->comment('住所1');
             $table->string('address2', 40)->nullable()->comment('住所2');
-            $table->string('telno', 14)->comment('電話');
-            $table->string('foxno', 14)->nullable()->comment('FAX');
-            $table->string('url', 255)->nullable()->comment('URL');
+            $table->string('telno', 13)->comment('電話');
+            $table->string('foxno', 13)->nullable()->comment('FAX');
+            $table->string('url', 100)->nullable()->comment('URL');
             $table->string('email', 50)->nullable()->comment('email');
             $table->date('start_on')->default(NULL)->nullable()->comment('開始日');
             $table->date('end_on')->default('2049/12/31')->nullable()->comment('終了日');

@@ -5,13 +5,13 @@ namespace App\Models\Zero;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Validation\Rule;
-use App\ValidateOnSave;
+use App\ValidateTrait;
 use App\Models\Common\Jobtype;
 
 class Concern extends Model
 {
     use SoftDeletes;
-    use ValidateOnSave;
+    use ValidateTrait;
 
     public function jobtypes() {
         return $this->belongsTo(Jobtype::class)->withDefault();
@@ -21,8 +21,8 @@ class Concern extends Model
     static $modelzone = 'システム開発';
     static $defaultsort = [
         'jobtype_id' => 'asc',
-        'name' => 'asc',
         'is_solved' => 'asc',
+        'name' => 'asc',
         'importance' => 'asc',
         'priority' => 'asc',
     ];

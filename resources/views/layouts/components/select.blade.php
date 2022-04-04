@@ -22,9 +22,9 @@
         <option value="">選択しない</option>
         @endif
         @foreach ($selects as $key => $value)
-        <?php $selectable = $key == $selected ? 'selected' : $disabled; ?>
+        <?php $selectable = ($key == $selected || $value == $selected)? 'selected' : ''; ?>
         <?php $mark = $key == $selected ? $selectmark : ''; ?>
-        <option value={{ $key }} {{ $selectable }}>{{ $value }}{{ $mark }}</option>
+        <option value={{ $key }} {{ $selectable }} {{ $disabled }}>{{ $value }}{{ $mark }}</option>
         @endforeach
         @if ($withnoselect === 'after')
         <option value="">選択しない</option>

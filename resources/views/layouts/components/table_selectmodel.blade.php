@@ -12,7 +12,7 @@
                 @include('layouts/components/button', [
                     'value'     => '一括登録',
                     'color'     => 'info',
-                    'formaction'=> '/table/csvupload',
+                    'formaction'=> '/table/csvupload/csvselect',
                 ])
                 @include('layouts/components/button', [
                     'value'     => '戻る',
@@ -34,7 +34,7 @@
             @if ($selectedtable != '')
             <div class="d-flex justify-content-between">
                 @include('layouts/components/button', [
-                    'value'     => '表示',
+                    'value'     => '条件表示',
                     'formaction'=> '/table/'.$tablename,
                 ])
                 @include('layouts/components/button', [

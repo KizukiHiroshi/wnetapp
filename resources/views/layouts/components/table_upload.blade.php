@@ -1,33 +1,58 @@
-
+<?php
+if ($mode=='csvcheck'||$mode=='csvselect')  {
+    $disabled_checkbutton = null;
+    $disabled_savebutton = 'disabled';
+} elseif ($mode == 'csvsave')  {
+    $disabled_checkbutton = 'disabled';
+    $disabled_savebutton = null;
+}
+?>
 <form id="table_upload" method="post" action="" enctype="multipart/form-data">
     @csrf
+    <input type="hidden" name="tablename" value="{{ $tablename }}">
     <div class="m-2">
         <div>
             <p>{{ $tgtuploadfile }}を選択してください</p>
         </div>
-        <div>
-            <input type="file" name="upload_file" accept="{{ $tgtuploadfile }}"/>
+        <div class="d-flex">
+            @if ($mode=='csvselect')
+            <div>
+                <input type="file" name="upload_file" accept="{{ $tgtuploadfile }}"/>
+            </div>
+            @else
+            <div>
+                <p>{{ $tgtuploadfile }}がアップロードされました　</p>
+            </div>
+            @endif
+            <div class="mt-2">
+                @include('layouts/components/checkbox', [
+                    'name'      => 'uploadway',
+                    'value'     => 'allstore',
+                    'label'     => '新規のみ',
+                    'checked'   => 'checked',
+                ])
+            </div>
         </div>
-        <?php if ($mode == 'upload_check') {
-            $disabled_checkbutton = null;
-            $disabled_actionbutton = 'disabled';
-        } elseif ($mode == 'upload_action')  {
-            $disabled_checkbutton = 'disabled';
-            $disabled_actionbutton = null;
-        } ?>
+    </div>
+    <div>
         @include('layouts/components/button', [
-                'margin'    => 'm-2',
-                'value'     => '送信内容確認',
-                'color'     => 'info',
-                'disabled'  => $disabled_checkbutton,
-                'formaction'=> '/table/'.$tablename.'/csvupload_check',
-            ])
+            'margin'    => 'm-2',
+            'value'     => '1.送信内容確認',
+            'color'     => 'info',
+            'disabled'  => $disabled_checkbutton,
+            'formaction'=> '/table/csvupload/csvcheck',
+        ])
         @include('layouts/components/button', [
-                'margin'    => 'm-2',
-                'value'     => '送信内容登録',
-                'color'     => 'info',
-                'disabled'  => $disabled_actionbutton,
-                'formaction'=> '/table/'.$tablename.'/csvupload_action',
-            ])
+            'margin'    => 'm-2',
+            'value'     => '2.送信内容登録',
+            'color'     => 'info',
+            'disabled'  => $disabled_savebutton,
+            'formaction'=> '/table/csvupload/csvsave',
+        ])
+        @include('layouts/components/button', [
+            'value'     => '戻る',
+            'color'     => 'secondary',
+            'formaction'=> '/table/csvupload/csvcancel',
+        ])
     </div>
 </form>

@@ -3,7 +3,7 @@
     @csrf
     @if ($mode == 'create')
         @include('layouts/components/button', [
-            'value'     => '新規登録',
+            'value'     => '登録実行',
             'color'     => 'warning',
             'formmethod'=> 'post',
             'formaction'=> '/table/'.$tablename.'/store',

@@ -5,31 +5,35 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Controller;
+use App\Service\Common\CommonService;
 use App\Service\Common\DbioService;
 use App\Service\Common\ModelService;
 use App\Service\Common\TableService;
 use Illuminate\Http\Request;
-use App\Http\Requests\Common\TableRequest;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TableController extends Controller
 {
+    private $commonservice;
     private $dbioservice;
     private $modelservice;
     private $tableservice;
     public function __construct(
+        CommonService $commonservice,
         DbioService $dbioservice,
         ModelService $modelservice,
         TableService $tableservice) {
-        $this->dbioservice = $dbioservice;
-        $this->modelservice = $modelservice;
-        $this->tableservice = $tableservice;
+            $this->commonservice = $commonservice;
+            $this->dbioservice = $dbioservice;
+            $this->modelservice = $modelservice;
+            $this->tableservice = $tableservice;
     }
 
     // (GET) http://wnet2020.com/table/{tablename}　・・・　一覧表示。index()    
     public function index(Request $request) {
         // List表示用のパラメータを取得する
-        $params = $this->tableservice->getListParams($request);
+        $params = $this->tableservice->getMenuParams($request);
+        $params += $this->tableservice->getListParams($request);
         return view('common/table')->with($params);
     }
 
@@ -53,7 +57,8 @@ class TableController extends Controller
 
     // カードを表示する
     public function displayCard($mode, $request) {
-        $params = $this->tableservice->getCardParams($request, $mode);
+        $params = $this->tableservice->getMenuParams($request);
+        $params += $this->tableservice->getCardParams($request, $mode);
         return view('common/table')->with($params);
     }
 
@@ -64,37 +69,41 @@ class TableController extends Controller
      * @return Illuminate\Http\Response
     */
     public function store(Request $request) {
-        // $requestをtableに合わせた配列にする
-        $tablename = $request->tablename;
         $form = $request->all();
-        $mode = 'store';
-        $form = $this->modelservice->getForm($request, $mode);
+        // $requestをtableに合わせた配列にする
+        $sqlmode = 'store';
+        $form = $this->modelservice->getForm($request, $sqlmode);
         // 登録実行
-        $createdid = $this->dbioservice->createdId($tablename, $form);
+        $tablename = $request->tablename;
+        $id = null;
+        $mode = 'save';
+        $createdid = $this->dbioservice->excuteProcess($tablename, $form, $id, $mode);
         if ($createdid) {
-            // 完了メッセージ
             $success = '登録しました';
-            return redirect('/table/'.$tablename.'/'.$createdid.'?success='.$success);
+            return redirect('/table/'.$tablename.'/'.$createdid.'/show/?success='.$success);
         } else {
-
+            $errormsg = '登録に失敗しました';
+            return redirect('/table/'.$tablename.'?errormsg='.$errormsg);
         }
     }
 
     // (PUT) http://wnet2020.com/table/{tablename}/{id}　・・・　更新。update()
     public function update(Request $request) {
-        // $requestのValidation
-        $tablename = $request->tablename;
         $form = $request->all();
-        $mode = 'update';
-        $form = $this->modelservice->getForm($request, $mode);
-        $id = $request->id;
+        // $requestをtableに合わせた配列にする
+        $sqlmode = 'update';
+        $form = $this->modelservice->getForm($request, $sqlmode);
         // 更新実行
-        if ($this->dbioservice->is_Updated($tablename, $form, $id)) {
-            // 完了メッセージ
+        $tablename = $request->tablename;
+        $id = $request->id;
+        $mode = 'save';
+        $id = $this->dbioservice->excuteProcess($tablename, $form, $id, $mode);
+        if ($id) {
             $success = '更新しました';
-            return redirect('/table/'.$tablename.'/'.$id.'/show'.'?success='.$success);
+            return redirect('/table/'.$tablename.'/'.$id.'/show?success='.$success);
         } else {
-
+            $errormsg = '更新に失敗しました';
+            return redirect('/table/'.$tablename.'/'.$id.'/show?errormsg='.$errormsg);
         }
     }
 
@@ -169,9 +178,18 @@ class TableController extends Controller
     // アップロード画面
     // アップロード
     public function csvupload(Request $request) {
-        $mode = 'upload_check';
-        $params = $this->tableservice->getUploadParams($request, $mode);
-        return view('common/table')->with($params);
+        $csvmode = $request->csvmode;
+        if ($csvmode!='csvcancel') {
+            $uploadresult = $this->tableservice->csvUpload($request, $csvmode);
+            $params = $this->tableservice->getMenuParams($request);
+            $params += $this->tableservice->getUploadParams($request, $uploadresult);
+            return view('common/table')->with($params);    
+        } elseif ($csvmode=='csvcancel') {
+            // strage/app/public/csv内の自分のファイル削除
+            $this->commonservice->killMyfile();
+            $tablename = $request->tablename;
+            return redirect('/table/'.$tablename);
+        }
     }
 
     // アップロード確認
@@ -182,12 +200,12 @@ class TableController extends Controller
         $uploadresult = $this->tableservice->csvUpload($request, $mode);
         if ($uploadresult['error'] == NULL) {
             // modeを変えてもう一度表示
-            $mode = 'upload_action';
+            $mode = 'csvsave';
             $params = $this->tableservice->getUploadParams($request, $mode);
             return view('common/table')->with($params);
         } else {
             // もう一度表示
-            $mode = 'upload_check';
+            $mode = 'csvcheck';
             $params = $this->tableservice->getUploadParams($request, $mode);
             $params['errormsg'] = $uploadresult['error'];
             return view('common/table')->with($params);

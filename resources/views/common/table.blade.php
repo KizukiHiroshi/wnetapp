@@ -16,7 +16,7 @@ if (isset($row)) {$title .='>行の';
     if ($mode == 'edit') {$title .='編集';}
     if ($mode == 'create') {$title .='新規登録';}
 } else {
-    if ($mode == 'upload') {$title .='>一括登録';}
+    if (strpos($mode,'csv')!==false) {$title .='>一括登録';}
 }
 ?>
 @section('title', $title )
@@ -73,7 +73,7 @@ if (isset($row)) {$title .='>行の';
                 'row'           => $row,
                 'cardcolumnsprop'   => $cardcolumnsprop,
             ])
-        @elseif ($mode=='upload_check'||$mode=='upload_action')
+        @elseif (strpos($mode,'csv')!==false)
             @include ('layouts/components/table_upload', [
                 'mode'          => $mode,
                 'tablename'     => $tablename,

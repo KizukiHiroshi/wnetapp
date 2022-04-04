@@ -7,8 +7,9 @@ declare(strict_types=1);
 namespace App\Service\Common;
 
 use App\Service\Common\SessionService;
+use Illuminate\Support\Str;
 
-class SortService 
+class SortService
 {
     private $sessionservice;
     public function __construct(SessionService $sessionservice) {
@@ -80,7 +81,11 @@ class SortService
     private function connectTablenameAndcolumns($columnsprop) {
         $showcolumns = [];
         foreach ($columnsprop as $columnname => $prop) {
-            $showcolumns[] = $prop['tablename'].'.'.$columnname;
+            if (strpos($columnname,'_id_')==false) {
+                $showcolumns[] = $prop['tablename'].'.'.$columnname;
+            } else {
+                $showcolumns[] = $prop['tablename'].'.'.Str::after($columnname,'_id_');
+            }
         }
         return $showcolumns;
     }
@@ -89,12 +94,31 @@ class SortService
     private function addDefaultsortToTempsort($tempsort, $tablename, $modelindex, $showcolumns){
         // テーブル既存のソート順を取得する
         $defaultsort = $modelindex[$tablename]['modelname']::$defaultsort;
+        // テーブル既存のソート順をTempsortのformに変える
+        $defaultsort = $this->setDefaultsortToTempsortForm($tablename, $defaultsort, $modelindex);
         $newarray = $defaultsort;
         $temparray = $tempsort;
         $knownkeys = $showcolumns;
         $commonserveice = new CommonService;
         $tempsort = $commonserveice->addArrayIfknownsKeyAndNotExist($newarray, $temparray, $knownkeys);
         return $tempsort;
+    }
+
+    // テーブル既存のソート順をTempsortのformに変える
+    private function setDefaultsortToTempsortForm($tablename, $defaultsort, $modelindex) {
+        $formedsort = [];
+        foreach ($defaultsort as $columnname => $sortway) {
+            if (substr($columnname, -3)!=='_id') {  // 通常のカラム
+                $formedsort[$tablename.'.'.$columnname] = $sortway;
+            } else {                                // 参照カラム
+                $foreigntablename = Str::plural(substr($columnname, 0, -3));
+                $referencedcolumns = $modelindex[$foreigntablename]['modelname']::$referencedcolumns;
+                foreach ($referencedcolumns as $referencedcolumn) {
+                    $formedsort[$foreigntablename.'.'.$referencedcolumn] = $sortway;
+                }
+            }
+        }
+        return $formedsort;
     }
 
     // 一般ソート順を追加する

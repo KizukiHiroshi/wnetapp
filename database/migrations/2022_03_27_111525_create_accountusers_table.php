@@ -19,7 +19,6 @@ class CreateAccountusersTable extends Migration
             $table->foreignId('user_id')->references('id')->on('users')->comment('ログイン名');
             $table->string('name', 12)->default('事業所略称')->comment('アカウント名');
             $table->string('password', 16)->default('password')->comment('パスワード');
-            $table->foreignId('company_id')->references('id')->on('companies')->comment('企業');
             $table->foreignId('department_id')->references('id')->on('departments')->comment('部門');
             $table->foreignId('businessunit_id')->references('id')->on('businessunits')->comment('事業所');
             $table->date('start_on')->default(NULL)->nullable()->comment('開始日');

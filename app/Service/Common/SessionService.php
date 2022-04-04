@@ -17,11 +17,13 @@ class SessionService
         'modelindex'    => ['service' => 'ModelService', 'function' => 'getModelindex'],
         'modelselects'  => ['service' => 'ModelService', 'function' => 'getModelselects'],
         'columnsprop'   => ['service' => 'ModelService', 'function' => 'getColumnsProp'],
+        'accountuserid' => ['service' => ''],
+        'accountuser'   => ['service' => ''],
         'tablename'     => ['service' => ''],
         'lastsort'      => ['service' => ''],
         'page'          => ['service' => ''],
         'downloadsql'   => ['service' => ''],
-        'iddirectory'   => ['service' => ''],
+        'iddictionary'   => ['service' => ''],
     ];
 
     // 外部からのSession呼び出しに答える
