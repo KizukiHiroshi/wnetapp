@@ -90,30 +90,72 @@ class QueryService
     }
 
     // card表示用に参照カラムをconcatにまとめる
+    // $foreignvoncat = [
+    //      カラム名 => 参照先テーブル.参照先カラム AS カラム名,
+    //      カラム名 => CONCAT_WS(参照先テーブル.参照先カラム, 参照先テーブル.参照先カラム) AS 表示カラム名
+    // ]
     private function getForeignConcat($columnsprop) {
         $foreignconcat = [];
-        $foreigncolumn = '';
         $concats = [];
+        // 参照元カラム名を取得
         foreach ($columnsprop AS $columnname => $prop) {
             if (substr($columnname,-3)=='_id') {
-                $foreigncolumn = $columnname;
-            } elseif ($foreigncolumn!='') {
-                if (strpos($columnname, $foreigncolumn)!==false && strpos($columnname, '_id_')!==false) {
-                    $concats[] = $prop['tablename'].'.'.$prop['realcolumn'];
-                } else {
-                    if (count($concats)==1) {
-                        $foreignconcat[$foreigncolumn] = $concats[0].' as '.$foreigncolumn;
-                    } else {
-                        $forerignreferencename = substr($foreigncolumn,0,-3).'_reference';
-                        $foreignconcat[$foreigncolumn] 
-                        = $this->getConcatClasuse($concats, ' ', $forerignreferencename);
-                    }
-                    $foreigncolumn = '';
-                    $concats = [];
-                }
+                $concats[$columnname] = [];
             }
         }
+        // 参照先カラムを取得
+        foreach ($columnsprop AS $columnname => $prop) {
+            if (strpos($columnname, '_id_') > 0) {
+                $foreigncolumn = Str::before($columnname, '_id_').'_id';
+                $concats[$foreigncolumn][] = $prop['tablename'].'.'.$prop['realcolumn'];
+            }
+        }
+        // selectclauceに使える様に加工
+        foreach ($concats AS $foreigncolumn => $concat) {
+            if (count($concat)==1) {
+                $foreignconcat[$foreigncolumn] = $concat[0].' as '.$foreigncolumn;
+            } else {
+                $forerignreferencename = substr($foreigncolumn,0,-3).'_reference';
+                $foreignconcat[$foreigncolumn] 
+                = $this->getConcatClause($concat, ' ', $forerignreferencename);
+            }
+        }
+
+        // foreach ($columnsprop AS $columnname => $prop) {
+        //     if (substr($columnname,-3)=='_id') {
+        //         $foreigncolumn = $columnname;
+        //     } elseif ($foreigncolumn!='') {
+        //         if (strpos($columnname, $foreigncolumn)!==false && strpos($columnname, '_id_')!==false) {
+        //             $concats[] = $prop['tablename'].'.'.$prop['realcolumn'];
+        //         } else {
+        //             if (count($concats)==1) {
+        //                 $foreignconcat[$foreigncolumn] = $concats[0].' as '.$foreigncolumn;
+        //             } else {
+        //                 $forerignreferencename = substr($foreigncolumn,0,-3).'_reference';
+        //                 $foreignconcat[$foreigncolumn] 
+        //                 = $this->getConcatClause($concats, ' ', $forerignreferencename);
+        //             }
+        //             $foreigncolumn = '';
+        //             $concats = [];
+        //         }
+        //     }
+        // }
         return $foreignconcat;
+    }
+
+    // CONCAT_WS()句を作成する
+    // $concat = [参照先テーブル.参照先カラム名, 参照先テーブル.参照先カラム名, ...]
+    // $joinchar:表示の際に値を繋ぐ文字
+    // $referencedcolumnname:表示の際に使うカラム名
+    public function getConcatClause($concat, $joinchar, $referencedcolumnname) {
+        $concatclause = "CONCAT_WS('".$joinchar."', ";
+        foreach ($concat AS $column) {
+            $concatclause .= $column.", ";
+        }
+        $concatclause = rtrim($concatclause, ", ");
+        $concatclause .= ") as ";
+        $concatclause .= $referencedcolumnname;
+        return $concatclause;
     }
 
     // Sort条件の配列を、orderByRaw句に使えるテキストに変える
@@ -129,17 +171,4 @@ class QueryService
         }
         return $sortText;
     }
-
-    // CONCAT_WS()句を作成するする
-    public function getConcatClasuse($concats, $joinchar, $referencedcolumnname) {
-        $concatclause = "CONCAT_WS('".$joinchar."', ";
-        foreach ($concats AS $column) {
-            $concatclause .= $column.", ";
-        }
-        $concatclause = rtrim($concatclause, ", ");
-        $concatclause .= ") as ";
-        $concatclause .= $referencedcolumnname;
-        return $concatclause;
-    }
-
 }

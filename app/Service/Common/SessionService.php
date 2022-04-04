@@ -21,6 +21,7 @@ class SessionService
         'lastsort'      => ['service' => ''],
         'page'          => ['service' => ''],
         'downloadsql'   => ['service' => ''],
+        'iddirectory'   => ['service' => ''],
     ];
 
     // 外部からのSession呼び出しに答える

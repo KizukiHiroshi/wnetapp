@@ -49,76 +49,133 @@ class TableService  {
     
     // upload実行
     public function csvUpload($request, $mode) {
-        // // ロケールを設定(日本語に設定)
-        // setlocale(LC_ALL, 'ja_JP.UTF-8');
-        // // アップロードしたファイルを取得
-        // // 'csv_file' はビューの inputタグのname属性
-        // $uploaded_file = $request->file('upload_file');
-        //     // アップロードしたファイルの絶対パスを取得
-        // $file_path = $request->file('upload_file')->path($uploaded_file);
-        // //SplFileObjectを生成
-        // $file = new SplFileObject($file_path);
-        // //SplFileObject::READ_CSV が最速らしい
-        // $file->setFlags(SplFileObject::READ_CSV);
-        // $tablename = '';
-        // $row_count = 1;
-        // $error = NULL;
-        // $rule = [];
-        // $columnlist = [];
-        // $rawform = [];
-        // $form =[];
-        // foreach ($file as $row) {
-        //     // 最終行の処理(最終行が空っぽの場合の対策
-        //     if ($row === [null]) continue; 
-        //     if ($row_count == 1) {          // 1行目はテーブル名
-        //         $tablename = $row[0];
-        //         // validation rule 取得
-        //         $rule = $this->getRule($tablename);
-        //     } elseif ($row_count == 2) {    // 2行目はカラム名リスト
-        //         // form決定
-        //         $columnlist = $row;
-        //     } else {                        // 3行目以後がデータ
-        //         // uplaodしたままのデータを$rawform[]に入れる
-        //         $colcnt = 0;
-        //         foreach ($row AS $columnvalue) {
-        //             // CSVの文字コードがSJISなのでUTF-8に変更
-        //             $rawform[$columnlist[$colcnt]] = mb_convert_encoding($columnvalue, 'UTF-8', 'SJIS');
-        //             $colcnt += 1;
-        //         }
-        //         // 他テーブル参照値からidを取得
+        // ロケールを設定(日本語に設定)
+        setlocale(LC_ALL, 'ja_JP.UTF-8');
+        // アップロードしたファイルを取得
+        // 'csv_file' はビューの inputタグのname属性
+        $uploaded_file = $request->file('upload_file');
+        if ($uploaded_file == null) {
+            $uploadresult['error'] = 'ファイルが選択されていません';
+            return $uploadresult;        
+        }
+        // アップロードしたファイルの絶対パスを取得
+        $file_path = $request->file('upload_file')->path($uploaded_file);
+        //SplFileObjectを生成
+        $file = new SplFileObject($file_path);
+        //SplFileObject::READ_CSV が最速らしい
+        $file->setFlags(SplFileObject::READ_CSV);
+        $tablename = $request->tablename;
+        $row_count = 1;     // uploadfile用カウンター
+        $error = NULL;      // errorメッセージ
+        $rule = [];         // Vailidation用ルール
+        $rawcolumns = [];   // uploadファイルのカラムリスト
+        $iddirectory = $this->sessionservice->getSession('iddirectory');   // テーブル参照idリスト
+        $rawform = [];      // uploadされたままの値リスト
+        $form =[];          // 更新用に加工済の値リスト
+        foreach ($file as $row) {
+            // 最終行の処理(最終行が空っぽの場合の対策
+            if ($row === [null]) continue; 
+            if ($row_count == 1) {          // 1行目はテーブル名
+                if ($row[0]!=$tablename) {
+                    $uploadresult['error'] = 'ファイルの内容が不正です';
+                    return $uploadresult;
+                }
+            } elseif ($row_count == 2) {    // 2行目はカラム名リスト
+                // uploadファイルのカラムリスト
+                $rawcolumns = $row;
+                // $rawcolumns内の参照キー
+            } else {                        // 3行目以後がデータ
+                // uplaodされたままの値を$rawformに入れる
+                $colcnt = 0;
+                foreach ($row AS $columnvalue) {
+                    // CSVの文字コードがSJISなのでUTF-8に変更
+                    $rawform[$rawcolumns[$colcnt]] = mb_convert_encoding($columnvalue, 'UTF-8', 'SJIS');
+                    $colcnt += 1;
+                }
+                // テーブル参照情報取得
+                $foreginkeys = $this->getForeginkeys($rawform);               
+                // テーブル参照値から参照テーブルidを取得
+                $iddirectory = $this->getIddirectory($foreginkeys, $iddirectory);
+                // テーブルに登録できる値リストに更新
+                $form = $this->modelservice->arangeForm($tablename, $rawform, $foreginkeys, $iddirectory);
+                // validation
+                if ($mode = 'check') {
 
-        //         // validation
+                }
+                // validation rule 取得
+                // $rule = $this->getRule($tablename);
                 
-        //         // id検索
-        //         // 1件ずつINSERT又はUPDATE
-        //         //     Oldsql::insert(array(
-        //         //         'sqltype' => $sqltype, 
-        //         //         'sqltext' => $sqltext, 
-        //         //         'is_checked' => $is_checked, 
-        //         // ));
-        //     }
-        //     $row_count++;
-        // }
-        // $uploadresult = [
-        //     'tablename' => $tablename,
-        //     'row_count' => $row_count,
-        //     'error'     => $error,
-        // ];
-        // return $uploadresult;
+                // 1件ずつINSERT又はUPDATE
+                //     Oldsql::insert(array(
+                //         'sqltype' => $sqltype, 
+                //         'sqltext' => $sqltext, 
+                //         'is_checked' => $is_checked, 
+                // ));
+            }
+            $row_count++;
+        }
+        if ($mode=='check') {
+            $this->sessionservice->putSession('iddirectory', $iddirectory);    // テーブル参照idリスト
+        } elseif ($mode=='store') {
+            $this->sessionservice->forgetSession('iddirectory');    // テーブル参照idリスト
+        }
+        $uploadresult = [
+            'tablename' => $tablename,
+            'row_count' => $row_count,
+            'error'     => $error,
+        ];
+        return $uploadresult;
     }
 
-    // private function getRule($tablename) {
-    //     $modelindex = $this->sessionservice->getSession('modelindex');
-    //     $modelfullname = $modelindex[$tablename]['modelname'];
-    //     $modelpathname = Str::beforeLast($modelfullname, '\\');
-    //     $modelname = Str::afterLast($modelfullname, '\\');
-    //     $modeldirname = Str::afterLast($modelpathname, '\\');
-    //     $targetrequest = 'App\Http\Requests\\'.$modeldirname.'\\'.$modelname.'Request';
-    //     $myrequest = app()->make($targetrequest);
-    //     $rule = $myrequest->rules();
-    //     return $rule;    
-    // }
+    // テーブル参照値から参照テーブルid値を取得
+    // $iddirectory =  [参照テーブル名?参照カラム名=値&参照カラム名=値 => 参照テーブルid値,]
+    public function getIddirectory($foreginkeys, $iddirectory) {
+        if ($iddirectory==null) {
+            $iddirectory['dummy'] = 0;
+        }
+        foreach ($foreginkeys as $foreginkey) {
+            if (!array_key_exists($foreginkey, $iddirectory)) {
+                $findid = $this->dbioservice->findId($foreginkey);
+                $iddirectory[$foreginkey] = $findid;
+            }    
+        }
+        return $iddirectory;
+    }
 
+    // $foreginkeys = [参照テーブル名?参照カラム名=値&参照カラム名=値,]
+    private function getForeginkeys($rawform) {
+        $foreginkeys =[];
+        $findidset = $this->getFindidset($rawform);
+        foreach ($findidset as $foregintablename => $colandvalue) {
+            $foreginkey = $foregintablename.'?';
+            $colcnt = 1;
+            foreach ($colandvalue as $col => $value) {
+                if ($colcnt > 1) {$foreginkey .= '&';}
+                $foreginkey .= $col.'='.$value;
+                $colcnt += 1;
+            }
+            $foreginkeys[] = $foreginkey;
+        }
+        return $foreginkeys;
+    }
+
+    // $findidset = [参照テーブル名 => [参照カラム名 => 値, 参照カラム名 => 値,],]
+    private function getFindidset($rawform) {
+        $findidset = [];
+        foreach($rawform as $colname => $value) {
+            if (Str::contains($colname,'_id_')) {
+                $foregintablename = Str::before($colname,'_id_');
+                $foregincolname = Str::after($colname,'_id_');
+                if (array_key_exists($foregintablename, $findidset)) {
+                    $findidset[$foregintablename] = 
+                        array_merge($findidset[$foregintablename],[ $foregincolname => $value ]);
+                } else {
+                    $findidset[$foregintablename] = [ $foregincolname => $value ];
+                }
+            }
+        }
+        return $findidset;
+    }
 
     // List表示用のパラメータを取得する
     public function getListParams($request) {
@@ -262,7 +319,7 @@ class TableService  {
     }
 
     // Upload表示用のパラメータを取得する
-    public function getUploadParams($request){
+    public function getUploadParams($request, $mode){
         $tablename = $request->tablename;
         $modelindex = $this->sessionservice->getSession('modelindex');
         $modelselects = $this->sessionservice->getSession('modelselects', $modelindex);
@@ -271,7 +328,7 @@ class TableService  {
         // テーブルの和名
         $tablecomment = $modelindex[$tablename]['tablecomment'];
         $params = [
-            'mode'          => 'upload',
+            'mode'          => $mode,
             'modelselects'  => $modelselects,
             'selectedtable' => $selectedtable,
             'tablename'     => $tablename,

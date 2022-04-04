@@ -43,6 +43,12 @@ if (isset($row)) {$title .='>行の';
         <strong>{{ $success }}</strong>
     </div>
     @endif
+    <?php if(!isset($errormsg)) {$errormsg = '';} ?>
+    @if ($errormsg!='')
+    <div class="alert alert-danger">
+        <strong>{{ $errormsg }}</strong>
+    </div>
+    @endif
     @if ($errors->any())
     <div class="alert alert-danger">
         <ul>
@@ -67,8 +73,9 @@ if (isset($row)) {$title .='>行の';
                 'row'           => $row,
                 'cardcolumnsprop'   => $cardcolumnsprop,
             ])
-        @elseif ($mode=='upload')
+        @elseif ($mode=='upload_check'||$mode=='upload_action')
             @include ('layouts/components/table_upload', [
+                'mode'          => $mode,
                 'tablename'     => $tablename,
             ])
         @endif

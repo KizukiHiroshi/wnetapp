@@ -32,17 +32,4 @@ class Accountuser extends Model
     public function users() {
         return $this->belongsTo(User::class)->withDefault();
     }
-    public function companies() {
-        return $this->belongsTo(Company::class)->withDefault();
-    }
-    public function departments() {
-        return $this->belongsTo(Department::class)->withDefault();
-    }
-    public function businessunits() {
-        return $this->belongsTo(Businessunit::class)->withDefault();
-    }
-    public function accountauthorities() {
-        return $this->hasMany(Accountauthority::class);
-    }
-
 }

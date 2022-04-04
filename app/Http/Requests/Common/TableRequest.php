@@ -3,15 +3,14 @@
 namespace App\Http\Requests\Common;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Service\Common\SessionService;
+use App\Service\Common\TableService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class TableRequest extends FormRequest
 {
-    private $sessionservice;
-    public function __construct(SessionService $sessionservice) {
-            $this->sessionservice = $sessionservice;
+    private $tableservice;
+    public function __construct(TableService $tableservice) {
+            $this->tableservice = $tableservice;
         }
 
     /**
@@ -31,21 +30,8 @@ class TableRequest extends FormRequest
      */
     public function rules(Request $request)
     {
-        $rule = $this->getRule($request);
-        return $rule;
-    }
-
-    private function getRule($request) {
         $tablename = $request->tablename;
-        $modelindex = $this->sessionservice->getSession('modelindex');
-        $modelfullname = $modelindex[$tablename]['modelname'];
-        $modelpathname = Str::beforeLast($modelfullname, '\\');
-        $modelname = Str::afterLast($modelfullname, '\\');
-        $modeldirname = Str::afterLast($modelpathname, '\\');
-        $targetrequest = 'App\Http\Requests\\'.$modeldirname.'\\'.$modelname.'Request';
-        $myrequest = app()->make($targetrequest);
-        $rule = $myrequest->rules();
-        return $rule;    
+        // $rule = $this->tableservice->getRule($tablename);
+        // return $rule;
     }
-
 }

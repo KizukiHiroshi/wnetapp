@@ -10,8 +10,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\ValidateOnCheck;
 
 class ModelService {
+
+    public function __construct() {
+
+    }
 
     /* modelindex:全てのモデルの一覧
     tablename => [         // テーブルの物理名
@@ -225,30 +230,49 @@ class ModelService {
         return $row;
     }
 
-    // requestをtableに登録可能な配列に替える
-    public function getForm($request) {
+    // uploadされたリストをiddictionary参照利用して登録可能な配列に替える
+    public function arangeForm($tablename, $rawform, $foreginkeys, $iddictionary) {
         $form = [];
-        $tablename = $request->tablename;
-        $id = $request->id;
-        $rawform = $request->all();
         $columnnames = Schema::getColumnListing($tablename);
         foreach ($rawform as $key => $value) {
             if (in_array($key, $columnnames) && substr($key,-3)!='_at') {
                 $form[$key] = $value;
             }
         }
-        $form = $this->addBytoForm($columnnames, $form, $id);
+        foreach ($foreginkeys as $foreginkey) {
+            $foregintablename = Str::before($foreginkey,'?').'_id';
+            if (in_array($foregintablename, $columnnames)) {
+                $form[$foregintablename] = $iddictionary[$foreginkey];
+            }
+        }
+        return $form;
+    }
+
+    // requestをtableに登録可能な配列に替える
+    public function getForm($request, $mode) {
+        $form = [];
+        $tablename = $request->tablename;
+        $rawform = $request->all();
+        $columnnames = Schema::getColumnListing($tablename);
+        foreach ($rawform as $key => $value) {
+            if ($mode=='store' && $key=='id') {
+                // store時のidは除外
+            } elseif (in_array($key, $columnnames) && substr($key,-3)!='_at') {
+                $form[$key] = $value;
+            }
+        }
+        $form = $this->addBytoForm($columnnames, $form, $mode);
         return $form;
     }
 
     // Formに_byを加える
-    public function addBytoForm($columnnames, $form, $id = null) {
+    public function addBytoForm($columnnames, $form, $mode) {
         if (Auth::check()) {
             $username = Auth::user()->name;
         } else {
             $username = 'noLogin';
         }
-        if (in_array('created_by', $columnnames) && $id==null) {
+        if (in_array('created_by', $columnnames) && $mode=='store') {
             $form['created_by'] = $username;
         }        
         if (in_array('updated_by', $columnnames)) {
@@ -256,4 +280,11 @@ class ModelService {
         }        
         return $form;        
     }
+
+    // DB::save前にcheckするだけのValdation
+    use ValidateOnCheck;
+    public function checkValidation() {
+
+    } 
+
 }

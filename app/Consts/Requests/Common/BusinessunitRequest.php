@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Common;
+namespace App\Consts\Requests\Common;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -35,8 +35,8 @@ class BusinessunitRequest extends FormRequest
             'postalcode' => ['required','string','max:8','regex:/[0-9]{3}-?[0-9]{4}/'],
             'address1' => ['required','string','max:40',],
             'address2' => ['nullable','string','max:40',],
-            'telno' => ['required','string','max:13','regex:/^[a-zA-Z0-9-]+$/'],
-            'foxno' => ['nullable','string','max:13','regex:/^[a-zA-Z0-9-]+$/'],
+            'telno' => ['required','string','max:15','regex:/^[0-9-]+$/'],
+            'foxno' => ['nullable','string','max:15','regex:/^[0-9-]+$/'],
             'url' => ['nullable','string','max:100','url'],
             'email' => ['nullable','string','max:50','email'],
             'start_on' => ['nullable','date',],

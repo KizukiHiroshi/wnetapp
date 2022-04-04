@@ -1,7 +1,7 @@
 <?php
 
 // ServiceではIlluminate\Http\Requestにアクセスしない
-// Databaseへの直接のAccsessを担う
+// DbioService:Databaseへの直接のAccsessを担う
 
 declare(strict_types=1);
 namespace App\Service\Common;
@@ -90,7 +90,6 @@ class DbioService
     public function getForeginSelects($columnsprop) {
         $foreignselects = [];
         $referencetablename = '';    // 参照先テーブル名
-        $foreignidname = '';    // 参照元カラム名
         $concats = [];           // 合体する参照先カラムの配列
         // 必要なセレクトをまず決める
         foreach ($columnsprop AS $columnname => $prop) {
@@ -103,16 +102,15 @@ class DbioService
         // セレクトの実体を得る
         foreach ($foreignselects AS $forerignreferencename) {
             foreach ($columnsprop AS $columnname => $prop) {
-                if (Str::before($columnname,'_id_')==Str::before($forerignreferencename,'_reference')) {
+                if (Str::before($columnname,'_id_') == Str::before($forerignreferencename,'_reference')) {
                     // 参照元カラム名を取得する
                     $referencetablename = Str::plural(Str::before($columnname,'_id_'));
-                    $concats[] = $prop['tablename'].'.'.$prop['realcolumn'];
+                    $concats[Str::before($columnname,'_id_').'_id'] = $prop['tablename'].'.'.$prop['realcolumn'];
                 }
             }
             $foreignselectrows = $this->getIdReferenceSelects($referencetablename, $concats);
             $foreignselects[$forerignreferencename] = $foreignselectrows;
             // 参照内容を初期化
-            $foreignidname = '';
             $concats = [];
         }
         return $foreignselects;
@@ -127,7 +125,7 @@ class DbioService
         $tablequery = $modelname::query();
         // from句
         $tablequery = $tablequery->from($tablename);
-        $concatclause = $this->queryservice->getConcatClasuse($concats, ' ', $referencedcolumnname);
+        $concatclause = $this->queryservice->getConcatClause($concats, ' ', $referencedcolumnname);
         $tablequery = $tablequery->select('id', DB::raw($concatclause));
         $rows = $tablequery->get();
         foreach ($rows AS $row) {
@@ -141,4 +139,32 @@ class DbioService
         $rows = DB::select($rawsql);
         return $rows;
     }
+
+    // 参照id取得
+    // $findidset =  参照テーブル名?参照カラム名=値&参照カラム名=値
+    public function findId($findidset) {
+        $foundid = null;
+        $tablename = Str::plural(Str::before($findidset,'?'));
+        $subcolset = explode('&',Str::after($findidset,'?'));
+        foreach($subcolset as $subcol) {
+            $colset[Str::before($subcol,'=')] = Str::after($subcol,'=');
+        }
+        $modelname = $this->modelindex[$tablename]['modelname'];
+        $tablequery = $modelname::query();
+        // from句
+        $tablequery = $tablequery->from($tablename);
+        foreach ($colset as $columnnama => $value) {
+            $tablequery = $tablequery->where($tablename.'.'.$columnnama, '=', ''.$value.'');
+        }
+        $rows = $tablequery->get();
+        if (count($rows) == 1) {
+            foreach ($rows as $row) {
+                $foundid = $row->id;
+            }
+        } elseif (count($rows) > 1) {
+            $foundid = 'many';
+        }
+        return $foundid;
+    }
+
 }

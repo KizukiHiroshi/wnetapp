@@ -10,6 +10,4 @@ class DatabaseConst {
     const MAX_DATE = '2049/12/31';
     // 日付の最小値
     const MIN_DATE = '2000/01/01';
-
-
 }

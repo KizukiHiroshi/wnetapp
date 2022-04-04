@@ -12,7 +12,7 @@
                 @include('layouts/components/button', [
                     'value'     => '一括登録',
                     'color'     => 'info',
-                    'formaction'=> '/table/'.$tablename.'/csvupload',
+                    'formaction'=> '/table/csvupload',
                 ])
                 @include('layouts/components/button', [
                     'value'     => '戻る',

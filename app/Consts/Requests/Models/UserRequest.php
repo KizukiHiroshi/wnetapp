@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Zero;
+namespace App\Consts\Requests\Models;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class OldsqlRequest extends FormRequest
+class UserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,9 +25,6 @@ class OldsqlRequest extends FormRequest
     public function rules()
     {
         return [
-            'sqltype' => ['required','string','max:6',],
-            'sqltext' => ['required','string','max:4000',],
-            'is_checked' => ['required','boolean',],
-        ];
+       ];
     }
 }

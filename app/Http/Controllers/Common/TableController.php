@@ -63,11 +63,12 @@ class TableController extends Controller
      * @param  \App\Http\Requests\Common\TableRequest  $request
      * @return Illuminate\Http\Response
     */
-    public function store(TableRequest $request) {
+    public function store(Request $request) {
         // $requestをtableに合わせた配列にする
-        $form = $request->validated();
-        $form = $this->modelservice->getForm($request);
         $tablename = $request->tablename;
+        $form = $request->all();
+        $mode = 'store';
+        $form = $this->modelservice->getForm($request, $mode);
         // 登録実行
         $createdid = $this->dbioservice->createdId($tablename, $form);
         if ($createdid) {
@@ -80,11 +81,12 @@ class TableController extends Controller
     }
 
     // (PUT) http://wnet2020.com/table/{tablename}/{id}　・・・　更新。update()
-    public function update(TableRequest $request) {
+    public function update(Request $request) {
         // $requestのValidation
         $tablename = $request->tablename;
-        $form = $request->validated();
-        $form = $this->modelservice->getForm($request);
+        $form = $request->all();
+        $mode = 'update';
+        $form = $this->modelservice->getForm($request, $mode);
         $id = $request->id;
         // 更新実行
         if ($this->dbioservice->is_Updated($tablename, $form, $id)) {
@@ -165,14 +167,36 @@ class TableController extends Controller
     }
 
     // アップロード画面
+    // アップロード
     public function csvupload(Request $request) {
-        $params = $this->tableservice->getUploadParams($request);
+        $mode = 'upload_check';
+        $params = $this->tableservice->getUploadParams($request, $mode);
         return view('common/table')->with($params);
     }
 
     // アップロード確認
     public function csvupload_check(Request $request) {
+        $file_name = $request->file('file')->getClientOriginalName();
+        $request->file('file')->storeAs('public',$file_name);
         $mode = 'check';
+        $uploadresult = $this->tableservice->csvUpload($request, $mode);
+        if ($uploadresult['error'] == NULL) {
+            // modeを変えてもう一度表示
+            $mode = 'upload_action';
+            $params = $this->tableservice->getUploadParams($request, $mode);
+            return view('common/table')->with($params);
+        } else {
+            // もう一度表示
+            $mode = 'upload_check';
+            $params = $this->tableservice->getUploadParams($request, $mode);
+            $params['errormsg'] = $uploadresult['error'];
+            return view('common/table')->with($params);
+        }
+
+    }
+    // アップロード実行
+    public function csvupload_action(Request $request) {
+        $mode = 'action';
         $uploadresult = $this->tableservice->csvUpload($request, $mode);
         if ($uploadresult['error'] == NULL) {
             // 完了メッセージ
