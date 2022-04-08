@@ -13,9 +13,14 @@ class Businessunit extends Model
 {
     use SoftDeletes;
     use ValidateTrait;
+    
     public function departments() {
         return $this->belongsTo(Department::class)->withDefault();
     }
+    public function members() {
+        return $this->hasMany(Member::class);
+    }
+
     protected $guarded = [];
     static $tablecomment = '事業所';
     static $modelzone = '共通';

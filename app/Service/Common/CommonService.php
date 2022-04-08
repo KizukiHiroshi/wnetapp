@@ -25,18 +25,17 @@ class CommonService {
         $files = Storage::allFiles('public/csv/');;
         foreach ($files as $file) {
             $updatedtime = Storage::lastModified($file);;
-            if ((time()-$updatedtime)/60 > $setminuts && substr($file, -4)=='.csv') {
+            if ((time()-$updatedtime)/60 > $setminuts && substr($file, -4) == '.csv') {
                 Storage::delete($file);
             }
         }
     }
 
     // wnetapp\storage\app\public\csv内の10分以上前にuploadされたファイルを削除する
-    public function killMyfile() {
-        $accountuserid = $this->sessionservice->getSession('accountuserid');
+    public function killMyfile($accountuserid) {
         $files = Storage::allFiles('public/csv/');;
         foreach ($files as $file) {
-            if (strpos($file,'_'.strval($accountuserid).'.csv')!==false) {
+            if (strpos($file,'_'.strval($accountuserid).'.csv') !== false) {
                 Storage::delete($file);
             }
         }

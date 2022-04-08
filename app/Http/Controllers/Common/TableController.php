@@ -81,9 +81,6 @@ class TableController extends Controller
         if ($createdid) {
             $success = '登録しました';
             return redirect('/table/'.$tablename.'/'.$createdid.'/show/?success='.$success);
-        } else {
-            $errormsg = '登録に失敗しました';
-            return redirect('/table/'.$tablename.'?errormsg='.$errormsg);
         }
     }
 
@@ -101,9 +98,6 @@ class TableController extends Controller
         if ($id) {
             $success = '更新しました';
             return redirect('/table/'.$tablename.'/'.$id.'/show?success='.$success);
-        } else {
-            $errormsg = '更新に失敗しました';
-            return redirect('/table/'.$tablename.'/'.$id.'/show?errormsg='.$errormsg);
         }
     }
 
@@ -114,7 +108,7 @@ class TableController extends Controller
         // 更新実行
         if ($this->dbioservice->is_Deleted($tablename, $id)) {
             // 現在のページ
-            $page = $request->page != '' ? $request->page : '';
+            $page = $request->page !== '' ? $request->page : '';
             // 完了メッセージ
             $success = '削除しました';
             return redirect('/table/'.$tablename.'?page='.$page.'&success='.$success);
@@ -130,7 +124,7 @@ class TableController extends Controller
         // 更新実行
         if ($this->dbioservice->is_forceDeleted($tablename, $id)) {
             // 現在のページ
-            $page = $request->page != '' ? $request->page : '';
+            $page = $request->page !== '' ? $request->page : '';
             // 完了メッセージ
             $success = '完全削除しました';
             return redirect('/table/'.$tablename.'?page='.$page.'&success='.$success);
@@ -179,14 +173,14 @@ class TableController extends Controller
     // アップロード
     public function csvupload(Request $request) {
         $csvmode = $request->csvmode;
-        if ($csvmode!='csvcancel') {
+        if ($csvmode !== 'csvcancel') {
             $uploadresult = $this->tableservice->csvUpload($request, $csvmode);
             $params = $this->tableservice->getMenuParams($request);
             $params += $this->tableservice->getUploadParams($request, $uploadresult);
             return view('common/table')->with($params);    
-        } elseif ($csvmode=='csvcancel') {
+        } elseif ($csvmode == 'csvcancel') {
             // strage/app/public/csv内の自分のファイル削除
-            $this->commonservice->killMyfile();
+            $this->tableservice->killMyfile();
             $tablename = $request->tablename;
             return redirect('/table/'.$tablename);
         }
@@ -223,7 +217,6 @@ class TableController extends Controller
         } else {
 
         }
-
     }
 
 }

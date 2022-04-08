@@ -27,7 +27,7 @@ class Company extends Model
     public function businessunits() {
         return $this->hasMany(Businessunit::class);
     }
-    public function accountusers() {
-        return $this->hasMany(Accountuser::class);
+    public function accounts() {
+        return $this->hasMany(Account::class);
     }
 }

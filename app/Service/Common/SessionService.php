@@ -17,13 +17,14 @@ class SessionService
         'modelindex'    => ['service' => 'ModelService', 'function' => 'getModelindex'],
         'modelselects'  => ['service' => 'ModelService', 'function' => 'getModelselects'],
         'columnsprop'   => ['service' => 'ModelService', 'function' => 'getColumnsProp'],
-        'accountuserid' => ['service' => ''],
-        'accountuser'   => ['service' => ''],
-        'tablename'     => ['service' => ''],
-        'lastsort'      => ['service' => ''],
-        'page'          => ['service' => ''],
-        'downloadsql'   => ['service' => ''],
-        'iddictionary'   => ['service' => ''],
+        'paginatecnt'   => ['service' => 'ModelService', 'function' => 'getPainatecnt'],
+        'accountuserid' => ['service' => '', 'redirect' => '/account'],
+        'accountuser'   => ['service' => '', 'redirect' => '/account'],
+        'tablename'     => ['service' => '', 'redirect' => ''],
+        'lastsort'      => ['service' => '', 'redirect' => ''],
+        'page'          => ['service' => '', 'redirect' => ''],
+        'downloadsql'   => ['service' => '', 'redirect' => ''],
+        'iddictionary'  => ['service' => '', 'redirect' => ''],
     ];
 
     // 外部からのSession呼び出しに答える
@@ -47,11 +48,13 @@ class SessionService
 
     private function makeSessionvalue($value, ...$params) {
         $sessionvalue = null;
-        if ($value['service']!='') {
+        if ($value['service'] !== '') {
             $classname = 'App\Service\Common\\'.$value['service'];
             $tempservice = new $classname;
             $func = $value['function'];
             $sessionvalue = $tempservice->$func(...$params);
+        } elseif ($value['redirect'] !== '') {
+            redirect($value['redirect']);
         }
         return $sessionvalue;
     }

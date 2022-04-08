@@ -6,7 +6,6 @@
 declare(strict_types=1);
 namespace App\Service\Common;
 
-use App\Service\Common\SessionService;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +13,6 @@ use Illuminate\Support\Str;
 
 class ModelService {
 
-    private $sessionservice;
     public function __construct() {
     }
 
@@ -129,7 +127,7 @@ class ModelService {
             $isunique = in_array($columnname, $uniquekeys) ? TRUE : NULL;
             $columnsprop[$columnname] = $this->getColumnProp($tablename, $columnname, $sortcolumn, $isunique);
             // foreign_idの場合
-            if (substr($columnname,-3)=='_id') {
+            if (substr($columnname,-3) == '_id') {
                 $foreigntablename = Str::plural(substr($columnname, 0, -3));
                 $foreignmodel = $modelindex[$foreigntablename];
                 // 参照カラムを取得してプロパティに加える
@@ -139,7 +137,7 @@ class ModelService {
                     $columnsprop[$columnname.'_'.$referencedcolumnname] = 
                         $this->getColumnProp($foreigntablename, $referencedcolumnname, $referencedsortcolumnname);
                     // 参照の参照は2回までとする
-                    if (substr($referencedcolumnname,-3)=='_id') {
+                    if (substr($referencedcolumnname,-3) == '_id') {
                         $deepforeigntablename = Str::plural(substr($referencedcolumnname, 0, -3));
                         $deepforeignmodel = $modelindex[$deepforeigntablename];
                         $deepreferencedcolumnnames = $deepforeignmodel['modelname']::$referencedcolumns;
@@ -200,17 +198,17 @@ class ModelService {
         $foreigncolumn = '';
         // $referencecolumns = $this->getReferenceColumns($columnsprop);
         foreach ($columnsprop AS $columnname => $prop) {
-            if (strpos($columnname, '_id_')===false) {
+            if (strpos($columnname, '_id_') == false) {
                 $cardcolumnsprop[$columnname] = $prop;
-                if (strpos($columnname, '_id')!==false) {
+                if (strpos($columnname, '_id') !== false) {
                     $foreigncolumn = $columnname;
                     // foreign_idの後にreferenceを入れる
                     $prop['type'] = 'string';
                     $cardcolumnsprop[substr($columnname, 0, -3).'_reference'] = $prop;
                     // $cardcolumnsprop[key($referencecolumns[$columnname])] = current($referencecolumns[$columnname]);
                 }
-            } elseif (strpos($columnname, $foreigncolumn)!==false && strpos($columnname, '_id_')!==false) {
-                if (intval($prop['length'])>0) {
+            } elseif (strpos($columnname, $foreigncolumn) !== false && strpos($columnname, '_id_') !== false) {
+                if (intval($prop['length']) > 0) {
                     $length = intval($cardcolumnsprop[substr($foreigncolumn, 0, -3).'_reference']['length']);
                     $length +=intval($prop['length']);
                     $cardcolumnsprop[substr($foreigncolumn, 0, -3).'_reference']['length'] = strval($length);
@@ -235,7 +233,7 @@ class ModelService {
         $form = [];
         $columnnames = Schema::getColumnListing($tablename);
         foreach ($rawform as $key => $value) {
-            if (in_array($key, $columnnames) && substr($key,-3)!='_at') {
+            if (in_array($key, $columnnames) && substr($key,-3) !== '_at') {
                 $form[$key] = $value;
             }
         }
@@ -255,9 +253,9 @@ class ModelService {
         $rawform = $request->all();
         $columnnames = Schema::getColumnListing($tablename);
         foreach ($rawform as $key => $value) {
-            if ($mode=='store' && $key=='id') {
+            if ($mode == 'store' && $key == 'id') {
                 // store時のidは除外
-            } elseif (in_array($key, $columnnames) && substr($key,-3)!='_at') {
+            } elseif (in_array($key, $columnnames) && substr($key,-3) !== '_at') {
                 $form[$key] = $value;
             }
         }
@@ -267,16 +265,19 @@ class ModelService {
 
     // Formに_byを加える
     public function addBytoForm($columnnames, $form, $mode) {
-        $sessionservice = new SessionService;
-        $accountuser = $sessionservice->getSession('accountuser');
-        if ($accountuser==null) {Auth::logout();}
-        if (in_array('created_by', $columnnames) && $mode=='store') {
-            $form['created_by'] = $accountuser;
+        $user = Auth::user()->name;
+        if (in_array('created_by', $columnnames) && $mode == 'store') {
+            $form['created_by'] = $user;
         }        
         if (in_array('updated_by', $columnnames)) {
-            $form['updated_by'] = $accountuser;
+            $form['updated_by'] = $user;
         }        
         return $form;        
+    }
+
+    // ページネートの値はデバイス＞変更可能
+    public function getPainatecnt() {
+        return 15;
     }
 
 }

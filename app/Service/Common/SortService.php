@@ -81,7 +81,7 @@ class SortService
     private function connectTablenameAndcolumns($columnsprop) {
         $showcolumns = [];
         foreach ($columnsprop as $columnname => $prop) {
-            if (strpos($columnname,'_id_')==false) {
+            if (strpos($columnname,'_id_') == false) {
                 $showcolumns[] = $prop['tablename'].'.'.$columnname;
             } else {
                 $showcolumns[] = $prop['tablename'].'.'.Str::after($columnname,'_id_');
@@ -108,7 +108,7 @@ class SortService
     private function setDefaultsortToTempsortForm($tablename, $defaultsort, $modelindex) {
         $formedsort = [];
         foreach ($defaultsort as $columnname => $sortway) {
-            if (substr($columnname, -3)!=='_id') {  // 通常のカラム
+            if (substr($columnname, -3) !== '_id') {  // 通常のカラム
                 $formedsort[$tablename.'.'.$columnname] = $sortway;
             } else {                                // 参照カラム
                 $foreigntablename = Str::plural(substr($columnname, 0, -3));

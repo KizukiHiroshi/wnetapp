@@ -22,15 +22,17 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', [MenuController::class, 'index']);
-
 Route::middleware('auth')->group(function () {
+
+    Route::get('/home', [DeviceController::class, 'index']);
+    Route::post('/device/regist', [DeviceController::class, 'regist']);
+
+    Route::get('/account',[AccountController::class, 'index']);
     Route::get('/menu',[MenuController::class, 'index']);
 
     Route::post('/table/csvupload/{csvmode}',[TableController::class, 'csvupload']);    // アップロード処理
     Route::post('/table/{tablename}/{id}/update',[TableController::class, 'update']);   // 更新
     Route::post('/table/{tablename}/store',[TableController::class, 'store']);          // 追加
-
     Route::get('/table/csvupload/{csvmode}',[TableController::class, 'csvupload']);     // アップロード画面
     Route::get('/table/{tablename}/create',[TableController::class, 'create']);         // 新規作成
     Route::get('/table/{tablename}/download',[TableController::class, 'download']);     // ダウンロード

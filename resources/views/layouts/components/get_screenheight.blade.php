@@ -1,10 +1,11 @@
 <?php
 session_start();
-if(isset($_POST['inp_height'])){
-   $_SESSION['screen_height'] = intval($_POST['inp_height']);
+if(isset($_POST['height'])){
+   $_SESSION['screen_height'] = intval($_POST['height']);
 }
-if(!isset($_SESSION['screen_height'])){
 
+
+if(!isset($_SESSION['screen_height'])){
 ?>
 <html>
 <head>
@@ -17,11 +18,12 @@ document.getElementById('form_size').submit();
 </head>
 <body onload='getSize()'>
 <form method='post' id='form_size'>
-@csrf
-<input type='hidden' name='inp_height' id='inp_height'/>
+<input type='hidden' name='height' id='inp_height'/>
 </form>
 </body>
 </html>
-<?php
 
+<?php
 }
+
+?>

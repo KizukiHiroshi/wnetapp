@@ -1,5 +1,5 @@
 <?php
-namespace App\Models\Common;
+namespace App\Models\Zero;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -9,7 +9,7 @@ class Jobtype extends Model
     use SoftDeletes;
     protected $guarded = [];
     static $tablecomment = '業務種類';
-    static $modelzone = '共通';
+    static $modelzone = 'システム開発';
     static $defaultsort = [
         'code' => 'asc',
     ];

@@ -57,13 +57,13 @@ class TableService  {
         $csvmode = $request->csvmode;
         $tablename = $request->tablename;
         $modelindex = $this->sessionservice->getSession('modelindex');
-        $success = $request->success != '' ? $request->success : '';
-        $mode = array_key_exists('csvmode', $uploadresult) ? $uploadresult['csvmode'] : $csvmode;
+        $success = $request->success !== '' ? $request->success : '';
+        $csvmode = array_key_exists('csvmode', $uploadresult) ? $uploadresult['csvmode'] : $csvmode;
         $errormsg = !$uploadresult['error'] ? '' : $uploadresult['error'];
         // テーブルの和名
         $tablecomment = $modelindex[$tablename]['tablecomment'];
         $params = [
-            'mode'          => $mode,
+            'mode'          => $csvmode,
             'tablename'     => $tablename,
             'errormsg'      => $errormsg,
             'success'       => $success,
@@ -80,7 +80,7 @@ class TableService  {
             'error' => '',
             'csvmode'  => $csvmode,
         ];
-        if ($csvmode=='csvselect') {
+        if ($csvmode == 'csvselect') {
             return $uploadresult;
         } else {
             // ロケールを設定(日本語に設定)
@@ -92,13 +92,13 @@ class TableService  {
             $savedfilename = $tablename.'_upload_'.strval($accountuserid).'.csv';
             $uploadresult['savedfilename'] = $savedfilename;
             $uploadway = $request->uploadway;
-            if ($csvmode = 'csvcheck') {
+            if ($csvmode == 'csvcheck') {
                 $uploaded_file = $request->file('upload_file');
                 if ($uploaded_file == null) {
                     // ★$uploaded_file==nullの場合は保存済を探す
                     $this->commonservice->killOldfile();
                     if (!Storage::disk('local')->exists('public/csv' . $savedfilename )) {
-                        $uploadresult['error'] = ['ファイルが選択されていません'];
+                        $uploadresult['error'] = 'ファイルが選択されていません';
                         return $uploadresult;        
                     }
                 } else {
@@ -119,10 +119,10 @@ class TableService  {
             $form =[];          // 更新用に加工済の値リスト
             foreach ($file as $row) {
                 // 最終行の処理(最終行が空っぽの場合の対策
-                if ($row === [null]) continue; 
+                if ($row == [null]) continue; 
                 if ($row_count == 1) {          // 1行目はテーブル名
                     if ($row[0]!=$tablename) {
-                        $uploadresult['error'] = ['ファイルの内容が不正です'];
+                        $uploadresult['error'] = 'ファイルの内容が不正です';
                         return $uploadresult;
                     }
                 } elseif ($row_count == 2) {    // 2行目はカラム名リスト
@@ -138,37 +138,63 @@ class TableService  {
                         $colcnt += 1;
                     }
                     // テーブル参照情報取得
-                    $foreginkeys = $this->getForeginkeys($rawform);               
-                    // テーブル参照値から参照テーブルidを取得
-                    $iddictionary = $this->getIddictionary($foreginkeys, $iddictionary);
+                    $foreginkeys = $this->getForeginkeys($rawform);
+                    if ($foreginkeys) {
+                        $foreginid = null;
+                        // $iddictionary内にあるか確認
+                        foreach ($foreginkeys as $foreginkey) {
+                            // テーブル参照値から参照テーブルidを取得
+                            if ($iddictionary) {
+                                if (array_key_exists($foreginkey, $iddictionary)) {
+                                    $foreginid = $iddictionary[$foreginkey];
+                                } else {
+                                    $foreginid = $this->dbioservice->findId($foreginkey);
+                                    $iddictionary[$foreginkey] = $foreginid;
+                                }
+                            } else {                   
+                                $foreginid = $this->dbioservice->findId($foreginkey);
+                                $iddictionary[$foreginkey] = $foreginid;
+                            }
+                            if (!$foreginid) {
+                                // 必要なアラート
+                                $error[] = strval($row_count-2).':'.$foreginkey.' は未登録の参照です';
+                                // 参照元更新が許可されていれば処理
+                            }
+                        }
+                    }           
                     // テーブルに登録できる値リストに更新
                     $form = $this->modelservice->arangeForm($tablename, $rawform, $foreginkeys, $iddictionary);
                     // validation
-                    if ($uploadway=='allstore') {
+                    if ($uploadway == 'allstore') {
                         // 全て新規なので$idはnull
                         $id = null;
                     } else {
-                        // 全て更新なので$formの$idを探しに行く
-                        $findset = $this->getFindset($tablename, $form);
-                        $id = null;
+                        // $formの$idを探しに行く
+                        $findkey = $this->getFindkey($tablename, $form);
+                        $id = $this->dbioservice->findId($findkey);
                     }
-                    if ($csvmode=='csvcheck') {
-                        $mode ='check';
+                    if ($csvmode == 'csvcheck') {
+                        $mode = 'check';
                         $errortip = $this->dbioservice->excuteProcess($tablename, $form, $id, $mode);
-                        if ($errortip!=null) {$error[] = strval($row_count-2).':'.implode( ',', array_values($errortip));}
+                        if ($errortip!=null) {
+                            $error[] = strval($row_count-2).':'.implode( ',', array_values($errortip));
+                        }
+                    } elseif ($csvmode == 'csvsave') {
+                        $mode = 'save';
+                        $this->dbioservice->excuteProcess($tablename, $form, $id, $mode);
                     }
                 }
                 $row_count++;
             }            
         }
-        if ($csvmode=='csvcheck') {
+        if ($csvmode == 'csvcheck') {
             $this->sessionservice->putSession('iddictionary', $iddictionary);    // テーブル参照id辞書
             $uploadresult['error'] = $error;
             $uploadresult['csvmode'] = 'csvsave';
-        } elseif ($csvmode=='csvsave') {
+        } elseif ($csvmode == 'csvsave') {
             $this->sessionservice->forgetSession('iddictionary');   // テーブル参照id辞書
             // strage/app/public/csv内の自分のファイル削除
-            $this->commonservice->killMyfile();
+            $this->killMyfile($accountuserid);
         }
         $uploadresult += [
             'tablename' => $tablename,
@@ -178,17 +204,25 @@ class TableService  {
         return $uploadresult;
     }
 
-    // テーブル参照値から参照テーブルid値を取得
-    // $iddictionary =  [参照テーブル名?参照カラム名=値&参照カラム名=値 => 参照テーブルid値,]
-    public function getIddictionary($foreginkeys, $iddictionary) {
-        if (!$iddictionary) {$iddictionary['dammy'] = 0;}
-        foreach ($foreginkeys as $foreginkey) {
-            if (!array_key_exists($foreginkey, $iddictionary)) {
-                $findid = $this->dbioservice->findId($foreginkey);
-                $iddictionary[$foreginkey] = $findid;
-            }
+    // $formのデータで$idを取得するためのkey作成
+    // 参照テーブル名?参照カラム名=値&参照カラム名=値
+    private function getFindkey($tablename, $form) {
+        // テーブルのユニークキーを取得
+        $findkey = null;
+        $modelindex = $this->sessionservice->getSession('modelindex');
+        $uniquekeys = $modelindex[$tablename]['uniquekeys'];
+        if (count($uniquekeys) > 0) {
+            $findkey = $tablename;
+            $keycnt = 1;
+            foreach ($uniquekeys as $uniquekey) {
+                if (array_key_exists($uniquekey, $form)) {
+                    $findkey += $keycnt = 1 ? '?' : '&';
+                    $findkey += $uniquekey.'='.$form[$uniquekey];
+                    $keycnt += 1;
+                }
+            }    
         }
-        return $iddictionary;
+        return $findkey;
     }
 
     // $foreginkeys = [参照テーブル名?参照カラム名=値&参照カラム名=値,]
@@ -254,15 +288,15 @@ class TableService  {
         $mode = '';
         $page = $request->page ? $request->page : $this->sessionservice->getSession('page');
         if (array_key_exists($tablename, $modelindex)) {
-            // deviceのpropertyからpaginatecntを取得する
-            // 未実装
-            $paginatecnt = 15;
+            // リストの行数
+            $paginatecnt = $this->sessionservice->getSession('paginatecnt');
+            if (!$paginatecnt) {$paginatecnt = 15;}
             // 成功メッセージ
-            $success = $request->success != '' ? $request->success : '';
+            $success = $request->success !== '' ? $request->success : '';
             // 表示リストの詳細
             // テーブル名が更新されている時は既存のsessionを消す
             $lasttablename = $this->sessionservice->getSession('tablename');
-            if ($lasttablename != $tablename) {
+            if ($lasttablename !== $tablename) {
                 $this->sessionservice->forgetSession('tablename');
                 $this->sessionservice->forgetSession('columnsprop');
                 $this->sessionservice->forgetSession('lastsort');
@@ -313,11 +347,11 @@ class TableService  {
         $modelindex = $this->sessionservice->getSession('modelindex');
         // テーブル名が更新されている時は既存の$columnspropを消す
         $lasttablename = $this->sessionservice->getSession('tablename');
-        if ($lasttablename != $tablename) {$this->sessionservice->forgetSession('columnsprop');}
+        if ($lasttablename !== $tablename) {$this->sessionservice->forgetSession('columnsprop');}
         $columnsprop = $this->sessionservice->getSession('columnsprop', $modelindex, $tablename);
         $id = $request->id;
         // 成功メッセージ
-        $success = $request->success != '' ? $request->success : '';
+        $success = $request->success !== '' ? $request->success : '';
         // テーブルの和名
         $tablecomment = $modelindex[$tablename]['tablecomment'];
         // columnspropのforeign_referenceをcard表示用に合体する
@@ -325,7 +359,7 @@ class TableService  {
         // foreignkey用のセレクトリストを用意する
         $foreignselects = $this->dbioservice->getForeginSelects($columnsprop);
         $page = $this->sessionservice->getSession('page');
-        if ($mode!='create') {
+        if ($mode !== 'create') {
             // 新規作成以外では表示するレコードの実体を取得する
             $row = $this->dbioservice->getRowById($request, $modelindex, $columnsprop, $id);
         } else {
@@ -377,6 +411,12 @@ class TableService  {
             $downloadcsv[]= $values;
         }
         return $downloadcsv;
+    }
+
+    //
+    public function killMyfile() {
+        $accountuserid = $this->sessionservice->getSession('accountuserid');
+        $this->commonservice->killMyfile($accountuserid);
     }
 }
 

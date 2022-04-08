@@ -15,11 +15,11 @@ if ($mode=='csvcheck'||$mode=='csvselect')  {
             <p>{{ $tgtuploadfile }}を選択してください</p>
         </div>
         <div class="d-flex">
-            @if ($mode=='csvselect')
+            @if ($mode=='csvselect' || $mode=='csvcheck')
             <div>
                 <input type="file" name="upload_file" accept="{{ $tgtuploadfile }}"/>
             </div>
-            @else
+            @elseif ($mode=='csvsave')
             <div>
                 <p>{{ $tgtuploadfile }}がアップロードされました　</p>
             </div>
@@ -30,6 +30,14 @@ if ($mode=='csvcheck'||$mode=='csvselect')  {
                     'value'     => 'allstore',
                     'label'     => '新規のみ',
                     'checked'   => 'checked',
+                ])
+            </div>
+            <div class="mt-2 pl-5">
+                @include('layouts/components/checkbox', [
+                    'name'      => 'allowforeigninsert',
+                    'value'     => 'allow',
+                    'label'     => '参照元の更新を許可する',
+                    'checked'   => '',
                 ])
             </div>
         </div>

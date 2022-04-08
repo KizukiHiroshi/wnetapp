@@ -42,7 +42,7 @@ class QueryService
     private function addJoinToQuery($tablequery, $tablename, $columnsprop) {
         foreach ($columnsprop as $columnname => $poroperty) {
             if (substr($columnname, -3) == '_id') {
-                if (strpos($columnname, '_id_')===false) {
+                if (strpos($columnname, '_id_') == false) {
                     $foreigntablename = Str::plural(substr($columnname, 0, -3));
                     $tablequery = $tablequery
                         ->join($foreigntablename, $tablename.'.'.$columnname,'=', $foreigntablename.".id");
@@ -64,7 +64,7 @@ class QueryService
         $selectclausearray = [];
         if ($displaymode == 'list') {
             foreach ($columnsprop AS $columnname => $prop) {
-                if (strpos($columnname, '_id_')===false) {
+                if (strpos($columnname, '_id_') == false) {
                     $selectclausearray[]= $prop['tablename'].'.'.$prop['realcolumn'];
                 } else {
                     $selectclausearray[] = $prop['tablename'].'.'.$prop['realcolumn'].' as '.$columnname;
@@ -74,12 +74,12 @@ class QueryService
             // card表示用に参照カラムをまとめる
             $foreignconcat = $this->getForeignConcat($columnsprop);
             foreach ($columnsprop AS $columnname => $prop) {
-                if (strpos($columnname, '_id_')===false) {
+                if (strpos($columnname, '_id_') == false) {
                     $selectclausearray[] = $prop['tablename'].'.'.$prop['realcolumn'];
-                    if (strpos($columnname, '_id')!==false) {
+                    if (strpos($columnname, '_id') !== false) {
                         $selectclausearray[] = $foreignconcat[$columnname];
                     }
-                } elseif (strpos($columnname, '_id_')!==false) {
+                } elseif (strpos($columnname, '_id_') !== false) {
                     // 参照カラムは_idの後にまとめて登録するので何もしない
                 }
             }
@@ -99,7 +99,7 @@ class QueryService
         $concats = [];
         // 参照元カラム名を取得
         foreach ($columnsprop AS $columnname => $prop) {
-            if (substr($columnname,-3)=='_id') {
+            if (substr($columnname,-3) == '_id') {
                 $concats[$columnname] = [];
             }
         }
@@ -112,7 +112,7 @@ class QueryService
         }
         // selectclauceに使える様に加工
         foreach ($concats AS $foreigncolumn => $concat) {
-            if (count($concat)==1) {
+            if (count($concat) == 1) {
                 $foreignconcat[$foreigncolumn] = $concat[0].' as '.$foreigncolumn;
             } else {
                 $forerignreferencename = substr($foreigncolumn,0,-3).'_reference';
@@ -120,26 +120,6 @@ class QueryService
                 = $this->getConcatClause($concat, ' ', $forerignreferencename);
             }
         }
-
-        // foreach ($columnsprop AS $columnname => $prop) {
-        //     if (substr($columnname,-3)=='_id') {
-        //         $foreigncolumn = $columnname;
-        //     } elseif ($foreigncolumn!='') {
-        //         if (strpos($columnname, $foreigncolumn)!==false && strpos($columnname, '_id_')!==false) {
-        //             $concats[] = $prop['tablename'].'.'.$prop['realcolumn'];
-        //         } else {
-        //             if (count($concats)==1) {
-        //                 $foreignconcat[$foreigncolumn] = $concats[0].' as '.$foreigncolumn;
-        //             } else {
-        //                 $forerignreferencename = substr($foreigncolumn,0,-3).'_reference';
-        //                 $foreignconcat[$foreigncolumn] 
-        //                 = $this->getConcatClause($concats, ' ', $forerignreferencename);
-        //             }
-        //             $foreigncolumn = '';
-        //             $concats = [];
-        //         }
-        //     }
-        // }
         return $foreignconcat;
     }
 
@@ -162,10 +142,10 @@ class QueryService
     private function changeSortarrayToRawtext($sortarray) {
         $sortText = '';
         if (isset($sortarray)) {
-        foreach($sortarray as $key => $value) {
-            $sortText .= $key .' '. $value .', ';
-        }
-        $sortText = rtrim($sortText, ", ");
+            foreach($sortarray as $key => $value) {
+                $sortText .= $key .' '. $value .', ';
+            }
+            $sortText = rtrim($sortText, ", ");
         } else {
             $sortText = NULL;
         }

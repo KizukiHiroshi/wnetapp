@@ -77,7 +77,7 @@ class DbioService
         $concats = [];           // 合体する参照先カラムの配列
         // 必要なセレクトをまず決める
         foreach ($columnsprop AS $columnname => $prop) {
-            if (substr($columnname,-3)=='_id') {
+            if (substr($columnname,-3) == '_id') {
                 // 参照元カラム名を取得する
                 $forerignreferencename = substr($columnname,0,-3).'_reference';
                 $foreignselects[$forerignreferencename] = [];
@@ -176,11 +176,11 @@ class DbioService
         } else {
             $targetrow = $modelname::findOrFail($id);
         }
-        if ($mode=='save') {
+        if ($mode == 'save') {
             if($targetrow->fill($form)->save()) {
                 return $targetrow->id;
             }
-        } elseif ($mode=='check') {
+        } elseif ($mode == 'check') {
             if($targetrow->fill($form)->check()) {
                 return $targetrow->id;
             }

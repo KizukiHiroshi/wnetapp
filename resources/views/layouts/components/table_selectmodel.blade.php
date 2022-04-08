@@ -34,7 +34,7 @@
             @if ($selectedtable != '')
             <div class="d-flex justify-content-between">
                 @include('layouts/components/button', [
-                    'value'     => '条件表示',
+                    'value'     => '検索条件表示',
                     'formaction'=> '/table/'.$tablename,
                 ])
                 @include('layouts/components/button', [
