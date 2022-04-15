@@ -25,17 +25,31 @@ trait ValidateTrait
         return parent::save($options);
     }
 
-    public function check()
+    public function csvSave(array $options = [])
     {
         $rules = $this->rules();
         if (count($rules)) {
             $subject   = $this->attributes;
             $validator = Validator::make($subject, $rules);
             if ($validator->fails()) {
-                $errors = collect($validator->errors());
+                $errors = $validator->errors()->toArray();
+                return $errors;
+            }
+        }
+        return parent::save($options);
+    }
+
+    public function csvCheck()
+    {
+        $rules = $this->rules();
+        if (count($rules)) {
+            $subject   = $this->attributes;
+            $validator = Validator::make($subject, $rules);
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
                 return $errors;
             } else {
-                return true;
+                return null;
             }
         }
     }

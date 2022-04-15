@@ -23,16 +23,14 @@ class Employtype extends Model
         'name', 
     ];
     static $uniquekeys = [
-       'code', 'name', 
+        ['code'], ['name'], 
     ];
 
     protected function rules()
     {
         return [
-            'code' => ['required','string','max:2',Rule::unique('employtypes')->ignore($this->id),'regex:/\d{9}/'],
+            'code' => ['required','string','max:2',Rule::unique('employtypes')->ignore($this->id),'regex:/\d{2}/'],
             'name' => ['required','string','max:20',Rule::unique('employtypes')->ignore($this->id),'regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
-            'start_on' => ['nullable','date',],
-            'end_on' => ['nullable','date',],
         ];
     }
 }

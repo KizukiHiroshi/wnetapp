@@ -27,7 +27,7 @@
         <nav class="navbar navbar-expand-md navbar-light bg-primary shadow-sm p-1">
             <div class="container">
                 <a class="navbar-brand text-white" href="{{ url('/') }}">
-                    <img src="{{ asset('images/wnet2020_logo.jpg')}}" width="30" height="30" class="d-inline-block" alt="">
+                <img src="{{ asset('images/wnet2020_logo.jpg')}}" width="30" height="30" class="d-inline-block" alt="">
                     {{ config('app.name', 'wnet2020') }}
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">

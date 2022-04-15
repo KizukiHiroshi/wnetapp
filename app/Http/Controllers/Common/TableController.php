@@ -76,8 +76,7 @@ class TableController extends Controller
         // 登録実行
         $tablename = $request->tablename;
         $id = null;
-        $mode = 'save';
-        $createdid = $this->dbioservice->excuteProcess($tablename, $form, $id, $mode);
+        $createdid = $this->dbioservice->excuteProcess($tablename, $form, $id);
         if ($createdid) {
             $success = '登録しました';
             return redirect('/table/'.$tablename.'/'.$createdid.'/show/?success='.$success);
@@ -93,8 +92,7 @@ class TableController extends Controller
         // 更新実行
         $tablename = $request->tablename;
         $id = $request->id;
-        $mode = 'save';
-        $id = $this->dbioservice->excuteProcess($tablename, $form, $id, $mode);
+        $id = $this->dbioservice->excuteProcess($tablename, $form, $id);
         if ($id) {
             $success = '更新しました';
             return redirect('/table/'.$tablename.'/'.$id.'/show?success='.$success);
@@ -169,7 +167,6 @@ class TableController extends Controller
         return $response;
     }
 
-    // アップロード画面
     // アップロード
     public function csvupload(Request $request) {
         $csvmode = $request->csvmode;
@@ -185,38 +182,4 @@ class TableController extends Controller
             return redirect('/table/'.$tablename);
         }
     }
-
-    // アップロード確認
-    public function csvupload_check(Request $request) {
-        $file_name = $request->file('file')->getClientOriginalName();
-        $request->file('file')->storeAs('public',$file_name);
-        $mode = 'check';
-        $uploadresult = $this->tableservice->csvUpload($request, $mode);
-        if ($uploadresult['error'] == NULL) {
-            // modeを変えてもう一度表示
-            $mode = 'csvsave';
-            $params = $this->tableservice->getUploadParams($request, $mode);
-            return view('common/table')->with($params);
-        } else {
-            // もう一度表示
-            $mode = 'csvcheck';
-            $params = $this->tableservice->getUploadParams($request, $mode);
-            $params['errormsg'] = $uploadresult['error'];
-            return view('common/table')->with($params);
-        }
-
-    }
-    // アップロード実行
-    public function csvupload_action(Request $request) {
-        $mode = 'action';
-        $uploadresult = $this->tableservice->csvUpload($request, $mode);
-        if ($uploadresult['error'] == NULL) {
-            // 完了メッセージ
-            $success = 'アップロードしました';
-            return redirect('/table/'.$uploadresult['tablename'].'?success='.$success);
-        } else {
-
-        }
-    }
-
 }

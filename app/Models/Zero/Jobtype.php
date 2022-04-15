@@ -17,7 +17,7 @@ class Jobtype extends Model
        'code', 'name', 
     ];
     static $uniquekeys = [
-        'code', 'name_system', 
+        ['code'], ['name_system'], 
     ];
      
     public function concerns() {

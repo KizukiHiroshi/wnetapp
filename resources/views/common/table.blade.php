@@ -1,5 +1,6 @@
 @extends('layouts.app')
 <style>
+    form { margin:0px; }
     .pagination { font-size:10pt; }
     .pagination li { display:inline-block; }
     tr th a:link { color: black; }
@@ -59,7 +60,7 @@ if (isset($row)) {$title .='>行の';
     </div>
     @endif
     @if (isset($mode))
-        @if ($mode=='list')
+        @if ($mode == 'list')
             @include ('layouts/components/table_list', [
                 'tablename'     => $tablename,
                 'rows'          => $rows,
@@ -73,10 +74,11 @@ if (isset($row)) {$title .='>行の';
                 'row'           => $row,
                 'cardcolumnsprop'   => $cardcolumnsprop,
             ])
-        @elseif (strpos($mode,'csv')!==false)
+        @elseif (strpos($mode,'csv') !== false)
             @include ('layouts/components/table_upload', [
                 'mode'          => $mode,
                 'tablename'     => $tablename,
+                'csverrors'     => $csverrors,
             ])
         @endif
     @else

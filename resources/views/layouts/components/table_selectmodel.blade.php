@@ -32,14 +32,18 @@
         <tr>
             {{-- ボタン --}}
             @if ($selectedtable != '')
+            @csrf
             <div class="d-flex justify-content-between">
                 @include('layouts/components/button', [
-                    'value'     => '検索条件表示',
+                    'form'      => 'table_search',
+                    'value'     => '検索実行',
+                    'formmethod'=> 'post',
                     'formaction'=> '/table/'.$tablename,
                 ])
                 @include('layouts/components/button', [
                     'value'     => '新規登録',
                     'color'     => 'warning',
+                    'formmethod'=> 'get',
                     'formaction'=> '/table/'.$tablename.'/create',
                 ])
             </div>
@@ -47,4 +51,12 @@
         </tr>
     </table>
 </form>
+{{-- 検索条件 --}}
+@if ($selectedtable != '')
+<div class="m-2">
+    @include('layouts/components/table_search', [
+        'cardcolumnsprop'  => $columnsprop,
+    ])
+</div>
+@endif
 </div>

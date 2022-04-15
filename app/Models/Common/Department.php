@@ -26,7 +26,7 @@ class Department extends Model
         'code', 'name', 
     ];
     static $uniquekeys = [
-        'code', 'name', 
+        ['code'], ['name'], 
     ];
      public function businessunits() {
         return $this->hasMany(Businessunit::class);

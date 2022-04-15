@@ -3,16 +3,16 @@
     {{-- 制御部 --}}
     @if ($rows)
     <tr>
-    <div class="d-flex justify-content-end ml-2 mt-0">
+    <div class="d-flex justify-content-end ml-2 mt-2">
         <div class="p-0">{{ $rows->appends(['tablename' => $tablename])->links() }}</div>
-        <div class="p-3">全{{ $rows->total() }}件</div>
+        <div class="pl-3 pt-1 pr-3">全{{ $rows->total() }}件</div>
         @if ($withbutton) 
         <?php $href = '/table/'.$tablename.'/download'; ?>
         <div class="pt-0 mr-2">
         <form id="table_download" action="{{ $href }}" method="get">
-        @include('layouts/components/button', [
-            'margin'    => 'mt-0 p-1',
-            'value'     => $withdownload['value']]) 
+            @include('layouts/components/button', [
+                'margin'    => 'mt-0 p-1',
+                'value'     => $withdownload['value']]) 
         </form>
         </div>
         @endif

@@ -29,7 +29,7 @@ if ($mode=='csvcheck'||$mode=='csvselect')  {
                     'name'      => 'uploadway',
                     'value'     => 'allstore',
                     'label'     => '新規のみ',
-                    'checked'   => 'checked',
+                    'checked'   => '',
                 ])
             </div>
             <div class="mt-2 pl-5">
@@ -62,5 +62,10 @@ if ($mode=='csvcheck'||$mode=='csvselect')  {
             'color'     => 'secondary',
             'formaction'=> '/table/csvupload/csvcancel',
         ])
+    </div>
+    <div>
+        @foreach($csverrors as $csverror)
+            {{ $csverror }}<br>
+        @endforeach
     </div>
 </form>

@@ -30,7 +30,7 @@ class Concern extends Model
         'name', 
     ];
     static $uniquekeys = [
-        'name', 
+        ['name'], 
     ]; 
     protected function rules() {
         return [

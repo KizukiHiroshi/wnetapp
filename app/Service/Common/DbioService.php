@@ -50,11 +50,11 @@ class DbioService
     public function getRows($request, $modelindex, $columnsprop, $tempsort, $paginatecnt) {
         $displaymode = 'list';
         $tablequery = $this->queryservice->getTableQuery($request, $modelindex, $columnsprop, $displaymode, $tempsort);
-        // 取得実行
-        $rows = $tablequery->Paginate($paginatecnt);
         // ダウンロードをするためにsqlを保存する
         $downloadsql = $tablequery->toSql();
         $this->sessionservice->putSession('downloadsql', $downloadsql);
+        // 取得実行
+        $rows = $tablequery->Paginate($paginatecnt);
         return $rows;
     }
 
@@ -129,7 +129,12 @@ class DbioService
     public function findId($findidset) {
         $foundid = null;
         $tablename = Str::plural(Str::before($findidset,'?'));
-        $subcolset = explode('&',Str::after($findidset,'?'));
+        $is_joinedunique = strpos(Str::after($findidset,'?'),'&&',) !== false ? true : false;
+        if ($is_joinedunique) {
+            $subcolset = explode('&&',Str::after($findidset,'?'));
+        } else {
+            $subcolset = explode('&',Str::after($findidset,'?'));
+        }
         foreach($subcolset as $subcol) {
             $colset[Str::before($subcol,'=')] = Str::after($subcol,'=');
         }
@@ -137,8 +142,14 @@ class DbioService
         $tablequery = $modelname::query();
         // from句
         $tablequery = $tablequery->from($tablename);
+        $wherecnt = 1;
         foreach ($colset as $columnnama => $value) {
-            $tablequery = $tablequery->where($tablename.'.'.$columnnama, '=', ''.$value.'');
+            if ($wherecnt == 1 || $is_joinedunique) {
+                $tablequery = $tablequery->where($tablename.'.'.$columnnama, '=', ''.$value.'');
+            } else {
+                $tablequery = $tablequery->orWhere($tablename.'.'.$columnnama, '=', ''.$value.'');
+            }
+            $wherecnt += 1;
         }
         $rows = $tablequery->get();
         if (count($rows) == 1) {
@@ -151,25 +162,28 @@ class DbioService
         return $foundid;
     }
 
-    // Upload前のチェック
-    public function checkForm($tablename, $form, $id) {
+    // tablename:対象のテーブル
+    // $form:挿入変更するカラムと値
+    // $id:isnull->STORE,not null->UPDATE
+    // $mode:save->実行してERRORを発生する、check->チェックしてTEXTを返す
+    // return:ERRORであればException又はText、正常であれば$id
+    public function excuteProcess($tablename, $form, $id){
         $modelname = $this->modelindex[$tablename]['modelname'];
         if (!$id) {
             $targetrow = new $modelname;
         } else {
             $targetrow = $modelname::findOrFail($id);
         }
-        $errors = $targetrow->fill($form)->check();
-        return $errors->toArray();     
+        $targetrow->fill($form)->save();
+        return $targetrow->id;
     }
 
-    // table変更:store or update、実行かテスト:save or check
     // tablename:対象のテーブル
     // $form:挿入変更するカラムと値
     // $id:isnull->STORE,not null->UPDATE
-    // $mode:save->実行してERRORを発生する、check->チェックしてTEXTを返す
-    // return:ERRORであればException又はText、正常であれば$id
-    public function excuteProcess($tablename, $form, $id, $mode){
+    // $mode:実行かテスト:save or check
+    // save->失敗したらARRAYを返す、check->チェックしてARRAYを返す
+    public function excuteCsvprocess($tablename, $form, $id, $mode){
         $modelname = $this->modelindex[$tablename]['modelname'];
         if (!$id) {
             $targetrow = new $modelname;
@@ -177,32 +191,13 @@ class DbioService
             $targetrow = $modelname::findOrFail($id);
         }
         if ($mode == 'save') {
-            if($targetrow->fill($form)->save()) {
-                return $targetrow->id;
-            }
+            $error = $targetrow->fill($form)->csvSave();
+            return $error;
         } elseif ($mode == 'check') {
-            if($targetrow->fill($form)->check()) {
-                return $targetrow->id;
-            }
+            $error = $targetrow->fill($form)->csvCheck();
+            return $error;
         } else {
             return false;
         }
     }
-
-    // 登録実行
-    public function createdId($tablename, $form) {
-        $modelname = $this->modelindex[$tablename]['modelname'];
-        $targetrow = new $modelname;
-        $targetrow->fill($form)->save();
-        return $targetrow->id;
-    }
-
-    // 更新実行
-    public function is_Updated($tablename, $form, $id) {
-        $modelname = $this->modelindex[$tablename]['modelname'];
-        $targetrow = $modelname::findOrFail($id);
-        $is_updated = $targetrow->fill($form)->save();
-        return $is_updated;
-    }
-
 }

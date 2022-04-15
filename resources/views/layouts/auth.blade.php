@@ -24,7 +24,7 @@
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-primary shadow-sm p-1">
             <div class="container">
-                <a class="navbar-brand text-white" href="{{ url('/') }}">
+                <a class="navbar-brand text-white " href="{{ url('/') }}">
                     <img src="{{ asset('images/wnet2020_logo.jpg')}}" width="30" height="30" class="d-inline-block" alt="">
                     {{ config('app.name', 'wnet2020') }}
                 </a>
@@ -60,7 +60,7 @@
             @yield('content')
         </main>
         <div style="text-align: center">
-            <img src="{{ asset('images/wnet2020_logo.jpg')}}" width="120" height="120" class="d-inline-block" alt="">
+            @include ('layouts/components/wnet2020_logo', ['size' => 120])
         </div>
     </div>
 </body>

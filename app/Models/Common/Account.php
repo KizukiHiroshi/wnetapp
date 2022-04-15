@@ -36,7 +36,7 @@ class Account extends Model
         'jobtype_id', 
     ];
     static $uniquekeys = [
-       'company_id', 'user_id', 'jobtype_id', 
+        ['company_id', 'user_id', 'jobtype_id', ]
     ];
 
     protected function rules()

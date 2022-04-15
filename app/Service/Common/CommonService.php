@@ -31,11 +31,11 @@ class CommonService {
         }
     }
 
-    // wnetapp\storage\app\public\csv内の10分以上前にuploadされたファイルを削除する
-    public function killMyfile($accountuserid) {
+    // wnetapp\storage\app\public\csv内の$useridがuploadしたファイルを削除する
+    public function killMyfile($userid) {
         $files = Storage::allFiles('public/csv/');;
         foreach ($files as $file) {
-            if (strpos($file,'_'.strval($accountuserid).'.csv') !== false) {
+            if (strpos($file,'_'.strval($userid).'.csv') !== false) {
                 Storage::delete($file);
             }
         }

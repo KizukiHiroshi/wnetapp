@@ -18,8 +18,6 @@ class SessionService
         'modelselects'  => ['service' => 'ModelService', 'function' => 'getModelselects'],
         'columnsprop'   => ['service' => 'ModelService', 'function' => 'getColumnsProp'],
         'paginatecnt'   => ['service' => 'ModelService', 'function' => 'getPainatecnt'],
-        'accountuserid' => ['service' => '', 'redirect' => '/account'],
-        'accountuser'   => ['service' => '', 'redirect' => '/account'],
         'tablename'     => ['service' => '', 'redirect' => ''],
         'lastsort'      => ['service' => '', 'redirect' => ''],
         'page'          => ['service' => '', 'redirect' => ''],

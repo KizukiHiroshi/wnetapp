@@ -32,7 +32,7 @@ class Businessunit extends Model
         'name', 
     ];
     static $uniquekeys = [
-       'code', 'name', 
+        ['code'], ['name'], 
     ];
 
     protected function rules()

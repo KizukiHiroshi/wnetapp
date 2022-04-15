@@ -121,6 +121,11 @@ class ModelService {
         // テーブルのuniquekey取得
         $model = $modelindex[$tablename];
         $uniquekeys = $model['modelname']::$uniquekeys;
+        $uniquekeystr = '';
+        foreach ($uniquekeys as $key => $uniquekey) {
+            $uniquekeystr .= implode(',', $uniquekey);
+        }
+        $uniquekeys = explode(',', $uniquekeystr);
         foreach ($columns as $column) {
             $columnname = $column->Field;
             $sortcolumn = $columnname;
@@ -205,7 +210,6 @@ class ModelService {
                     // foreign_idの後にreferenceを入れる
                     $prop['type'] = 'string';
                     $cardcolumnsprop[substr($columnname, 0, -3).'_reference'] = $prop;
-                    // $cardcolumnsprop[key($referencecolumns[$columnname])] = current($referencecolumns[$columnname]);
                 }
             } elseif (strpos($columnname, $foreigncolumn) !== false && strpos($columnname, '_id_') !== false) {
                 if (intval($prop['length']) > 0) {
@@ -238,7 +242,7 @@ class ModelService {
             }
         }
         foreach ($foreginkeys as $foreginkey) {
-            $foregintablename = Str::before($foreginkey,'?').'_id';
+            $foregintablename = Str::singular(Str::before($foreginkey,'?')).'_id';
             if (in_array($foregintablename, $columnnames)) {
                 $form[$foregintablename] = $iddictionary[$foreginkey];
             }
@@ -265,12 +269,12 @@ class ModelService {
 
     // Formに_byを加える
     public function addBytoForm($columnnames, $form, $mode) {
-        $user = Auth::user()->name;
+        $username = Auth::user()->name;
         if (in_array('created_by', $columnnames) && $mode == 'store') {
-            $form['created_by'] = $user;
+            $form['created_by'] = $username;
         }        
         if (in_array('updated_by', $columnnames)) {
-            $form['updated_by'] = $user;
+            $form['updated_by'] = $username;
         }        
         return $form;        
     }

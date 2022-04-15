@@ -14,12 +14,8 @@ class MenuController extends Controller {
     }
 
     public function index(Request $request) {
-        // accountuserを決める
+        // accountから、使用できるボタンリストを作る
         // 未実装
-        $accountuser = '杵築(弘)';
-        $accountuserid = 1;
-        $this->sessionservice->putSession('accountuser', $accountuser);
-        $this->sessionservice->putSession('accountuserid', $accountuserid);
         return view('common/menu');
     }
 }

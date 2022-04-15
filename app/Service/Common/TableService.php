@@ -11,7 +11,7 @@ use App\Service\Common\DbioService;
 use App\Service\Common\SortService;
 use App\Service\Common\ModelService;
 use App\Service\Common\SessionService;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use SplFileObject;
 
@@ -56,19 +56,22 @@ class TableService  {
     public function getUploadParams($request, $uploadresult=[]){
         $csvmode = $request->csvmode;
         $tablename = $request->tablename;
-        $modelindex = $this->sessionservice->getSession('modelindex');
         $success = $request->success !== '' ? $request->success : '';
+        $success = array_key_exists('success', $uploadresult) ? $uploadresult['success'] : $success ;
         $csvmode = array_key_exists('csvmode', $uploadresult) ? $uploadresult['csvmode'] : $csvmode;
-        $errormsg = !$uploadresult['error'] ? '' : $uploadresult['error'];
+        $errormsg = array_key_exists('errormsg', $uploadresult) ? $uploadresult['errormsg'] : '' ;
+        $csverrors = array_key_exists('csverrors', $uploadresult) ? $uploadresult['csverrors'] : [] ;
         // テーブルの和名
+        $modelindex = $this->sessionservice->getSession('modelindex');
         $tablecomment = $modelindex[$tablename]['tablecomment'];
         $params = [
             'mode'          => $csvmode,
             'tablename'     => $tablename,
-            'errormsg'      => $errormsg,
-            'success'       => $success,
             'tablecomment'  => $tablecomment,
             'tgtuploadfile' => $tablecomment.'_upload.csv',
+            'success'       => $success,
+            'errormsg'      => $errormsg,
+            'csverrors'     => $csverrors,
         ];
         return $params;
     }
@@ -77,7 +80,7 @@ class TableService  {
     public function csvUpload($request) {
         $csvmode = $request->csvmode;
         $uploadresult = [
-            'error' => '',
+            'errormsg' => '',
             'csvmode'  => $csvmode,
         ];
         if ($csvmode == 'csvselect') {
@@ -88,22 +91,19 @@ class TableService  {
             // アップロードしたファイルを取得
             // 'upload_file' はビューの inputタグのname属性
             $tablename = $request->tablename;
-            $accountuserid = $this->sessionservice->getSession('accountuserid');
-            $savedfilename = $tablename.'_upload_'.strval($accountuserid).'.csv';
+            $userid = Auth::id();
+            $savedfilename = $tablename.'_upload_'.strval($userid).'.csv';
             $uploadresult['savedfilename'] = $savedfilename;
             $uploadway = $request->uploadway;
             if ($csvmode == 'csvcheck') {
                 $uploaded_file = $request->file('upload_file');
-                if ($uploaded_file == null) {
-                    // ★$uploaded_file==nullの場合は保存済を探す
-                    $this->commonservice->killOldfile();
-                    if (!Storage::disk('local')->exists('public/csv' . $savedfilename )) {
-                        $uploadresult['error'] = 'ファイルが選択されていません';
-                        return $uploadresult;        
-                    }
-                } else {
+                if ($uploaded_file !== null) {
                     $uploaded_file->storeAs('public/csv/', $savedfilename);
                 }
+            }
+            if(!file_exists(storage_path('app/public/csv/'.$savedfilename ))){
+                $uploadresult['errormsg'] = 'ファイルが選択されていません';
+                return $uploadresult;        
             }
             // アップロードしたファイルの絶対パスを取得
             $file_path = storage_path().'\\app\\public\\csv\\'.$savedfilename;
@@ -112,7 +112,7 @@ class TableService  {
             //SplFileObject::READ_CSV が最速らしい
             $file->setFlags(SplFileObject::READ_CSV);
             $row_count = 1;     // uploadfile用カウンター
-            $error = [];        // errorメッセージ
+            $csverrors = [];        // errorメッセージ
             $rawcolumns = [];   // uploadファイルのカラムリスト
             $iddictionary = $this->sessionservice->getSession('iddictionary');   // テーブル参照idリスト
             $rawform = [];      // uploadされたままの値リスト
@@ -122,7 +122,7 @@ class TableService  {
                 if ($row == [null]) continue; 
                 if ($row_count == 1) {          // 1行目はテーブル名
                     if ($row[0]!=$tablename) {
-                        $uploadresult['error'] = 'ファイルの内容が不正です';
+                        $uploadresult['errormsg'] = 'ファイルの内容が不正です';
                         return $uploadresult;
                     }
                 } elseif ($row_count == 2) {    // 2行目はカラム名リスト
@@ -157,7 +157,7 @@ class TableService  {
                             }
                             if (!$foreginid) {
                                 // 必要なアラート
-                                $error[] = strval($row_count-2).':'.$foreginkey.' は未登録の参照です';
+                                $csverrors[] = strval($row_count-2).':'.$foreginkey.' は未登録の参照です';
                                 // 参照元更新が許可されていれば処理
                             }
                         }
@@ -172,34 +172,63 @@ class TableService  {
                         // $formの$idを探しに行く
                         $findkey = $this->getFindkey($tablename, $form);
                         $id = $this->dbioservice->findId($findkey);
+                        if ($id == 'many') {
+                            $csverrors[] = strval($row_count-2).':'.$findkey.' は複数の行を変更します';
+                        }
                     }
                     if ($csvmode == 'csvcheck') {
                         $mode = 'check';
-                        $errortip = $this->dbioservice->excuteProcess($tablename, $form, $id, $mode);
-                        if ($errortip!=null) {
-                            $error[] = strval($row_count-2).':'.implode( ',', array_values($errortip));
+                        $errortips = $this->dbioservice->excuteCsvprocess($tablename, $form, $id, $mode);
+                        if ($errortips != null) {
+                            $errortip = '';
+                            foreach ($errortips as $key => $errors) {
+                                $errortip .= implode( ',', array_values($errors));
+                            }
+                            $csverrors[] = strval($row_count-2).':'.$errortip;
                         }
                     } elseif ($csvmode == 'csvsave') {
+                        // _byの値を入れる
+                        $mode = !$id ? 'store' : 'update';
+                        $form = $this->modelservice->addBytoForm($rawcolumns, $form, $mode);
+                        // 実行
                         $mode = 'save';
-                        $this->dbioservice->excuteProcess($tablename, $form, $id, $mode);
+                        $errortips = $this->dbioservice->excuteCsvprocess($tablename, $form, $id, $mode);
+                        if ($errortips != null && $errortips != true) {
+                            $errortip = '';
+                            foreach ($errortips as $key => $errors) {
+                                $errortip .= implode( ',', array_values($errors));
+                            }
+                            $csverrors[] = strval($row_count-2).':'.$errortip;
+                            $uploadresult += [
+                                'tablename' => $tablename,
+                                'row_count' => $row_count,
+                            ];
+                            return $uploadresult;                                            
+                        }
                     }
                 }
                 $row_count++;
             }            
         }
+        $treatedcount = $row_count-3;
         if ($csvmode == 'csvcheck') {
             $this->sessionservice->putSession('iddictionary', $iddictionary);    // テーブル参照id辞書
-            $uploadresult['error'] = $error;
-            $uploadresult['csvmode'] = 'csvsave';
+            $uploadresult['csverrors'] = $csverrors;
+            if (count($csverrors) == 0) {
+                $uploadresult['success'] = $treatedcount.'件 エラーはありませんでした';
+                $uploadresult['csvmode'] = 'csvsave';
+            }
         } elseif ($csvmode == 'csvsave') {
+            if (count($csverrors) == 0) {
+                $uploadresult['success'] = $treatedcount.'件 登録しました';
+            }
             $this->sessionservice->forgetSession('iddictionary');   // テーブル参照id辞書
             // strage/app/public/csv内の自分のファイル削除
-            $this->killMyfile($accountuserid);
+            $this->killMyfile($userid);
         }
         $uploadresult += [
             'tablename' => $tablename,
-            'row_count' => $row_count,
-            'error'     => $error,
+            'treatedcount' => $treatedcount,
         ];
         return $uploadresult;
     }
@@ -210,18 +239,24 @@ class TableService  {
         // テーブルのユニークキーを取得
         $findkey = null;
         $modelindex = $this->sessionservice->getSession('modelindex');
-        $uniquekeys = $modelindex[$tablename]['uniquekeys'];
+        $uniquekeys = $modelindex[$tablename]['modelname']::$uniquekeys;
         if (count($uniquekeys) > 0) {
-            $findkey = $tablename;
-            $keycnt = 1;
-            foreach ($uniquekeys as $uniquekey) {
-                if (array_key_exists($uniquekey, $form)) {
-                    $findkey += $keycnt = 1 ? '?' : '&';
-                    $findkey += $uniquekey.'='.$form[$uniquekey];
-                    $keycnt += 1;
+            $separator = count($uniquekeys) == 1 ? '&&' : '&';
+            $cnt = 1;
+            foreach ($uniquekeys as $key => $uniquekey) {
+                if ($cnt == 1) {
+                    $findkey = $tablename.'?';
+                } else {
+                    $findkey .= $separator;
                 }
-            }    
-        }
+                foreach ($uniquekey as $colname){
+                    if (array_key_exists($colname, $form)) {
+                        $findkey .= $colname.'='.$form[$colname];
+                    }
+                }
+                $cnt +=1;
+            }
+        }    
         return $findkey;
     }
 
@@ -230,13 +265,7 @@ class TableService  {
         $foreginkeys =[];
         $findidset = $this->getForeginFindidset($rawform);
         foreach ($findidset as $foregintablename => $colandvalue) {
-            $foreginkey = $foregintablename.'?';
-            $colcnt = 1;
-            foreach ($colandvalue as $col => $value) {
-                if ($colcnt > 1) {$foreginkey .= '&';}
-                $foreginkey .= $col.'='.$value;
-                $colcnt += 1;
-            }
+            $foreginkey = $this->getFindkey($foregintablename, $colandvalue);
             $foreginkeys[] = $foreginkey;
         }
         return $foreginkeys;
@@ -247,14 +276,14 @@ class TableService  {
         $findidset = [];
         foreach($rawform as $colname => $value) {
             if (Str::contains($colname,'_id_')) {
-                $foregintablename = Str::before($colname,'_id_');
+                $foregintablename = Str::plural(Str::before($colname,'_id_'));
                 $foregincolname = Str::after($colname,'_id_');
                 if (array_key_exists($foregintablename, $findidset)) {
                     $findidset[$foregintablename] = 
                         array_merge($findidset[$foregintablename],[ $foregincolname => $value ]);
                 } else {
                     $findidset[$foregintablename] = [ $foregincolname => $value ];
-                }
+                }        
             }
         }
         return $findidset;
@@ -267,9 +296,15 @@ class TableService  {
         $selectedtable = $tablename;
         $modelindex = $this->sessionservice->getSession('modelindex');
         $modelselects = $this->sessionservice->getSession('modelselects', $modelindex);
+        $cardcolumnsprop = null;
+        if ($tablename) {
+            $columnsprop = $this->sessionservice->getSession('columnsprop', $modelindex, $tablename);
+            $cardcolumnsprop = $this->modelservice->arangeColumnspropToCard($columnsprop);    
+        }
         $param = [
             'selectedtable' => $selectedtable,
             'modelselects'  => $modelselects,
+            'cardcolumnsprop'  => $cardcolumnsprop,
         ];
         return $param;
     }
@@ -415,8 +450,8 @@ class TableService  {
 
     //
     public function killMyfile() {
-        $accountuserid = $this->sessionservice->getSession('accountuserid');
-        $this->commonservice->killMyfile($accountuserid);
+        $userid = Auth::id();
+        $this->commonservice->killMyfile($userid);
     }
 }
 

@@ -18,8 +18,6 @@ class CreateEmploytypesTable extends Migration
             $table->id()->comment('id');
             $table->string('code', 2)->unique()->comment('コード');
             $table->string('name', 20)->unique()->comment('雇用形態');
-            $table->date('start_on')->default(NULL)->nullable()->comment('開始日');
-            $table->date('end_on')->default('2049/12/31')->nullable()->comment('終了日');
             $table->softDeletes()->comment('削除日時');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->string('created_by', 12)->comment('作成者');
