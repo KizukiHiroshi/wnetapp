@@ -292,19 +292,33 @@ class TableService  {
     // Menu表示用のパラメータを取得する
     public function getMenuParams($request) {
         $tablename = $request->tablename;
+        // テーブル名が更新されている時は既存の$columnspropを消す
+        $lasttablename = $this->sessionservice->getSession('tablename');
+        if ($lasttablename !== $tablename) {
+            $this->sessionservice->forgetSession('columnsprop');
+            // 現在のテーブル名をSessionに保存する
+            $this->sessionservice->putSession('tablename', $tablename);
+        }
         // モデル選択に渡す現在のテーブル名
         $selectedtable = $tablename;
         $modelindex = $this->sessionservice->getSession('modelindex');
         $modelselects = $this->sessionservice->getSession('modelselects', $modelindex);
+        // search用の変数
         $cardcolumnsprop = null;
+        $oldinput = null;
+        $foreignselects = null;
         if ($tablename) {
             $columnsprop = $this->sessionservice->getSession('columnsprop', $modelindex, $tablename);
-            $cardcolumnsprop = $this->modelservice->arangeColumnspropToCard($columnsprop);    
+            $cardcolumnsprop = $this->modelservice->arangeColumnspropToCard($columnsprop);
+            $oldinput = $request->all();
+            $foreignselects = $this->dbioservice->getForeginSelects($columnsprop);    
         }
         $param = [
             'selectedtable' => $selectedtable,
             'modelselects'  => $modelselects,
-            'cardcolumnsprop'  => $cardcolumnsprop,
+            'cardcolumnsprop'   => $cardcolumnsprop,
+            'oldinput'      => $oldinput,
+            'foreignselects'    => $foreignselects,
         ];
         return $param;
     }
@@ -332,15 +346,12 @@ class TableService  {
             // テーブル名が更新されている時は既存のsessionを消す
             $lasttablename = $this->sessionservice->getSession('tablename');
             if ($lasttablename !== $tablename) {
-                $this->sessionservice->forgetSession('tablename');
                 $this->sessionservice->forgetSession('columnsprop');
                 $this->sessionservice->forgetSession('lastsort');
                 $this->sessionservice->forgetSession('page');
             }
             // 表示用のカラム名とプロパティ
             $columnsprop = $this->sessionservice->getSession('columnsprop', $modelindex, $tablename);
-            // モデル選択に渡す現在のテーブル名
-            $selectedtable = $tablename;
             // テーブルの和名
             $tablecomment = $modelindex[$tablename]['tablecomment'];
             // 作業用に指定が必要な場合のソート順（ここでは既存テーブルの参照なので不要）
@@ -354,8 +365,6 @@ class TableService  {
             $this->sessionservice->putSession('lastsort', $lastsort);
             // 現在のページを「行表示から戻ってきた時」のためにSessionに保存する
             $this->sessionservice->putSession('page', $page);
-            // 現在のテーブル名をSessionに保存する
-            $this->sessionservice->putSession('tablename', $tablename);
             // 行選択のボタンを表示する
             $withbutton = ['buttonvalue' => 'id', 'value' => '選択']; 
             // ダウンロードのボタンを表示する

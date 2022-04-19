@@ -14,7 +14,7 @@ class QueryService
     // queryのfrom,join,select句を取得する
     public function getTableQuery($request, $modelindex, $columnsprop, $displaymode, $tempsort = null) {
         $tablename= $request->tablename;
-        $where = $request->where;
+        $where = $this->getWhere($request, $columnsprop);
         $group = $request->group;
         $modelname = $modelindex[$tablename]['modelname'];
         // Trashの扱い
@@ -30,12 +30,62 @@ class QueryService
         // select句
         $selectclause = $this->setSelectClauseForDisplaymode($columnsprop, $displaymode);
         $tablequery = $tablequery->select(DB::raw($selectclause));
+        // where句
+        if ($where) {$this->setWhereclause($tablequery, $where);}
         // order句
         if ($tempsort) {
             $rawText = $this->changeSortarrayToRawtext($tempsort);
             $tablequery = $tablequery->orderByRaw($rawText);
         }
         return $tablequery;
+    }
+
+    // $tablequeryに$whereclauseを追加する
+    private function setWhereclause($tablequery, $where) {
+         foreach ($where as $columnsname => $values) {
+            if (count($values) == 1) {
+                $value = $values[0];
+                if (substr($value, 0, 1) == '%') {
+                    $tablequery = $tablequery->where($columnsname, 'like', $value);
+                } else {
+                    $tablequery = $tablequery->where($columnsname, '=', $value);
+                }
+            } else {
+                $tablequery = $tablequery->where(function($query) use($columnsname, $values){
+                    foreach ($values as $value) {
+                        if (substr($value, 0, 1) == '%') {
+                            $query = $query->orWhere($columnsname, 'like', $value);
+                        } else {
+                            $query = $query->orWhere($columnsname, '=', $value);
+                        }
+                    }
+                    return $query;
+                });
+            }
+        }
+        return $tablequery;
+    }
+
+    // $requestから検索要素を抽出する
+    // 'string'は like
+    private function getWhere($request, $columnsprop) {
+        $where =[];
+        foreach ($columnsprop as $columnsname => $prop) {
+            if ($request->$columnsname) {
+                if ($prop['type'] == 'string') {
+                    $words = str_replace('　', ' ', $request->$columnsname);;
+                    $words = explode(' ', $words);
+                    $values = [];
+                    foreach ($words as $word) {
+                        $values[] = '%' . addcslashes($word, '%_\\') . '%';
+                    }
+                    $where[$prop['tablename'].'.'.$columnsname] = $values;
+                } elseif ($prop['type'] == 'bigint' || $prop['type'] == 'boolean') {
+                    $where[$prop['tablename'].'.'.$columnsname] = [$request->$columnsname];
+                }
+            }
+        }
+        return $where;
     }
 
     // tablequeryにjoin句を足す
@@ -151,4 +201,5 @@ class QueryService
         }
         return $sortText;
     }
+
 }

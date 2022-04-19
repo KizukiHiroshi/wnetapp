@@ -9,6 +9,15 @@ use Illuminate\Support\Facades\Storage;
 
 class CommonService {
 
+    // $requestから要素を抽出する
+    public function getOldinput($request, $columnsprop) {
+        $oldinput =[];
+        foreach ($columnsprop as $columnsname => $prop) {
+            $oldinput[$columnsname] = $request->$columnsname;
+        }
+        return $oldinput;
+    }
+
     // 新規配列の内、既知のKeyで既存配列に存在しないKeyValueを既存配列に追加する
     public function addArrayIfknownsKeyAndNotExist($newarray, $temparray, $knownkeys) {
         foreach ($newarray as $key => $value) {

@@ -7,9 +7,11 @@ if (!isset($value)) {$value = $id;}
 if (!isset($label)) {$label = $id;}
 ?>
 <div class="form-check">
-  <input class="form-check-input" type="checkbox" name="{{ $name }}" id="{{ $id }}" 
-    value="{{ $value }}" {{ $checked }} {{ $disabled }}>
-  <label class="form-check-label" for="{{$id}}">
-    {{ $label }}
-  </label>
+    <input class="form-check-input" type="checkbox" name="{{ $name }}" id="{{ $id }}" 
+        value="{{ $value }}" {{ $checked }} {{ $disabled }}>
+    @if ($label != '')
+    <label class="form-check-label" for="{{$id}}">
+        {{ $label }}
+    </label>
+    @endif
 </div>

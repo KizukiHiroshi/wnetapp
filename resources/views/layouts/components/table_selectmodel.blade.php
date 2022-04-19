@@ -1,5 +1,5 @@
 <div class="m-2">
-<form method="get" id="modelzone">
+<form id="modelzone" method="get">
     <table class="table table-hover table-sm table-responsive">
         <tr>
             {{-- テーブル選択 --}}
@@ -13,6 +13,11 @@
                     'value'     => '一括登録',
                     'color'     => 'info',
                     'formaction'=> '/table/csvupload/csvselect',
+                ])
+                @include('layouts/components/button', [
+                    'value'     => '新規登録',
+                    'color'     => 'warning',
+                    'formaction'=> '/table/'.$tablename.'/create',
                 ])
                 @include('layouts/components/button', [
                     'value'     => '戻る',
@@ -29,34 +34,18 @@
                 'selectmark'  => '★選択中',
             ])
         </tr>
-        <tr>
-            {{-- ボタン --}}
-            @if ($selectedtable != '')
-            @csrf
-            <div class="d-flex justify-content-between">
-                @include('layouts/components/button', [
-                    'form'      => 'table_search',
-                    'value'     => '検索実行',
-                    'formmethod'=> 'post',
-                    'formaction'=> '/table/'.$tablename,
-                ])
-                @include('layouts/components/button', [
-                    'value'     => '新規登録',
-                    'color'     => 'warning',
-                    'formmethod'=> 'get',
-                    'formaction'=> '/table/'.$tablename.'/create',
-                ])
-            </div>
-            @endif
-        </tr>
     </table>
 </form>
 {{-- 検索条件 --}}
 @if ($selectedtable != '')
-<div class="m-2">
-    @include('layouts/components/table_search', [
-        'cardcolumnsprop'  => $columnsprop,
-    ])
-</div>
+<form id="table_search" method="post" action="/table/{{ $tablename }}">
+@csrf
+    <div class="m-2">
+        @include('layouts/components/table_search', [
+            'cardcolumnsprop'   => $cardcolumnsprop,
+            'foreignselects'    => $foreignselects,
+        ])
+    </div>
+</form>
 @endif
 </div>

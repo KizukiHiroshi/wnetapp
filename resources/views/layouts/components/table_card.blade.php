@@ -1,6 +1,6 @@
 <form id="table_card" action="" method="">
-    {{-- ボタン --}}
     @csrf
+    {{-- ボタン --}}
     @if ($mode == 'create')
         @include('layouts/components/button', [
             'value'     => '登録実行',
@@ -67,7 +67,7 @@
     <input type="hidden" name="id" value={{ $row->id }}>
     <table class="table table-striped table-hover table-sm table-responsive">
         @foreach ($cardcolumnsprop as $columnname => $prop)
-        @if ($columnname != 'id' && substr($columnname,-3)!='_id')
+        @if ($columnname != 'id' && substr($columnname,-3)!='_id' && substr($columnname,-7)!='_id_2nd')
         <?php
         // システム制御カラムはリードオンリーにする
             if (substr($columnname, -3) == '_at' || substr($columnname, -3) == '_by') {
@@ -82,14 +82,15 @@
             {$is_small = true;} else {$is_small = false;}
         ?>
         <tr>           
-            <th>
+            <th width="10%">
             @if($is_small) <small> @endif
-                {{ $prop['comment'] }}</th>
+                {{ $prop['comment'] }}
             @if($is_small) </small> @endif
+            </th>
             <td>
             @if($is_small) <small> @endif
             @if (substr($columnname,-10)=='_reference')
-                <?php $foreignid = substr($columnname,0,-10).'_id'; ?>
+                <?php $foreignid = substr($columnname,0,-10); ?>
                 @include('layouts/components/select', [
                     'name'      => $foreignid,
                     'selects'   => $foreignselects[$columnname],

@@ -6,6 +6,7 @@
   // 'withnoselect' => 'before',    //項目'選択しない'の表示=>'before','after' or ''
   // 'size'         => 'w-100 '     //大きさ指定
   // 'readonly'     => '' or 'readonly="readonly"'
+   
   if (!isset($name)) {$name = '';}
   if (!isset($selects)) {$selects = [];}
   if (!isset($selected)) {$selected = '';}
@@ -14,10 +15,11 @@
   if (!isset($size)) {$size = '';}
   if (!isset($readonly)) {$readonly = '';}
   $disabled = $readonly!='' ? 'disabled' : '';
+  $required = $withnoselect == '' ? 'required' : '';
 ?>
 
 <div>
-    <select name="{{ $name }}" required class="form-select custom-select {{ $size }}">
+    <select name="{{ $name }}" {{ $required }} class="form-select custom-select {{ $size }}">
         @if ($withnoselect === 'before')
         <option value="">選択しない</option>
         @endif

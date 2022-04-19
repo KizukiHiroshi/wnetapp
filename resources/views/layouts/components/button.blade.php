@@ -14,13 +14,12 @@ $formaction = isset($formaction) ? 'formaction='.$formaction : '';
 @if (isset($href))
 <a href="{{ $href }}">
     <button type="button"
-     class="btn btn-{{ $color }} btn-{{ $size }} {{ $margin }}" {{ $disabled }}>{{ $value }}</button>
+        class="btn btn-{{ $color }} btn-{{ $size }} {{ $margin }}" {{ $disabled }}> {{ $value }} </button> 
 </a>
 @else
     @if (isset($buttonvalue))
     <input type="hidden" name="buttonvalue" value="{{ $buttonvalue }}" {{ $disabled }}>
     @endif
     <input type="{{$type}}" {{ $name }} {{ $form }} {{ $formmethod }} {{ $formaction }}
-     class="btn btn-{{ $color }} btn-{{ $size }} {{ $margin }}" value="{{ $value }}" {{ $disabled }}>
+        class="btn btn-{{ $color }} btn-{{ $size }} {{ $margin }}" value="{{ $value }}" {{ $disabled }}>
 @endif
-

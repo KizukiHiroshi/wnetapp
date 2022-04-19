@@ -1,6 +1,7 @@
 @extends('layouts.app')
 <style>
     form { margin:0px; }
+    a { text-decoration: none; }
     .pagination { font-size:10pt; }
     .pagination li { display:inline-block; }
     tr th a:link { color: black; }
@@ -23,7 +24,7 @@ if (isset($row)) {$title .='>行の';
 @section('title', $title )
 
 @section('menu')
-<div class="col-md-2 border-bottom border-primary">
+<div class="col-md-3 border-bottom border-primary">
     @if ($modelselects)
         <?php if(!isset($selectedtable)) {$selectedtable = '';} ?>
         @include('layouts/components/table_selectmodel', [
@@ -37,7 +38,7 @@ if (isset($row)) {$title .='>行の';
 @endsection
 
 @section('content')
-<div class="col-md-10 border-bottom border-primary">
+<div class="col-md-9 border-bottom border-primary">
     <?php if(!isset($success)) {$success = '';} ?>
     @if ($success!='')
     <div class="alert alert-success">

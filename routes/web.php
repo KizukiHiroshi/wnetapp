@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/table/{tablename}/{id}/forcedelete',[TableController::class, 'forcedelete']);    // 完全削除
     Route::get('/table/{tablename}/{id}/restore',[TableController::class, 'restore']);  // 復活
     Route::get('/table/{tablename?}',[TableController::class, 'index']);                // 一覧表示
+    Route::post('/table/{tablename?}',[TableController::class, 'index']);               // 一覧表示
 
 
 });

@@ -132,8 +132,8 @@ class ModelService {
             $isunique = in_array($columnname, $uniquekeys) ? TRUE : NULL;
             $columnsprop[$columnname] = $this->getColumnProp($tablename, $columnname, $sortcolumn, $isunique);
             // foreign_idの場合
-            if (substr($columnname,-3) == '_id') {
-                $foreigntablename = Str::plural(substr($columnname, 0, -3));
+            if (substr($columnname,-3) == '_id' || substr($columnname,-7) == '_id_2nd') {
+                $foreigntablename = Str::plural(Str::before($columnname, '_id'));
                 $foreignmodel = $modelindex[$foreigntablename];
                 // 参照カラムを取得してプロパティに加える
                 $referencedcolumnnames = $foreignmodel['modelname']::$referencedcolumns;
@@ -203,19 +203,19 @@ class ModelService {
         $foreigncolumn = '';
         // $referencecolumns = $this->getReferenceColumns($columnsprop);
         foreach ($columnsprop AS $columnname => $prop) {
-            if (strpos($columnname, '_id_') == false) {
+            if (strpos($columnname, '_id_') == false || substr($columnname, -3) =='_id' || substr($columnname, -7) =='_id_2nd') {
                 $cardcolumnsprop[$columnname] = $prop;
-                if (strpos($columnname, '_id') !== false) {
+                if (substr($columnname, -3) =='_id' || substr($columnname, -7) =='_id_2nd') {
                     $foreigncolumn = $columnname;
                     // foreign_idの後にreferenceを入れる
                     $prop['type'] = 'string';
-                    $cardcolumnsprop[substr($columnname, 0, -3).'_reference'] = $prop;
+                    $cardcolumnsprop[$foreigncolumn.'_reference'] = $prop;
                 }
             } elseif (strpos($columnname, $foreigncolumn) !== false && strpos($columnname, '_id_') !== false) {
                 if (intval($prop['length']) > 0) {
-                    $length = intval($cardcolumnsprop[substr($foreigncolumn, 0, -3).'_reference']['length']);
+                    $length = intval($cardcolumnsprop[$foreigncolumn.'_reference']['length']);
                     $length +=intval($prop['length']);
-                    $cardcolumnsprop[substr($foreigncolumn, 0, -3).'_reference']['length'] = strval($length);
+                    $cardcolumnsprop[$foreigncolumn.'_reference']['length'] = strval($length);
                 }
             }
         }

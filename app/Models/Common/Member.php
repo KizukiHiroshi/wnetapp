@@ -37,7 +37,7 @@ class Member extends Model
         'name_mei', 
     ];
     static $uniquekeys = [
-        ['code'], 
+       ['code'], 
     ];
 
     protected function rules()
@@ -46,16 +46,18 @@ class Member extends Model
             'user_id' => ['required','integer','numeric',],
             'businessunit_id' => ['required','integer','numeric',],
             'employtype_id' => ['required','integer','numeric',],
-            'code' => ['required','string','max:10',Rule::unique('members')->ignore($this->id),'regex:/\d/'],
+            'code' => ['required','string','max:10',Rule::unique('members')->ignore($this->id),'regex:/^[a-zA-Z0-9]+$/'],
             'name_sei' => ['required','string','max:10','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
             'name_mei' => ['required','string','max:10','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
             'name_kana' => ['required','string','max:20','regex:/^[ァ-ンヴー]+$/'],
             'name_short' => ['required','string','max:12','regex:/[^\x01-\x7E\uFF61-\uFF9F()]/'],
             'password' => ['required','string','max:16','regex:/^[a-zA-Z0-9-_]+$/'],
+            'hourlywage' => ['required','integer','numeric',],
             'start_fulltime_on' => ['nullable','date',],
             'start_2nd_on' => ['nullable','date',],
-            'businessunit_2nd' => ['required','integer','numeric',],
-            'employtype_2nd' => ['required','integer','numeric',],
+            'businessunit_id_2nd' => ['required','integer','numeric',],
+            'employtype_id_2nd' => ['required','integer','numeric',],
+            'hourlywage_2nd' => ['required','integer','numeric',],
             'start_on' => ['nullable','date',],
             'end_on' => ['nullable','date',],
         ];

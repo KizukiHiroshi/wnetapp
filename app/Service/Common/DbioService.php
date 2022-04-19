@@ -77,16 +77,17 @@ class DbioService
         $concats = [];           // 合体する参照先カラムの配列
         // 必要なセレクトをまず決める
         foreach ($columnsprop AS $columnname => $prop) {
-            if (substr($columnname,-3) == '_id') {
+            if (substr($columnname, -3) =='_id' || substr($columnname, -7) =='_id_2nd') {
                 // 参照元カラム名を取得する
-                $forerignreferencename = substr($columnname,0,-3).'_reference';
+                $forerignreferencename = $columnname.'_reference';
                 $foreignselects[$forerignreferencename] = [];
             }
         }
         // セレクトの実体を得る
         foreach ($foreignselects AS $forerignreferencename => $blank) {
             foreach ($columnsprop AS $columnname => $prop) {
-                if (Str::before($columnname,'_id_') == Str::before($forerignreferencename,'_reference')) {
+                if (Str::before($columnname,'_id_') == Str::before($forerignreferencename,'_id_reference')
+                    || Str::before($columnname,'_id_') == Str::before($forerignreferencename,'_id_2nd_reference')) {
                     // 参照元カラム名を取得する
                     $referencetablename = Str::plural(Str::before($columnname,'_id_'));
                     $concats[Str::before($columnname,'_id_').'_id'] = $prop['tablename'].'.'.$prop['realcolumn'];
@@ -103,7 +104,7 @@ class DbioService
     // 参照用selects作成
     public function getIdReferenceSelects($tablename, $concats) {
         $idreferenceselects =[];
-        $referencedcolumnname = substr($tablename,0,-3).'_reference';
+        $referencedcolumnname = $tablename.'_reference';
         // queryのfrom,join,select句を取得する
         $modelname = $this->modelindex[$tablename]['modelname'];
         $tablequery = $modelname::query();
