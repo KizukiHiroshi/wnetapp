@@ -22,7 +22,7 @@ class User extends Authenticatable
         'name'
     ];
     static $uniquekeys = [
-        'email',
+        ['email'],
     ];
     public function accounts() {
         return $this->hasMany(Account::class);

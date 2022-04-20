@@ -31,6 +31,7 @@ class TableController extends Controller
 
     // (GET) http://wnet2020.com/table/{tablename}　・・・　一覧表示。index()    
     public function index(Request $request) {
+        $this->tableservice->sessionOptimaize($request);
         // List表示用のパラメータを取得する
         $params = $this->tableservice->getMenuParams($request);
         $params += $this->tableservice->getListParams($request);
@@ -57,6 +58,7 @@ class TableController extends Controller
 
     // カードを表示する
     public function displayCard($mode, $request) {
+        $this->tableservice->sessionOptimaize($request);
         $params = $this->tableservice->getMenuParams($request);
         $params += $this->tableservice->getCardParams($request, $mode);
         return view('common/table')->with($params);

@@ -5,6 +5,7 @@
         @include('layouts/components/button', [
             'value'     => '登録実行',
             'color'     => 'warning',
+            'margin'    => 'm-2',
             'formmethod'=> 'post',
             'formaction'=> '/table/'.$tablename.'/store',
         ])
@@ -12,6 +13,7 @@
         @include('layouts/components/button', [
             'value'     => '編集',
             'color'     => 'success',
+            'margin'    => 'm-2',
             'formmethod'=> 'get',
             'href'      => '/table/'.$tablename.'/'.$row->id.'/edit',
         ])
@@ -19,6 +21,7 @@
             @include('layouts/components/button_alert', [
                 'value'     => '削除',
                 'color'     => 'danger',
+                'margin'    => 'm-2',
                 'formmethod'=> 'get',
                 'alert'     => 'delete_alert',
                 'href'      => '/table/'.$tablename.'/'.$row->id.'/delete',
@@ -27,6 +30,7 @@
             @include('layouts/components/button_alert', [
                 'value'     => '完全削除',
                 'color'     => 'danger',
+                'margin'    => 'm-2',
                 'formmethod'=> 'get',
                 'alert'     => 'delete_alert',
                 'href'      => '/table/'.$tablename.'/'.$row->id.'/forcedelete',       
@@ -42,12 +46,14 @@
         @include('layouts/components/button', [
             'value'     => '更新',
             'color'     => 'success',
+            'margin'    => 'm-2',
             'formmethod'=> 'post',
             'formaction'=> '/table/'.$tablename.'/'.$row->id.'/update',
         ])
         @include('layouts/components/button', [
             'value'     => '新規として登録',
             'color'     => 'warning',
+            'margin'    => 'm-2',
             'formmethod'=> 'post',
             'formaction'=> '/table/'.$tablename.'/store',
         ])
@@ -60,6 +66,7 @@
     @include('layouts/components/button', [
         'value'     => '戻る',
         'color'     => 'secondary',
+        'margin'    => 'm-2',
         'formmethod'=> 'get',
         'href'      => $href,
     ])
@@ -113,10 +120,16 @@
                     @break
                 @case('boolean')
                     <div class="input-group">
-                        <?php $checked = $row->$columnname == '1' ? 'checked' : ''; ?>
+                        <?php $checked = $row->$columnname == '1' ? 'checked' : '';?>
                         <?php $disabled = $readonly != '' ? 'disabled="disabled"' : ''; ?>
                         <input type="hidden" name="{{ $columnname }}" value="0">
-                        <input type="checkbox" name="{{ $columnname }}" value="1" {{ $checked }} {{ $disabled }}>
+                        @include('layouts/components/checkbox', [
+                            'name'      => $columnname,
+                            'value'     => '1',
+                            'label'     => '',
+                            'checked'   => $checked,
+                            'disabled'  => $disabled,
+                        ])
                     </div>   
                     @break
                 @case('date')

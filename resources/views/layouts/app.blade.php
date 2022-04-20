@@ -22,6 +22,16 @@
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 </head>
+<style>
+    form { margin:0px; }
+    a { text-decoration: none; }
+    .pagination { font-size:10pt; }
+    .pagination li { display:inline-block; }
+    tr th a:link { color: black; }
+    tr th a:visited { color: black; }
+    tr th a:hover { color: black; }
+    tr th a:active { color: black; }
+</style>
 <body>
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-primary shadow-sm p-1">

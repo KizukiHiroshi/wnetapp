@@ -47,11 +47,11 @@
                             </li>
                         @endif
 
-                        @if (Route::has('register'))
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="{{ route('register') }}">{{ __('新規登録') }}</a>
-                            </li>
-                        @endif
+                        <!-- @if (Route::has('register')) -->
+                            <!-- <li class="nav-item"> -->
+                                <!-- <a class="nav-link text-white" href="{{ route('register') }}">{{ __('新規登録') }}</a> -->
+                            <!-- </li> -->
+                        <!-- @endif -->
                     </ul>
                 </div>
             </div>
@@ -60,7 +60,7 @@
             @yield('content')
         </main>
         <div style="text-align: center">
-            @include ('layouts/components/wnet2020_logo', ['size' => 120])
+            @include ('layouts/components/wnet2020_logo', ['size' => 200])
         </div>
     </div>
 </body>

@@ -8,7 +8,7 @@
         <div class="pl-3 pt-1 pr-3">全{{ $rows->total() }}件</div>
         @if ($withbutton) 
         <?php $href = '/table/'.$tablename.'/download'; ?>
-        <div class="pt-0 mr-2">
+        <div class="pt-0 pb-1 mr-2">
         <form id="table_download" action="{{ $href }}" method="get">
             @include('layouts/components/button', [
                 'margin'    => 'mt-0 p-1',

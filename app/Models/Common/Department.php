@@ -23,7 +23,7 @@ class Department extends Model
         'code' => 'asc',
     ];
     static $referencedcolumns = [
-        'code', 'name', 
+        'company_id', 'code', 'name', 
     ];
     static $uniquekeys = [
         ['code'], ['name'], 

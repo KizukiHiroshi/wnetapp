@@ -292,13 +292,8 @@ class TableService  {
     // Menu表示用のパラメータを取得する
     public function getMenuParams($request) {
         $tablename = $request->tablename;
-        // テーブル名が更新されている時は既存の$columnspropを消す
-        $lasttablename = $this->sessionservice->getSession('tablename');
-        if ($lasttablename !== $tablename) {
-            $this->sessionservice->forgetSession('columnsprop');
-            // 現在のテーブル名をSessionに保存する
-            $this->sessionservice->putSession('tablename', $tablename);
-        }
+        // 現在のテーブル名をSessionに保存する
+        $this->sessionservice->putSession('tablename', $tablename);
         // モデル選択に渡す現在のテーブル名
         $selectedtable = $tablename;
         $modelindex = $this->sessionservice->getSession('modelindex');
@@ -343,13 +338,6 @@ class TableService  {
             // 成功メッセージ
             $success = $request->success !== '' ? $request->success : '';
             // 表示リストの詳細
-            // テーブル名が更新されている時は既存のsessionを消す
-            $lasttablename = $this->sessionservice->getSession('tablename');
-            if ($lasttablename !== $tablename) {
-                $this->sessionservice->forgetSession('columnsprop');
-                $this->sessionservice->forgetSession('lastsort');
-                $this->sessionservice->forgetSession('page');
-            }
             // 表示用のカラム名とプロパティ
             $columnsprop = $this->sessionservice->getSession('columnsprop', $modelindex, $tablename);
             // テーブルの和名
@@ -389,9 +377,6 @@ class TableService  {
     public function getCardParams($request, $mode){
         $tablename = $request->tablename;
         $modelindex = $this->sessionservice->getSession('modelindex');
-        // テーブル名が更新されている時は既存の$columnspropを消す
-        $lasttablename = $this->sessionservice->getSession('tablename');
-        if ($lasttablename !== $tablename) {$this->sessionservice->forgetSession('columnsprop');}
         $columnsprop = $this->sessionservice->getSession('columnsprop', $modelindex, $tablename);
         $id = $request->id;
         // 成功メッセージ
@@ -461,6 +446,19 @@ class TableService  {
     public function killMyfile() {
         $userid = Auth::id();
         $this->commonservice->killMyfile($userid);
+    }
+
+    // $requestの状態からSessionを適正化する
+    public function sessionOptimaize($request) {
+        // テーブル名が更新されている時は既存のtable関連Sessionを消す
+        $tablename = $request->tablename;
+        $lasttablename = $this->sessionservice->getSession('tablename');
+        if ($lasttablename !== $tablename) {
+            $this->sessionservice->putSession('tablename', $tablename);
+            $this->sessionservice->forgetSession('columnsprop');
+            $this->sessionservice->forgetSession('lastsort');
+            $this->sessionservice->forgetSession('page');
+        }
     }
 }
 

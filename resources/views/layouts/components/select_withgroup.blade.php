@@ -17,7 +17,7 @@
 ?>
 
 <div>
-    <select name="{{ $name }}" required class="form-select custom-select m-1 {{ $size }}">
+    <select name="{{ $name }}" required class="form-control form-control-sm m-2 {{ $size }}">
         @if ($withnoselect === 'before')
         <option value="">選択しない</option>
         @endif

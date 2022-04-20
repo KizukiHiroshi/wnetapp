@@ -1,7 +1,7 @@
 <?php
 if (!isset($type))  {$type ='submit';}
 if (!isset($color)) {$color ='primary';}
-if (!isset($margin)) {$margin ='m-1';}
+if (!isset($margin)) {$margin ='m-0';}
 if (!isset($size))  {$size ='sm';}
 if (!isset($value)) {$value ='error';}
 if (!isset($disabled)) {$disabled ='';}

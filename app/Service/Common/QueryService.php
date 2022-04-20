@@ -20,6 +20,14 @@ class QueryService
         // Trashの扱い
         if ($displaymode == 'card') {
             $tablequery = $modelname::withTrashed();
+        } elseif (isset($request->trashed)) {   // 検索条件から
+            if ($request->trashed == 'with') {
+                $tablequery = $modelname::withTrashed();
+            } elseif ($request->trashed == 'only') {
+                $tablequery = $modelname::onlyTrashed();
+            } else {
+                $tablequery = $modelname::query();
+            }
         } else {
             $tablequery = $modelname::query();
         }
@@ -47,10 +55,33 @@ class QueryService
                 $value = $values[0];
                 if (substr($value, 0, 1) == '%') {
                     $tablequery = $tablequery->where($columnsname, 'like', $value);
+                } elseif (strpos($value, ' ') !== false) {  // 同じカラムのAND要素
+                    $subvalues = explode(' ', $value);
+                    foreach ($subvalues as $subvalue) {
+                        if (substr($subvalue, 0, 2) == '>='){
+                            $tablequery = $tablequery->where($columnsname, '>=', substr($subvalue, 2));
+                        } elseif (substr($subvalue, 0, 2) == '<=') {
+                            $tablequery = $tablequery->where($columnsname, '<=', substr($subvalue, 2));
+                        } elseif (substr($subvalue, 0, 1) == '>'){
+                            $tablequery = $tablequery->where($columnsname, '>', substr($subvalue, 1));
+                        } elseif (substr($subvalue, 0, 1) == '<') {
+                            $tablequery = $tablequery->where($columnsname, '<', substr($subvalue, 1));
+                        } else {
+                            $tablequery = $tablequery->where($columnsname, '=', $subvalue);
+                        }
+                    }
+                } elseif (substr($value, 0, 2) == '>='){
+                    $tablequery = $tablequery->where($columnsname, '>=', substr($value, 2));
+                } elseif (substr($value, 0, 2) == '<=') {
+                    $tablequery = $tablequery->where($columnsname, '<=', substr($value, 2));
+                } elseif (substr($value, 0, 1) == '>'){
+                    $tablequery = $tablequery->where($columnsname, '>', substr($value, 1));
+                } elseif (substr($value, 0, 1) == '<') {
+                    $tablequery = $tablequery->where($columnsname, '<', substr($value, 1));
                 } else {
                     $tablequery = $tablequery->where($columnsname, '=', $value);
                 }
-            } else {
+            } else {    // 同じカラムのOR要素
                 $tablequery = $tablequery->where(function($query) use($columnsname, $values){
                     foreach ($values as $value) {
                         if (substr($value, 0, 1) == '%') {
@@ -73,16 +104,36 @@ class QueryService
         foreach ($columnsprop as $columnsname => $prop) {
             if ($request->$columnsname) {
                 if ($prop['type'] == 'string') {
+                    // ' ' スペース検索でAND検索（半角に直しておく）
                     $words = str_replace('　', ' ', $request->$columnsname);;
-                    $words = explode(' ', $words);
+                    // '^' キャレット検索でOR検索
+                    $words = explode('^', $words);
                     $values = [];
                     foreach ($words as $word) {
                         $values[] = '%' . addcslashes($word, '%_\\') . '%';
                     }
                     $where[$prop['tablename'].'.'.$columnsname] = $values;
-                } elseif ($prop['type'] == 'bigint' || $prop['type'] == 'boolean') {
+                } else {
                     $where[$prop['tablename'].'.'.$columnsname] = [$request->$columnsname];
                 }
+            }
+        }
+        // 数値、日付の範囲検索
+        foreach ($columnsprop as $columnsname => $prop) {
+            $bigin = 'bigin_'.$columnsname;
+            $end = 'end_'.$columnsname;
+            if ($request->$bigin) {
+                $value = '>='.$request->$bigin;
+                if ($request->$end) {
+                    $value  .= ' <='.$request->$end;
+                }
+                $where[$prop['tablename'].'.'.$columnsname] = [$value];
+            } elseif ($request->$end) {
+                $value = '<='.$request->$end;
+                if ($request->$bigin) {
+                    $value  .= ' >='.$request->$bigin;
+                }
+                $where[$prop['tablename'].'.'.$columnsname] = [$value];
             }
         }
         return $where;

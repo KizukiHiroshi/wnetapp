@@ -115,7 +115,6 @@ class ModelService {
     ]
     */
     public function getColumnsProp($modelindex, $tablename) {
-        // $columnnames = Schema::getColumnListing($tablename);
         $columns = DB::select('show full columns from '.$tablename);
         $columnsprop = [];
         // テーブルのuniquekey取得
@@ -130,33 +129,66 @@ class ModelService {
             $columnname = $column->Field;
             $sortcolumn = $columnname;
             $isunique = in_array($columnname, $uniquekeys) ? TRUE : NULL;
-            $columnsprop[$columnname] = $this->getColumnProp($tablename, $columnname, $sortcolumn, $isunique);
             // foreign_idの場合
             if (substr($columnname,-3) == '_id' || substr($columnname,-7) == '_id_2nd') {
-                $foreigntablename = Str::plural(Str::before($columnname, '_id'));
-                $foreignmodel = $modelindex[$foreigntablename];
-                // 参照カラムを取得してプロパティに加える
-                $referencedcolumnnames = $foreignmodel['modelname']::$referencedcolumns;
-                foreach($referencedcolumnnames AS $referencedcolumnname) {
-                    $referencedsortcolumnname = $this->checkAlternativeSortColumn($referencedcolumnname, $foreigntablename);
-                    $columnsprop[$columnname.'_'.$referencedcolumnname] = 
-                        $this->getColumnProp($foreigntablename, $referencedcolumnname, $referencedsortcolumnname);
-                    // 参照の参照は2回までとする
-                    if (substr($referencedcolumnname,-3) == '_id') {
-                        $deepforeigntablename = Str::plural(substr($referencedcolumnname, 0, -3));
-                        $deepforeignmodel = $modelindex[$deepforeigntablename];
-                        $deepreferencedcolumnnames = $deepforeignmodel['modelname']::$referencedcolumns;
-                        foreach($deepreferencedcolumnnames AS $deepreferencedcolumnname) {
-                            $deepreferencedsortcolumnname 
-                                = $this->checkAlternativeSortColumn($deepreferencedcolumnname, $deepforeigntablename);
-                            $columnsprop[$columnname.'_'.$referencedcolumnname.'_'.$deepreferencedsortcolumnname] = 
-                                $this->getColumnProp($deepforeigntablename, $deepreferencedcolumnname, $deepreferencedsortcolumnname);
-                        } 
-                    }                                   
-                } 
+                $refcolumnsprop = [];
+                $refcolumnsprop = $this->delveId($refcolumnsprop, $modelindex, $tablename, $columnname);
+                $refcolumnsprop = $this->sortRefcolumnsporp($refcolumnsprop);
+                $columnsprop = array_merge($columnsprop, $refcolumnsprop);
+            } else {
+                $columnsprop[$columnname] = $this->getColumnProp($tablename, $columnname, $sortcolumn, $isunique);
             }
         }
         return $columnsprop;
+    }
+
+    // $refcolumnspropを参照の深い順に並べ替える
+    private function sortRefcolumnsporp($refcolumnsprop) {
+        $newarray = [];
+        $sortarray = [];
+        $keyarray = array_keys($refcolumnsprop);
+        foreach($keyarray as $key) {
+            if (substr($key, -3) == '_id') {
+                $sortarray[$key] = substr_count($key, '_id') * 10;
+            } else {
+                $sortarray[$key] = substr_count($key, '_id') * 10 - 1;
+            }
+        }
+        arsort($sortarray);
+        foreach($sortarray as $key => $value) {
+            $newarray[$key] = $refcolumnsprop[$key];
+        }
+        return $newarray;
+    }
+
+    // 参照キー(〇〇_id)の参照先を$columnspropに入れる再帰関数
+    private function delveId ($refcolumnsprop, $modelindex, $tablename, $columnname) {
+        // '_id_'が含まれていればそこまで消す
+        if (strripos($columnname, '_id_')) {
+            $realcolumnname = substr($columnname, strripos($columnname, '_id_') + 4);
+        } else {
+            $refcolumnsprop[$columnname] = $this->getColumnProp($tablename, $columnname, $columnname);
+            $realcolumnname = $columnname ;
+        }
+        $foreigntablename = Str::plural(Str::before($realcolumnname, '_id'));
+        $foreignmodel = $modelindex[$foreigntablename];
+        $referencedcolumnnames = $foreignmodel['modelname']::$referencedcolumns;
+        $refcolumnname = '';
+        foreach($referencedcolumnnames AS $referencedcolumnname) {
+            $referencedsortcolumnname
+                = $this->checkAlternativeSortColumn($referencedcolumnname, $foreigntablename);
+            $newprop = [$columnname.'_'.$referencedcolumnname =>
+                $this->getColumnProp($foreigntablename, $referencedcolumnname, $referencedsortcolumnname)];
+            $refcolumnsprop = array_merge($refcolumnsprop, $newprop);
+            if (substr($referencedcolumnname,-3) == '_id') {
+                $refcolumnname = $columnname.'_'.$referencedcolumnname;
+            }
+        }
+        if ($refcolumnname == '') {
+            return $refcolumnsprop;
+        } else {
+            return $this->delveId ($refcolumnsprop, $modelindex, $foreigntablename, $refcolumnname);
+        }
     }
 
     // $columnsprop取得
