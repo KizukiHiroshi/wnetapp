@@ -7,12 +7,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use App\ValidateTrait;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
     use SoftDeletes;
+    use ValidateTrait;
     static $tablecomment = 'ログインユーザー';
     static $modelzone = '';
     static $defaultsort = [
@@ -24,6 +25,11 @@ class User extends Authenticatable
     static $uniquekeys = [
         ['email'],
     ];
+    protected function rules() {
+        return [
+        ];
+    }
+
     public function accounts() {
         return $this->hasMany(Account::class);
     }

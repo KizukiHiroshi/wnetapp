@@ -47,12 +47,38 @@ class DbioService
     }
     
     // 表示するListの実体を取得する
-    public function getRows($request, $modelindex, $columnsprop, $tempsort, $paginatecnt) {
+    public function getRows($request, $modelindex, $columnsprop, $searchinput, $paginatecnt, $tempsort) {
         $displaymode = 'list';
-        $tablequery = $this->queryservice->getTableQuery($request, $modelindex, $columnsprop, $displaymode, $tempsort);
-        // ダウンロードをするためにsqlを保存する
-        $downloadsql = $tablequery->toSql();
-        $this->sessionservice->putSession('downloadsql', $downloadsql);
+        $tablequery = $this->queryservice->getTableQuery($request, $modelindex, $columnsprop, $searchinput, $displaymode, $tempsort);
+        // $tablequeryからリスト表示に使用したsql文をSessionに保存する
+        $this->saveTempsql($tablequery);
+        // 取得実行
+        $rows = $tablequery->Paginate($paginatecnt);
+        return $rows;
+    }
+
+    // $tablequeryからリスト表示に使用したsql文をSessionに保存する
+    private function saveTempsql($tablequery) {
+        $sqlparams = [];
+        // パラメータを取り出す
+        $rawparams = $tablequery->getBindings();
+        // コーテーションで囲む
+        foreach ($rawparams as $rawparam) {
+            $sqlparams[] = "'".$rawparam."'";
+        }
+        // パラメータをSQLに入れる
+        $tempsql = preg_replace_array('/\?/', $sqlparams, $tablequery->toSql());
+        $this->sessionservice->putSession('tempsql', $tempsql);
+    }
+
+    // 既存のDownload用のSqlで表示するListの実体を取得する
+    public function getRowsWithDownloadSql($request, $paginatecnt) {
+        $displaymode = 'list';
+        $tablename = $request->tablename;
+        $modelname = $this->modelindex[$tablename]['modelname'];
+        $rawsql = $this->sessionservice->getSession('tempsql');
+        $tablequery = $modelname::query();
+        $tablequery = $tablequery->select($rawsql);
         // 取得実行
         $rows = $tablequery->Paginate($paginatecnt);
         return $rows;
@@ -61,8 +87,9 @@ class DbioService
     // 表示する行の実体を取得する
     public function getRowById($request, $modelindex, $columnsprop, $id) {
         // queryのfrom,join,select句を取得する
+        $searchinput  = null;
         $displaymode = 'card';
-        $tablequery = $this->queryservice->getTableQuery($request, $modelindex, $columnsprop, $displaymode);
+        $tablequery = $this->queryservice->getTableQuery($request, $modelindex, $columnsprop, $searchinput, $displaymode, $tempsort = null);
         // where句
         $tablename = $request->tablename;
         $tablequery = $tablequery->where($tablename.'.id', '=', $id);
@@ -73,27 +100,30 @@ class DbioService
     // card表示用にforeignkey用のセレクトリストを用意する
     public function getForeginSelects($columnsprop) {
         $foreignselects = [];
-        $referencetablename = '';    // 参照先テーブル名
         $concats = [];           // 合体する参照先カラムの配列
         // 必要なセレクトをまず決める
         foreach ($columnsprop AS $columnname => $prop) {
             if (substr($columnname, -3) =='_id' || substr($columnname, -7) =='_id_2nd') {
                 // 参照元カラム名を取得する
-                $forerignreferencename = $columnname.'_reference';
+                $forerignreferencename = substr($columnname, 0, strripos($columnname, '_id')).'_id_reference';
                 $foreignselects[$forerignreferencename] = [];
             }
         }
-        // セレクトの実体を得る
+        // foreignkey用セレクトの実体を得る
         foreach ($foreignselects AS $forerignreferencename => $blank) {
             foreach ($columnsprop AS $columnname => $prop) {
-                if (Str::before($columnname,'_id_') == Str::before($forerignreferencename,'_id_reference')
-                    || Str::before($columnname,'_id_') == Str::before($forerignreferencename,'_id_2nd_reference')) {
-                    // 参照元カラム名を取得する
-                    $referencetablename = Str::plural(Str::before($columnname,'_id_'));
-                    $concats[Str::before($columnname,'_id_').'_id'] = $prop['tablename'].'.'.$prop['realcolumn'];
+                // referenceの対象カラムを探す
+                if (strripos($columnname, '_id_') 
+                    && strpos($columnname, '_id_2nd') == false 
+                    && substr($columnname, -3) !== '_id') {
+                    if (substr($columnname, 0, strripos($columnname, '_id_')) 
+                        == substr($forerignreferencename, 0, strripos($forerignreferencename, '_id_'))) {
+                        $referencetablename = $prop['tablename'];
+                        $concats[] = $prop['tablename'].'.'.$prop['realcolumn'];
+                    }
                 }
             }
-            $foreignselectrows = $this->getIdReferenceSelects($referencetablename, $concats);
+            $foreignselectrows = $this->getIdReferenceSelects($forerignreferencename, $referencetablename, $concats);
             $foreignselects[$forerignreferencename] = $foreignselectrows;
             // 参照内容を初期化
             $concats = [];
@@ -102,19 +132,18 @@ class DbioService
     }
 
     // 参照用selects作成
-    public function getIdReferenceSelects($tablename, $concats) {
+    public function getIdReferenceSelects($referencename, $tablename, $concats) {
         $idreferenceselects =[];
-        $referencedcolumnname = $tablename.'_reference';
         // queryのfrom,join,select句を取得する
         $modelname = $this->modelindex[$tablename]['modelname'];
         $tablequery = $modelname::query();
         // from句
         $tablequery = $tablequery->from($tablename);
-        $concatclause = $this->queryservice->getConcatClause($concats, ' ', $referencedcolumnname);
+        $concatclause = $this->queryservice->getConcatClause($concats, ' ', $referencename);
         $tablequery = $tablequery->select('id', DB::raw($concatclause));
         $rows = $tablequery->get();
         foreach ($rows AS $row) {
-            $idreferenceselects[$row->id] = $row->$referencedcolumnname;
+            $idreferenceselects[$row->id] = $row->$referencename;
         }
         return $idreferenceselects;
     }
@@ -163,10 +192,10 @@ class DbioService
         return $foundid;
     }
 
+    // 汎用の登録・更新プロセス
     // tablename:対象のテーブル
     // $form:挿入変更するカラムと値
     // $id:isnull->STORE,not null->UPDATE
-    // $mode:save->実行してERRORを発生する、check->チェックしてTEXTを返す
     // return:ERRORであればException又はText、正常であれば$id
     public function excuteProcess($tablename, $form, $id){
         $modelname = $this->modelindex[$tablename]['modelname'];

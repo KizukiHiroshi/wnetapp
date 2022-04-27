@@ -25,6 +25,7 @@ class CreateMembersTable extends Migration
             $table->string('name_kana')->comment('カナ', 20);
             $table->string('name_short')->comment('略称', 12);
             $table->string('password')->comment('パスワード', 16)->default('password');
+            $table->string('email')->comment('個人メール', 50)->nullable();
             $table->smallInteger('hourlywage')->comment('時給');
             $table->date('start_fulltime_on')->comment('社員採用日')->nullable();
             $table->date('start_2nd_on')->comment('異動日')->nullable();

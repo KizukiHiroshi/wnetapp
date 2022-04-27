@@ -153,15 +153,27 @@ return [
     */
 
     'attributes' => [
-        'name'          => '名前',
+        'approved_at'   => '承認日時',
+        'approved_by'   => '承認者',
+        'created_at'    => '作成日時',
+        'created_by'    => '作成者',
+        'deleted_at'    => '削除日時',
         'email'         => 'メールアドレス',
-        'password'      => 'パスワード',
-        'name_sei'      => '姓',
-        'name_mei'      => '名',
-        'name_short'    => '略称',
-        'name_kana'     => 'カナ',
+        'end_on'        => '終了日',
+        'faxno'         => 'FAX',
         'importance'    => '重要度',
+        'name'          => '名前',
+        'name_kana'     => 'カナ',
+        'name_mei'      => '名',
+        'name_sei'      => '姓',
+        'name_short'    => '略称',
+        'password'      => 'パスワード',
+        'postalcode'    => '郵便番号',
         'solution'      => '解決策',
+        'start_on'      => '開始日',
+        'telno'         => '電話',
+        'updated_at'    => '更新日時',
+        'updated_by'    => '更新者',
     ],
 
 ];

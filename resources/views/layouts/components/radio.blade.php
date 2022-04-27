@@ -19,7 +19,7 @@ $buttoncnt = 1;
         ?>
         <input class="form-check-input" type="radio" name="{{ $name }}" id="{{ $button['id'] }}" 
             value="{{ $button['value'] }}" {{ $checked }} {{ $disabled }}>
-        @if ($button['label'] != '')
+        @if ($button['label'] !== '')
         <label class="form-check-label" for="{{ $button['id'] }}">
             {{ $button['label'] }}
         </label>

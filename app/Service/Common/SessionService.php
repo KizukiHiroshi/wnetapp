@@ -21,8 +21,9 @@ class SessionService
         'tablename'     => ['service' => '', 'redirect' => ''],
         'lastsort'      => ['service' => '', 'redirect' => ''],
         'page'          => ['service' => '', 'redirect' => ''],
-        'downloadsql'   => ['service' => '', 'redirect' => ''],
+        'tempsql'       => ['service' => '', 'redirect' => ''],
         'iddictionary'  => ['service' => '', 'redirect' => ''],
+        'searchinput'   => ['service' => '', 'redirect' => ''],
     ];
 
     // 外部からのSession呼び出しに答える

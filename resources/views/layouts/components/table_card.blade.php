@@ -74,7 +74,7 @@
     <input type="hidden" name="id" value={{ $row->id }}>
     <table class="table table-striped table-hover table-sm table-responsive">
         @foreach ($cardcolumnsprop as $columnname => $prop)
-        @if ($columnname != 'id' && substr($columnname,-3)!='_id' && substr($columnname,-7)!='_id_2nd')
+        @if ($columnname !== 'id' && substr($columnname,-3) !== '_id' && substr($columnname,-7) !== '_id_2nd')
         <?php
         // システム制御カラムはリードオンリーにする
             if (substr($columnname, -3) == '_at' || substr($columnname, -3) == '_by') {
@@ -84,8 +84,8 @@
             }
         // mode==showでは全てリードオンリーにする 
         if ($mode == 'show') { $readonly ='readonly="readonly"';} 
-        // 作成日・更新者等の情報は小さな文字にする★未完
-        if (substr($columnname, -3)=='_at' || substr($columnname, -3)=='_on' || substr($columnname, -3)=='_by') 
+        // 作成日・更新者等の情報は小さな文字にする
+        if (substr($columnname, -3) == '_at' || substr($columnname, -3) == '_on' || substr($columnname, -3) == '_by') 
             {$is_small = true;} else {$is_small = false;}
         ?>
         <tr>           
@@ -96,11 +96,12 @@
             </th>
             <td>
             @if($is_small) <small> @endif
-            @if (substr($columnname,-10)=='_reference')
+            @if (substr($columnname,-10) == '_reference')
                 <?php $foreignid = substr($columnname,0,-10); ?>
+                <?php $selectname = str_replace('_2nd','', $columnname); ?>
                 @include('layouts/components/select', [
                     'name'      => $foreignid,
-                    'selects'   => $foreignselects[$columnname],
+                    'selects'   => $foreignselects[$selectname],
                     'selected'  => $row->$foreignid,
                     'readonly'  => $readonly,
                 ])
@@ -121,7 +122,7 @@
                 @case('boolean')
                     <div class="input-group">
                         <?php $checked = $row->$columnname == '1' ? 'checked' : '';?>
-                        <?php $disabled = $readonly != '' ? 'disabled="disabled"' : ''; ?>
+                        <?php $disabled = $readonly !== '' ? 'disabled="disabled"' : ''; ?>
                         <input type="hidden" name="{{ $columnname }}" value="0">
                         @include('layouts/components/checkbox', [
                             'name'      => $columnname,

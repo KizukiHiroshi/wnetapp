@@ -12,9 +12,22 @@ trait ValidateTrait
         return [];
     }
  
+    private $properrules = [
+        'deleted_at'    => ['nullable','date',],
+        'created_at'    => ['date',],
+        'created_by'    => ['string',],
+        'updated_at'    => ['date',],
+        'updated_by'    => ['string',],
+        'approved_at'   => ['nullable','date',],
+        'approved_by'   => ['nullable','string',],
+        'start_on'      => ['nullable','date',],
+        'end_on'        => ['nullable','date',],
+    ];
+
     public function save(array $options = [])
     {
         $rules = $this->rules();
+        $rules = array_merge($rules, $this->properrules);
         if (count($rules)) {
             $subject   = $this->attributes;
             $validator = Validator::make($subject, $rules);
@@ -28,6 +41,7 @@ trait ValidateTrait
     public function csvSave(array $options = [])
     {
         $rules = $this->rules();
+        $rules = array_merge($rules, $this->properrules);
         if (count($rules)) {
             $subject   = $this->attributes;
             $validator = Validator::make($subject, $rules);
@@ -42,6 +56,7 @@ trait ValidateTrait
     public function csvCheck()
     {
         $rules = $this->rules();
+        $rules = array_merge($rules, $this->properrules);
         if (count($rules)) {
             $subject   = $this->attributes;
             $validator = Validator::make($subject, $rules);

@@ -60,7 +60,7 @@
             @yield('content')
         </main>
         <div style="text-align: center">
-            @include ('layouts/components/wnet2020_logo', ['size' => 200])
+            @include ('layouts/components/wnet2020_logo', ['size' => 300])
         </div>
     </div>
 </body>

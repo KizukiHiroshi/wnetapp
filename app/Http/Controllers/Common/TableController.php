@@ -31,10 +31,12 @@ class TableController extends Controller
 
     // (GET) http://wnet2020.com/table/{tablename}　・・・　一覧表示。index()    
     public function index(Request $request) {
+        // request内容の変更に応じて既存のセッションを消す
         $this->tableservice->sessionOptimaize($request);
-        // List表示用のパラメータを取得する
+        // Table選択、検索表示のパラメータを取得する
         $params = $this->tableservice->getMenuParams($request);
-        $params += $this->tableservice->getListParams($request);
+        // List表示用のパラメータを取得する
+        $params = array_merge($params, $this->tableservice->getListParams($request, $params));
         return view('common/table')->with($params);
     }
 
@@ -58,45 +60,49 @@ class TableController extends Controller
 
     // カードを表示する
     public function displayCard($mode, $request) {
+        // request内容の変更に応じて既存のセッションを消す
         $this->tableservice->sessionOptimaize($request);
+        // Table選択、検索表示のパラメータを取得する
         $params = $this->tableservice->getMenuParams($request);
+        // Card表示用のパラメータを取得する
         $params += $this->tableservice->getCardParams($request, $mode);
         return view('common/table')->with($params);
     }
 
     // (POST) http://wnet2020.com/table/{tablename}　・・・　追加。store()
-    /**
-     *
-     * @param  \App\Http\Requests\Common\TableRequest  $request
-     * @return Illuminate\Http\Response
-    */
     public function store(Request $request) {
+        // $requestから新規登録に必要な値の配列を得る
         $form = $request->all();
-        // $requestをtableに合わせた配列にする
         $sqlmode = 'store';
         $form = $this->modelservice->getForm($request, $sqlmode);
         // 登録実行
         $tablename = $request->tablename;
         $id = null;
+        // 汎用の登録・更新プロセス 
         $createdid = $this->dbioservice->excuteProcess($tablename, $form, $id);
         if ($createdid) {
+            // 完了メッセージ
             $success = '登録しました';
+            // 登録された行の表示
             return redirect('/table/'.$tablename.'/'.$createdid.'/show/?success='.$success);
         }
     }
 
     // (PUT) http://wnet2020.com/table/{tablename}/{id}　・・・　更新。update()
     public function update(Request $request) {
+        // $requestから更新に必要な値の配列を得る
         $form = $request->all();
-        // $requestをtableに合わせた配列にする
         $sqlmode = 'update';
         $form = $this->modelservice->getForm($request, $sqlmode);
         // 更新実行
         $tablename = $request->tablename;
         $id = $request->id;
+        // 汎用の登録・更新プロセス 
         $id = $this->dbioservice->excuteProcess($tablename, $form, $id);
         if ($id) {
+            // 完了メッセージ
             $success = '更新しました';
+            // 更新された行の表示
             return redirect('/table/'.$tablename.'/'.$id.'/show?success='.$success);
         }
     }
@@ -105,12 +111,12 @@ class TableController extends Controller
     public function delete(Request $request) {
         $tablename = $request->tablename;
         $id = $request->id;
-        // 更新実行
+        // 削除更新(softDelete)実行
         if ($this->dbioservice->is_Deleted($tablename, $id)) {
-            // 現在のページ
-            $page = $request->page !== '' ? $request->page : '';
             // 完了メッセージ
             $success = '削除しました';
+            // 元のページ表示
+            $page = $request->page !== '' ? $request->page : '';
             return redirect('/table/'.$tablename.'?page='.$page.'&success='.$success);
         } else {
 
@@ -121,12 +127,12 @@ class TableController extends Controller
     public function forcedelete(Request $request) {
         $tablename = $request->tablename;
         $id = $request->id;
-        // 更新実行
+        // 完全削除実行
         if ($this->dbioservice->is_forceDeleted($tablename, $id)) {
-            // 現在のページ
-            $page = $request->page !== '' ? $request->page : '';
             // 完了メッセージ
             $success = '完全削除しました';
+            // 元のページ表示
+            $page = $request->page !== '' ? $request->page : '';
             return redirect('/table/'.$tablename.'?page='.$page.'&success='.$success);
         } else {
 
@@ -137,23 +143,26 @@ class TableController extends Controller
     public function restore(Request $request) {
         $tablename = $request->tablename;
         $id = $request->id;
-        // 更新実行
+        // 復活実行
         if ($this->dbioservice->is_Restored($tablename, $id)) {
             // 完了メッセージ
             $success = '復活しました';
+            // 復活した行の表示
             return redirect('/table/'.$tablename.'/'.$id.'/show'.'?success='.$success);
         } else {
 
         }
     }
 
-    // 表示Listをダウンロードする
+    // 表示中のListを指定Excelシートに適合したCSVファイルでダウンロードする
     /**
      * Export List with csv
      * @return Symfony\Component\HttpFoundation\StreamedResponse
      */
     public function download(Request $request) {
+        // 表示Listのダウンロード用CSVを取得する
         $downloadcsv = $this->tableservice->getDownloadCSV($request);
+        // CSV出力処理
         $response = new StreamedResponse (function() use ($downloadcsv){
             $stream = fopen('php://output', 'w');
             //　文字化け回避
@@ -169,18 +178,23 @@ class TableController extends Controller
         return $response;
     }
 
-    // アップロード
+    // 指定Excelシートから出力したしたCSVファイルをアップロードする
     public function csvupload(Request $request) {
+        // Upload画面から処理段階($csv)を得る
         $csvmode = $request->csvmode;
         if ($csvmode !== 'csvcancel') {
+            // $csvmodeに合わせて処理する
             $uploadresult = $this->tableservice->csvUpload($request, $csvmode);
+            // Table選択、検索表示のパラメータを取得する
             $params = $this->tableservice->getMenuParams($request);
+            // Upload画面表示に必要なパラメータを準備する
             $params += $this->tableservice->getUploadParams($request, $uploadresult);
             return view('common/table')->with($params);    
         } elseif ($csvmode == 'csvcancel') {
             // strage/app/public/csv内の自分のファイル削除
             $this->tableservice->killMyfile();
             $tablename = $request->tablename;
+            // リスト表示
             return redirect('/table/'.$tablename);
         }
     }

@@ -1,4 +1,4 @@
-@if ($name!='id' && substr($name,-3)!='_id')   {{-- idは表示しない --}}
+@if ($name !== 'id' && substr($name,-3) !== '_id')   {{-- idは表示しない --}}
     <?php 
     // 数値は右揃えにする
     if (strpos($type,'int') !== false || $type == 'decimal') {
@@ -7,8 +7,8 @@
     } else {
         $style ='';
     }
-    // 作成日・更新者等の情報は小さな文字にする★未完
-    if (substr($columnname, -3)=='_at' || substr($columnname, -3)=='_on' || substr($columnname, -3)=='_by') 
+    // 作成日・更新者等の情報は小さな文字にする
+    if (substr($columnname, -3) == '_at' || substr($columnname, -3) == '_on' || substr($columnname, -3) == '_by') 
         {$is_small = true;} else {$is_small = false;}
     ?>
 

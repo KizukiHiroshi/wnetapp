@@ -26,6 +26,7 @@ class CreateCompaniesTable extends Migration
             $table->string('telno')->comment('電話', 13);
             $table->string('foxno')->comment('FAX', 13)->nullable();
             $table->string('url')->comment('URL', 100)->nullable();
+            $table->string('email')->comment('email', 50)->nullable();
             $table->boolean('is_buyer')->comment('顧客先FLAG')->default(0);
             $table->boolean('is_vendor')->comment('仕入先FLAG')->default(0);
             $table->boolean('can_order')->comment('購入機能有無')->default(0);

@@ -26,16 +26,16 @@ if ($mode=='csvcheck'||$mode=='csvselect')  {
             @endif
             <div class="mt-2">
                 @include('layouts/components/checkbox', [
-                    'name'      => 'uploadway',
-                    'value'     => 'allstore',
+                    'name'      => 'is_insertonly',
+                    'value'     => '1',
                     'label'     => '新規のみ',
                     'checked'   => '',
                 ])
             </div>
             <div class="mt-2 pl-5">
                 @include('layouts/components/checkbox', [
-                    'name'      => 'allowforeigninsert',
-                    'value'     => 'allow',
+                    'name'      => 'is_allowforeigninsert',
+                    'value'     => '1',
                     'label'     => '参照元の更新を許可する',
                     'checked'   => '',
                 ])

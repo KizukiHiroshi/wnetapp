@@ -9,7 +9,12 @@ use Illuminate\Support\Facades\Storage;
 
 class CommonService {
 
-    // $requestから要素を抽出する
+    // $nを$bで囲む
+    public function brackets($n, $b){
+        return $b.$n.$b;
+    }
+      
+    // $requestから$columnspropに合致する要素を抽出する
     public function getOldinput($request, $columnsprop) {
         $oldinput =[];
         foreach ($columnsprop as $columnsname => $prop) {

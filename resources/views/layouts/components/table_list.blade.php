@@ -1,4 +1,3 @@
-
 <table class="table table-striped table-hover table-sm table-responsive m-0">
     {{-- 制御部 --}}
     @if ($rows)

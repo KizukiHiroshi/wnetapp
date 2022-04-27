@@ -13,12 +13,12 @@
   if (!isset($withnoselect)) {$withnoselect = '';}
   if (!isset($size)) {$size = '';}
   if (!isset($readonly)) {$readonly = '';}
-  $disabled = $readonly!='' ? 'disabled' : '';
+  $disabled = $readonly !== '' ? 'disabled' : '';
 ?>
 
 <div>
     <select name="{{ $name }}" required class="form-control form-control-sm m-2 {{ $size }}">
-        @if ($withnoselect === 'before')
+        @if ($withnoselect == 'before')
         <option value="">選択しない</option>
         @endif
         <?php $tempgroup = 'dammytempgroup'; // ダミーのグループ ?>

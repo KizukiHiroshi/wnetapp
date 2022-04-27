@@ -3,10 +3,12 @@ namespace App\Models\Zero;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\ValidateTrait;
 
 class Jobtype extends Model
 {
     use SoftDeletes;
+    use ValidateTrait;
     protected $guarded = [];
     static $tablecomment = '業務種類';
     static $modelzone = 'システム開発';

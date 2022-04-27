@@ -52,6 +52,7 @@ class Member extends Model
             'name_kana' => ['required','string','max:20','regex:/^[ァ-ンヴー]+$/'],
             'name_short' => ['required','string','max:12','regex:/[^\x01-\x7E\uFF61-\uFF9F()]/'],
             'password' => ['required','string','max:16','regex:/^[a-zA-Z0-9-_]+$/'],
+            'email' => ['nullable','string','max:50','email'],
             'hourlywage' => ['required','integer','numeric',],
             'start_fulltime_on' => ['nullable','date',],
             'start_2nd_on' => ['nullable','date',],

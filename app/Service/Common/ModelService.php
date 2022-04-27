@@ -164,7 +164,7 @@ class ModelService {
     // 参照キー(〇〇_id)の参照先を$columnspropに入れる再帰関数
     private function delveId ($refcolumnsprop, $modelindex, $tablename, $columnname) {
         // '_id_'が含まれていればそこまで消す
-        if (strripos($columnname, '_id_')) {
+        if (strripos($columnname, '_id_') && substr($columnname,-7) !== '_id_2nd') {
             $realcolumnname = substr($columnname, strripos($columnname, '_id_') + 4);
         } else {
             $refcolumnsprop[$columnname] = $this->getColumnProp($tablename, $columnname, $columnname);
@@ -316,4 +316,15 @@ class ModelService {
         return 15;
     }
 
+    // searchで入力されたbigin_,end_ヘッダー付検索条件を、
+    // validationの対象にするために元のカラム名に戻す
+    public function getFormforSearch($withhearder, $columnsprop, $searchinput) {
+        $form = [];
+        foreach ($columnsprop as $columnname => $value) {
+            if (array_key_exists($withhearder.$columnname, $searchinput)) {
+                $form[$columnname] = $searchinput[$withhearder.$columnname];
+            }
+        }
+        return $form;
+    }
 }

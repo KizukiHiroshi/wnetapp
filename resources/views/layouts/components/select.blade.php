@@ -14,7 +14,7 @@
   if (!isset($withnoselect)) {$withnoselect = '';}
   if (!isset($size)) {$size = '';}
   if (!isset($readonly)) {$readonly = '';}
-  $disabled = $readonly!='' ? 'disabled' : '';
+  $disabled = $readonly !== '' ? 'disabled' : '';
   $required = $withnoselect == '' ? 'required' : '';
 ?>
 

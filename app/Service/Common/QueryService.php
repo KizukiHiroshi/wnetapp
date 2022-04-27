@@ -12,9 +12,9 @@ use Illuminate\Support\Str;
 class QueryService 
 {
     // queryのfrom,join,select句を取得する
-    public function getTableQuery($request, $modelindex, $columnsprop, $displaymode, $tempsort = null) {
+    public function getTableQuery($request, $modelindex, $columnsprop, $searchinput, $displaymode, $tempsort = null) {
         $tablename= $request->tablename;
-        $where = $this->getWhere($request, $columnsprop);
+        $where = $this->getWhere($searchinput, $columnsprop);
         $group = $request->group;
         $modelname = $modelindex[$tablename]['modelname'];
         // Trashの扱い
@@ -58,26 +58,14 @@ class QueryService
                 } elseif (strpos($value, ' ') !== false) {  // 同じカラムのAND要素
                     $subvalues = explode(' ', $value);
                     foreach ($subvalues as $subvalue) {
-                        if (substr($subvalue, 0, 2) == '>='){
-                            $tablequery = $tablequery->where($columnsname, '>=', substr($subvalue, 2));
-                        } elseif (substr($subvalue, 0, 2) == '<=') {
-                            $tablequery = $tablequery->where($columnsname, '<=', substr($subvalue, 2));
-                        } elseif (substr($subvalue, 0, 1) == '>'){
-                            $tablequery = $tablequery->where($columnsname, '>', substr($subvalue, 1));
-                        } elseif (substr($subvalue, 0, 1) == '<') {
-                            $tablequery = $tablequery->where($columnsname, '<', substr($subvalue, 1));
+                        if (strpos($subvalue, '|') !== false) {     // '|'は不等式と値の間のキャラクター
+                            $inequality = substr($subvalue, 0, strpos($subvalue, '|'));
+                            $value =substr($subvalue, strpos($subvalue, '|'));
+                            $tablequery = $tablequery->where($columnsname, $inequality, $value);
                         } else {
                             $tablequery = $tablequery->where($columnsname, '=', $subvalue);
                         }
                     }
-                } elseif (substr($value, 0, 2) == '>='){
-                    $tablequery = $tablequery->where($columnsname, '>=', substr($value, 2));
-                } elseif (substr($value, 0, 2) == '<=') {
-                    $tablequery = $tablequery->where($columnsname, '<=', substr($value, 2));
-                } elseif (substr($value, 0, 1) == '>'){
-                    $tablequery = $tablequery->where($columnsname, '>', substr($value, 1));
-                } elseif (substr($value, 0, 1) == '<') {
-                    $tablequery = $tablequery->where($columnsname, '<', substr($value, 1));
                 } else {
                     $tablequery = $tablequery->where($columnsname, '=', $value);
                 }
@@ -99,22 +87,24 @@ class QueryService
 
     // $requestから検索要素を抽出する
     // 'string'は like
-    private function getWhere($request, $columnsprop) {
+    private function getWhere($searchinput, $columnsprop) {
         $where =[];
-        foreach ($columnsprop as $columnsname => $prop) {
-            if ($request->$columnsname) {
+        // 文字の検索
+        foreach ($columnsprop as $columnname => $prop) {
+            if (array_key_exists($columnname, $searchinput)
+                && $searchinput[$columnname] !== null) {
                 if ($prop['type'] == 'string') {
                     // ' ' スペース検索でAND検索（半角に直しておく）
-                    $words = str_replace('　', ' ', $request->$columnsname);;
+                    $words = str_replace('　', ' ', $searchinput[$columnname]);;
                     // '^' キャレット検索でOR検索
                     $words = explode('^', $words);
                     $values = [];
                     foreach ($words as $word) {
                         $values[] = '%' . addcslashes($word, '%_\\') . '%';
                     }
-                    $where[$prop['tablename'].'.'.$columnsname] = $values;
+                    $where[$prop['tablename'].'.'.$prop['realcolumn']] = $values;
                 } else {
-                    $where[$prop['tablename'].'.'.$columnsname] = [$request->$columnsname];
+                    $where[$prop['tablename'].'.'.$prop['realcolumn']] = [$searchinput[$columnname]];
                 }
             }
         }
@@ -122,16 +112,18 @@ class QueryService
         foreach ($columnsprop as $columnsname => $prop) {
             $bigin = 'bigin_'.$columnsname;
             $end = 'end_'.$columnsname;
-            if ($request->$bigin) {
-                $value = '>='.$request->$bigin;
-                if ($request->$end) {
-                    $value  .= ' <='.$request->$end;
+            if (array_key_exists($bigin, $searchinput)
+                && $searchinput[$bigin] !== null) {
+                $value = '>=|'.$searchinput[$bigin];        // '|'は不等式と値の間のキャラクター
+                if (array_key_exists($end, $searchinput)) {
+                    $value  .= ' <=|'.$searchinput[$end];   // 先頭のスペースがアンド検索要素
                 }
                 $where[$prop['tablename'].'.'.$columnsname] = [$value];
-            } elseif ($request->$end) {
-                $value = '<='.$request->$end;
-                if ($request->$bigin) {
-                    $value  .= ' >='.$request->$bigin;
+            } elseif (array_key_exists($end, $searchinput)
+                && $searchinput[$end] !== null) {
+                $value = '<=|'.$searchinput[$end];              // '|'は不等式と値の間のキャラクター
+                if (array_key_exists($bigin, $searchinput)) {
+                    $value  .= ' >=|'.$searchinput[$bigin];     // 先頭のスペースがアンド検索要素
                 }
                 $where[$prop['tablename'].'.'.$columnsname] = [$value];
             }
@@ -141,24 +133,65 @@ class QueryService
 
     // tablequeryにjoin句を足す
     private function addJoinToQuery($tablequery, $tablename, $columnsprop) {
+        // '〇_id'と参照の深さを得る
+        $foreignkeys = [];
         foreach ($columnsprop as $columnname => $poroperty) {
             if (substr($columnname, -3) == '_id') {
-                if (strpos($columnname, '_id_') == false) {
-                    $foreigntablename = Str::plural(substr($columnname, 0, -3));
-                    $tablequery = $tablequery
-                        ->join($foreigntablename, $tablename.'.'.$columnname,'=', $foreigntablename.".id");
-                } else {
-                    $foreigntablename = Str::plural(substr($columnname, 0, strpos($columnname, '_id_')));
-                    $deepforeigncolumnname = substr($columnname, strpos($columnname, '_id_') +4);
-                    $deepforeigntablename = Str::plural(substr($deepforeigncolumnname, 0, -3));
-                    $tablequery = $tablequery
-                        ->join($deepforeigntablename, 
-                            $foreigntablename.".".$deepforeigncolumnname,'=', $deepforeigntablename.".id");
-                }
+                $foreignkeys[$columnname] = substr_count($columnname, '_id');
             }
+        }
+        // 参照の浅い順に並べ替える
+        asort($foreignkeys);
+        // join句にして追加する（$valueは'_id'の数)
+        foreach ($foreignkeys as $foreignkey => $value) {
+            $sourcetablename = '';  // 参照元テーブル名
+            $sourcecolumnname ='';  // 参照元カラム;
+            $foreigntablename = ''; // 参照先テーブル名
+            if ($value == 1) {  // '_id_'が含まれていない
+                $sourcetablename = $tablename;
+                $sourcecolumnname = $foreignkey;
+                $foreigntablename = Str::plural(substr($foreignkey, 0, -3));
+            } else {
+                // 後ろから2つ目のテーブル名
+                // 一番後ろを消す
+                $sourcetablename = substr($foreignkey, 0, strrpos($foreignkey, '_id_'));
+                // 前に残っていればそれも消す
+                if (strrpos($sourcetablename, '_id_')) {
+                    $sourcetablename = substr($sourcetablename, strrpos($sourcetablename, '_id_') +4);
+                }
+                $sourcetablename = Str::plural($sourcetablename);
+                // 一番後ろの'〇_id'
+                $sourcecolumnname = substr($foreignkey, strrpos($foreignkey, '_id_') +4);
+                // 一番後ろのテーブル名
+                $foreigntablename = Str::plural(substr($sourcecolumnname, 0, -3));    
+
+            }
+            $tablequery = $tablequery
+                ->join($foreigntablename, $sourcetablename.'.'.$sourcecolumnname,'=', $foreigntablename.".id");
         }
         return $tablequery;
     }
+
+    // // tablequeryにjoin句を足す
+    // private function addJoinToQuery($tablequery, $tablename, $columnsprop) {
+    //     foreach ($columnsprop as $columnname => $poroperty) {
+    //         if (substr($columnname, -3) == '_id') {
+    //             if (strpos($columnname, '_id_') == false) {
+    //                 $foreigntablename = Str::plural(substr($columnname, 0, -3));
+    //                 $tablequery = $tablequery
+    //                     ->join($foreigntablename, $tablename.'.'.$columnname,'=', $foreigntablename.".id");
+    //             } else {
+    //                 $foreigntablename = Str::plural(substr($columnname, 0, strpos($columnname, '_id_')));
+    //                 $deepforeigncolumnname = substr($columnname, strpos($columnname, '_id_') +4);
+    //                 $deepforeigntablename = Str::plural(substr($deepforeigncolumnname, 0, -3));
+    //                 $tablequery = $tablequery
+    //                     ->join($deepforeigntablename, 
+    //                         $foreigntablename.".".$deepforeigncolumnname,'=', $deepforeigntablename.".id");
+    //             }
+    //         }
+    //     }
+    //     return $tablequery;
+    // }
 
     // list,card表示に合わせてselect句を作る
     private function setSelectClauseForDisplaymode($columnsprop, $displaymode) {

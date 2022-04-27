@@ -28,8 +28,7 @@ class Businessunit extends Model
         'code' => 'asc',
     ];
     static $referencedcolumns = [
-        'code', 
-        'name', 
+        'code', 'name', 
     ];
     static $uniquekeys = [
         ['code'], ['name'], 
@@ -39,8 +38,8 @@ class Businessunit extends Model
     {
         return [
             'department_id' => ['required','integer','numeric',],
-            'code' => ['required','string','max:5',Rule::unique('businessunits')->ignore($this->input('id')),'regex:/[0-9]{5}/'],
-            'name' => ['required','string','max:30',Rule::unique('businessunits')->ignore($this->input('id')),'regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
+            'code' => ['required','string','max:5',Rule::unique('businessunits')->ignore($this->id),'regex:/[0-9]{5}/'],
+            'name' => ['required','string','max:30',Rule::unique('businessunits')->ignore($this->id),'regex:/[^\x01-\x7E\uFF61-\uFF9Fa-zA-Z0-9]/'],
             'name_short' => ['required','string','max:10','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
             'postalcode' => ['required','string','max:8','regex:/[0-9]{3}-?[0-9]{4}/'],
             'address1' => ['required','string','max:40',],
