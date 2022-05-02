@@ -7,20 +7,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Validation\Rule;
 use App\ValidateTrait;
 
-use App\Models\Common\Department;
+use App\Models\Common\Company;
 
 class Businessunit extends Model
 {
     use SoftDeletes;
     use ValidateTrait;
-    
-    public function departments() {
-        return $this->belongsTo(Department::class)->withDefault();
+    public function companies() {
+        return $this->belongsTo(Company::class)->withDefault();
     }
-    public function members() {
-        return $this->hasMany(Member::class);
-    }
-
     protected $guarded = [];
     static $tablecomment = '事業所';
     static $modelzone = '共通';
@@ -28,18 +23,18 @@ class Businessunit extends Model
         'code' => 'asc',
     ];
     static $referencedcolumns = [
-        'code', 'name', 
+        'company_id', 'code', 'name', 
     ];
     static $uniquekeys = [
-        ['code'], ['name'], 
+       ['code'], ['name'], 
     ];
 
     protected function rules()
     {
         return [
-            'department_id' => ['required','integer','numeric',],
-            'code' => ['required','string','max:5',Rule::unique('businessunits')->ignore($this->id),'regex:/[0-9]{5}/'],
-            'name' => ['required','string','max:30',Rule::unique('businessunits')->ignore($this->id),'regex:/[^\x01-\x7E\uFF61-\uFF9Fa-zA-Z0-9]/'],
+            'company_id' => ['required','integer','numeric',],
+            'code' => ['required','string','max:4',Rule::unique('businessunits')->ignore($this->id),'regex:/[0-9]{4}/'],
+            'name' => ['required','string','max:30',Rule::unique('businessunits')->ignore($this->id),'regex:/[^\x01-\x7E\uFF61-\uFF9Fa-zA-Z0-9-]/'],
             'name_short' => ['required','string','max:10','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
             'postalcode' => ['required','string','max:8','regex:/[0-9]{3}-?[0-9]{4}/'],
             'address1' => ['required','string','max:40',],

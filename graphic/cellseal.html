@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>cellseal</title>
+    <!-- <link rel="stylesheet" href="style.css" type="text/css" media="all"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <script type="text/javascript" src="js/jquery-3.4.1.js"></script>
+    <script type="text/javascript" src="js/bootstrap.js"></script>
+ </head>
+<style>
+    body {
+        font:sans-serif;
+        text-align: center;
+    }
+    section {
+        font:sans-serif;
+        text-align: center;
+    }
+</style>
+<body>
+
+<h1 style="font:bold; border-bottom: 10px solid">並べてシール</h1>
+
+<div id="container">
+    <section id="preview">
+        <canvas id="board" width="200" height="200"></canvas>
+        <form id="frm">
+        <div style="border-top: 10px solid">
+            <input type="text" id="txt-message" placeholder="文字を入力">
+            文字の色: <input id="color-text" type="color" value="#0000FF">
+        </div><br>
+        <label>文字の大きさ</label>
+        <div style="border-bottom: 10px solid">
+            <input type="range" id="size-text" max="200" step="10" oninput="showVal(this.value)" onchange="showVal(this.value)">
+        </div>
+        <br>
+        <div>
+            <p>ベースの形: 
+                <input type="radio" name="shape-base" id="shape-base" value="rectangle" checked="checked">四角
+                <input type="radio" name="shape-base" id="shape-base" value="circle">丸　
+                ベースの色: <input id="color-base" type="color" value="#ffff00"><br>
+            </p>
+            ベースの高さ
+            <div>
+                <input type="range" id="height-base" max="200" value="200" step="10" >
+            </div>
+            ベースの幅
+            <div style="border-bottom: 10px solid">
+                <input type="range" id="width-base" max="200" value="200" step="10" >
+            </div>
+        </div><br>
+        <div>
+            <button type="button" id="btn-sort" style="width:90%;padding:5px;font-size:24px;">並べる</button>
+        </div>
+        </form>
+    </section>
+    <br>
+    <section id="sortedimage">
+        <div>
+            <h2>出来上がり</h2>
+            <!-- width75mm height202mm = 900px 2424px as 300dpi -->
+            <canvas id="sheet" width="900" height="2424" style="width: 300px; height: 808px;"></canvas>
+        </div>
+        <form id="res">
+            <div>
+                <button type="button" id="btn-send" style="width:90%;padding:5px;font-size:24px;">保存する</button>
+            </div>
+            </form>
+    </section>
+</div>
+
+<script src="cellseal.js"></script>
+
+</body>
+</html>

@@ -50,33 +50,23 @@ class QueryService
 
     // $tablequeryに$whereclauseを追加する
     private function setWhereclause($tablequery, $where) {
-         foreach ($where as $columnsname => $values) {
+        foreach ($where as $columnname => $values) {
             if (count($values) == 1) {
+                $is_or = false; 
                 $value = $values[0];
-                if (substr($value, 0, 1) == '%') {
-                    $tablequery = $tablequery->where($columnsname, 'like', $value);
-                } elseif (strpos($value, ' ') !== false) {  // 同じカラムのAND要素
+                if (strpos($value, ' ') !== false) {    // 同じカラムのAND要素
                     $subvalues = explode(' ', $value);
                     foreach ($subvalues as $subvalue) {
-                        if (strpos($subvalue, '|') !== false) {     // '|'は不等式と値の間のキャラクター
-                            $inequality = substr($subvalue, 0, strpos($subvalue, '|'));
-                            $value =substr($subvalue, strpos($subvalue, '|'));
-                            $tablequery = $tablequery->where($columnsname, $inequality, $value);
-                        } else {
-                            $tablequery = $tablequery->where($columnsname, '=', $subvalue);
-                        }
+                        $this->addWhereToQuery($tablequery, $is_or, $columnname, $subvalue);
                     }
                 } else {
-                    $tablequery = $tablequery->where($columnsname, '=', $value);
+                    $this->addWhereToQuery($tablequery, $is_or, $columnname, $value);
                 }
             } else {    // 同じカラムのOR要素
-                $tablequery = $tablequery->where(function($query) use($columnsname, $values){
+                $tablequery = $tablequery->where(function($query) use($columnname, $values){
                     foreach ($values as $value) {
-                        if (substr($value, 0, 1) == '%') {
-                            $query = $query->orWhere($columnsname, 'like', $value);
-                        } else {
-                            $query = $query->orWhere($columnsname, '=', $value);
-                        }
+                        $is_or = true;
+                        $this->addWhereToQuery($query, $is_or, $columnname, $value);
                     }
                     return $query;
                 });
@@ -85,47 +75,81 @@ class QueryService
         return $tablequery;
     }
 
+    // whereを実際に加える
+    private function addWhereToQuery($query, $is_or, $columnname, $value) {
+        $subvalues = explode(' ', $value);
+        foreach ($subvalues as $subvalue) {
+            if (substr($subvalue, 0, 1) == '%') {
+                $inequality = 'like';
+            } elseif (strpos($subvalue, '|') !== false) {
+                $inequality = substr($subvalue, 0, strpos($subvalue, '|'));
+                $subvalue =substr($subvalue, strpos($subvalue, '|')+1);
+            } else {
+                $inequality = '=';
+            }
+            if ($is_or) {
+                $query = $query->orWhere($columnname, $inequality, $subvalue);
+            } else {
+                $query = $query->where($columnname, $inequality, $subvalue);
+            }
+        }
+        return $query;
+    }
+
     // $requestから検索要素を抽出する
     // 'string'は like
     private function getWhere($searchinput, $columnsprop) {
         $where =[];
-        // 文字の検索
-        foreach ($columnsprop as $columnname => $prop) {
-            if (array_key_exists($columnname, $searchinput)
-                && $searchinput[$columnname] !== null) {
-                if ($prop['type'] == 'string') {
-                    // ' ' スペース検索でAND検索（半角に直しておく）
-                    $words = str_replace('　', ' ', $searchinput[$columnname]);;
-                    // '^' キャレット検索でOR検索
-                    $words = explode('^', $words);
-                    $values = [];
-                    foreach ($words as $word) {
-                        $values[] = '%' . addcslashes($word, '%_\\') . '%';
+        if ($searchinput) {
+            // 文字の検索
+            foreach ($columnsprop as $columnname => $prop) {
+                if (array_key_exists($columnname, $searchinput)
+                    && $searchinput[$columnname] !== null) {
+                    if ($prop['type'] == 'string') {
+                        // ' ' スペース検索でAND検索（半角に直しておく）
+                        $words = str_replace('　', ' ', $searchinput[$columnname]);;
+                        // ' ' スペース毎に%を補完する
+                        $wordsarray = explode(' ', $words);
+                        $words = '';
+                        foreach ($wordsarray as $word) {
+                            $words .= '%' . addcslashes($word, '%_\\') . '% ';
+                        }
+                        $words = substr($words, 0, strlen($words)-1);
+                        // '^' キャレット検索でOR検索
+                        $words = explode('^', $words);
+                        $values = [];
+                        foreach ($words as $word) {
+                            $word = substr($word,0,1) == '%' ? $word : '%'.$word;
+                            $word = substr($word,-1) == '%' ? $word : $word.'%';
+                            $values[] = $word;
+                        }
+                        $where[$prop['tablename'].'.'.$prop['realcolumn']] = $values;
+                    } else {
+                        $where[$prop['tablename'].'.'.$prop['realcolumn']] = [$searchinput[$columnname]];
                     }
-                    $where[$prop['tablename'].'.'.$prop['realcolumn']] = $values;
-                } else {
-                    $where[$prop['tablename'].'.'.$prop['realcolumn']] = [$searchinput[$columnname]];
                 }
             }
-        }
-        // 数値、日付の範囲検索
-        foreach ($columnsprop as $columnsname => $prop) {
-            $bigin = 'bigin_'.$columnsname;
-            $end = 'end_'.$columnsname;
-            if (array_key_exists($bigin, $searchinput)
-                && $searchinput[$bigin] !== null) {
-                $value = '>=|'.$searchinput[$bigin];        // '|'は不等式と値の間のキャラクター
-                if (array_key_exists($end, $searchinput)) {
-                    $value  .= ' <=|'.$searchinput[$end];   // 先頭のスペースがアンド検索要素
+            // 数値、日付の範囲検索
+            foreach ($columnsprop as $columnname => $prop) {
+                $bigin = 'bigin_'.$columnname;
+                $end = 'end_'.$columnname;
+                if (array_key_exists($bigin, $searchinput)
+                    && $searchinput[$bigin] !== null) {
+                    $value = '>=|'.$searchinput[$bigin];        // '|'は不等式と値の間のキャラクター
+                    if (array_key_exists($end, $searchinput)
+                        && $searchinput[$end] !== null) {
+                        $value  .= ' <=|'.$searchinput[$end];   // 先頭のスペースがアンド検索要素
+                    }
+                    $where[$prop['tablename'].'.'.$columnname] = [$value];
+                } elseif (array_key_exists($end, $searchinput)
+                    && $searchinput[$end] !== null) {
+                    $value = '<=|'.$searchinput[$end];              // '|'は不等式と値の間のキャラクター
+                    if (array_key_exists($bigin, $searchinput)
+                        && $searchinput[$bigin] !== null) {
+                        $value  .= ' >=|'.$searchinput[$bigin];     // 先頭のスペースがアンド検索要素
+                    }
+                    $where[$prop['tablename'].'.'.$columnname] = [$value];
                 }
-                $where[$prop['tablename'].'.'.$columnsname] = [$value];
-            } elseif (array_key_exists($end, $searchinput)
-                && $searchinput[$end] !== null) {
-                $value = '<=|'.$searchinput[$end];              // '|'は不等式と値の間のキャラクター
-                if (array_key_exists($bigin, $searchinput)) {
-                    $value  .= ' >=|'.$searchinput[$bigin];     // 先頭のスペースがアンド検索要素
-                }
-                $where[$prop['tablename'].'.'.$columnsname] = [$value];
             }
         }
         return $where;
@@ -136,7 +160,7 @@ class QueryService
         // '〇_id'と参照の深さを得る
         $foreignkeys = [];
         foreach ($columnsprop as $columnname => $poroperty) {
-            if (substr($columnname, -3) == '_id') {
+            if (substr($columnname, -3) == '_id' && strpos($columnname, '_id_2nd_') == false){
                 $foreignkeys[$columnname] = substr_count($columnname, '_id');
             }
         }
@@ -171,27 +195,6 @@ class QueryService
         }
         return $tablequery;
     }
-
-    // // tablequeryにjoin句を足す
-    // private function addJoinToQuery($tablequery, $tablename, $columnsprop) {
-    //     foreach ($columnsprop as $columnname => $poroperty) {
-    //         if (substr($columnname, -3) == '_id') {
-    //             if (strpos($columnname, '_id_') == false) {
-    //                 $foreigntablename = Str::plural(substr($columnname, 0, -3));
-    //                 $tablequery = $tablequery
-    //                     ->join($foreigntablename, $tablename.'.'.$columnname,'=', $foreigntablename.".id");
-    //             } else {
-    //                 $foreigntablename = Str::plural(substr($columnname, 0, strpos($columnname, '_id_')));
-    //                 $deepforeigncolumnname = substr($columnname, strpos($columnname, '_id_') +4);
-    //                 $deepforeigntablename = Str::plural(substr($deepforeigncolumnname, 0, -3));
-    //                 $tablequery = $tablequery
-    //                     ->join($deepforeigntablename, 
-    //                         $foreigntablename.".".$deepforeigncolumnname,'=', $deepforeigntablename.".id");
-    //             }
-    //         }
-    //     }
-    //     return $tablequery;
-    // }
 
     // list,card表示に合わせてselect句を作る
     private function setSelectClauseForDisplaymode($columnsprop, $displaymode) {

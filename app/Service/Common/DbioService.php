@@ -104,9 +104,11 @@ class DbioService
         // 必要なセレクトをまず決める
         foreach ($columnsprop AS $columnname => $prop) {
             if (substr($columnname, -3) =='_id' || substr($columnname, -7) =='_id_2nd') {
-                // 参照元カラム名を取得する
-                $forerignreferencename = substr($columnname, 0, strripos($columnname, '_id')).'_id_reference';
-                $foreignselects[$forerignreferencename] = [];
+                if (strpos($columnname, '_id_2nd_') == false) {
+                    // 参照元カラム名を取得する
+                    $forerignreferencename = substr($columnname, 0, strripos($columnname, '_id')).'_id_reference';
+                    $foreignselects[$forerignreferencename] = [];
+                }
             }
         }
         // foreignkey用セレクトの実体を得る

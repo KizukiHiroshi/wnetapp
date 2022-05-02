@@ -27,11 +27,9 @@ class CreateCompaniesTable extends Migration
             $table->string('foxno')->comment('FAX', 13)->nullable();
             $table->string('url')->comment('URL', 100)->nullable();
             $table->string('email')->comment('email', 50)->nullable();
+            $table->boolean('has_businessunit')->comment('事業所有無')->default(0);
             $table->boolean('is_buyer')->comment('顧客先FLAG')->default(0);
             $table->boolean('is_vendor')->comment('仕入先FLAG')->default(0);
-            $table->boolean('can_order')->comment('購入機能有無')->default(0);
-            $table->boolean('can_sale')->comment('販売機能有無')->default(0);
-            $table->boolean('can_stock')->comment('在庫機能有無')->default(0);
             $table->boolean('can_work')->comment('勤怠機能有無')->default(0);
             $table->date('start_on')->comment('開始日')->default(NULL)->nullable();
             $table->date('end_on')->comment('終了日')->default('2049/12/31')->nullable();

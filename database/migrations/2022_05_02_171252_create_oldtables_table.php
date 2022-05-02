@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
-class CreateOldsqlsTable extends Migration
+class CreateOldtablesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,19 +14,18 @@ class CreateOldsqlsTable extends Migration
      */
     public function up()
     {
-        Schema::create('oldsqls', function (Blueprint $table) {
+        Schema::create('oldtables', function (Blueprint $table) {
             $table->id()->comment('id');
-            $table->string('sqltype', 6)->default('')->comment('構文種類');
-            $table->string('sqltext', 4000)->default('')->comment('SQL文');
-            $table->boolean('is_checked')->default(0)->comment('確認済');
-            $table->timestamp('transed_at')->nullable()->comment('転記日時');
+            $table->string('name')->comment('テーブル名', 30)->unique();
+            $table->dateTime('latest_created')->comment('直近登録');
+            $table->dateTime('latest_updated')->comment('直近更新');
             $table->softDeletes()->comment('削除日時');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
-            $table->string('created_by', 12)->comment('作成者');
+            $table->string('created_by')->comment('作成者', 12);
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'))->comment('更新日時');
-            $table->string('updated_by', 12)->comment('更新者');
+            $table->string('updated_by')->comment('更新者', 12);
         });
-        DB::statement("alter table wnetdb_test.oldsqls comment '旧SQL';");
+        DB::statement("alter table wnetdb_test.oldtables comment '旧テーブル';");
     }
 
     /**
@@ -36,6 +35,6 @@ class CreateOldsqlsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('oldsqls');
+        Schema::dropIfExists('oldtables');
     }
 }

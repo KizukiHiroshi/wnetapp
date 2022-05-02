@@ -347,7 +347,7 @@ class TableService  {
         $modelselects = $this->sessionservice->getSession('modelselects', $modelindex);
         // search用の変数
         $cardcolumnsprop = null;
-        $searchinput = null;
+        $searchinput = [];
         $searcherrors = null;
         $foreignselects = null;
         if ($tablename) {
@@ -361,7 +361,7 @@ class TableService  {
             'selectedtable' => $selectedtable,
             'modelselects'  => $modelselects,
             'cardcolumnsprop'   => $cardcolumnsprop,
-            'searchinput'      => $searchinput,
+            'searchinput'       => $searchinput,
             'searcherrors'  => $searcherrors,
             'foreignselects'    => $foreignselects,
         ];
@@ -429,7 +429,9 @@ class TableService  {
                             $needederror[] = $errortext;
                         }
                     }
-                    $errors[] = $header.implode( ',', array_values($needederror));
+                    if (count($needederror) > 0) {
+                        $errors[] = $header.implode( ',', array_values($needederror));
+                    }
                 }
             }
         }
@@ -469,6 +471,7 @@ class TableService  {
             $is_pagerequest = $this->getIspagerequest($request);
             if ($is_pagerequest) {
                 $searchinput = $this->sessionservice->getSession('searchinput');
+                $searchinput = is_null($searchinput) ? [] : $searchinput;
             }
             $rows = $this->dbioservice->getRows($request, $modelindex, $columnsprop, $searchinput, $paginatecnt, $tempsort);
             // 今回ソートの先頭部分を「行表示から戻ってきた時」のためにSessionに保存する
@@ -592,6 +595,7 @@ class TableService  {
         if ($lasttablename !== $tablename) {
             $this->sessionservice->putSession('tablename', $tablename);
             $this->sessionservice->forgetSession('columnsprop');
+            $this->sessionservice->forgetSession('searchinput');
             $this->sessionservice->forgetSession('lastsort');
             $this->sessionservice->forgetSession('page');
         }

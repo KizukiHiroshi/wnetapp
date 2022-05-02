@@ -20,11 +20,12 @@ class Concern extends Model
     static $tablecomment = 'どうする';
     static $modelzone = 'システム開発';
     static $defaultsort = [
-        'jobtype_id' => 'asc',
+        'created_at' => 'desc',
         'is_solved' => 'asc',
-        'name' => 'asc',
         'importance' => 'asc',
         'priority' => 'asc',
+        'jobtype_id' => 'asc',
+        'name' => 'asc',
     ];
     static $referencedcolumns = [
         'name', 

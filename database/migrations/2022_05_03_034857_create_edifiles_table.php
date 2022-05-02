@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
-class CreateBusinessunitsTable extends Migration
+class CreateEdifilesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,19 +14,18 @@ class CreateBusinessunitsTable extends Migration
      */
     public function up()
     {
-        Schema::create('businessunits', function (Blueprint $table) {
+        Schema::create('edifiles', function (Blueprint $table) {
             $table->id()->comment('id');
             $table->foreignId('company_id')->comment('企業')->references('id')->on('companies');
-            $table->string('code')->comment('code', 4)->unique();
-            $table->string('name')->comment('事業所名', 30)->unique();
-            $table->string('name_short')->comment('略称', 10);
-            $table->string('postalcode')->comment('郵便番号', 8);
-            $table->string('address1')->comment('住所1', 40);
-            $table->string('address2')->comment('住所2', 40)->nullable();
-            $table->string('telno')->comment('電話', 13);
-            $table->string('foxno')->comment('FAX', 13)->nullable();
-            $table->string('url')->comment('URL', 100)->nullable();
-            $table->string('email')->comment('email', 50)->nullable();
+            $table->string('name')->comment('利用名', 50)->unique();
+            $table->string('or_up_down')->comment('Up_or_Down', 1)->default('d');
+            $table->string('filenamepattern')->comment('ファイル名パターン', 50)->default('');
+            $table->string('postingtable')->comment('転記先テーブル', 30)->default('');
+            $table->string('loginurl')->comment('LoginUrl', 255)->default('');
+            $table->string('loginid')->comment('LoginId', 20)->default('');
+            $table->string('loginpassword')->comment('LoginPwd', 20)->default('');
+            $table->string('processurl')->comment('直接Url', 255)->default('');
+            $table->string('frequency')->comment('処理頻度', 30)->default('');
             $table->date('start_on')->comment('開始日')->default(NULL)->nullable();
             $table->date('end_on')->comment('終了日')->default('2049/12/31')->nullable();
             $table->softDeletes()->comment('削除日時');
@@ -35,7 +34,7 @@ class CreateBusinessunitsTable extends Migration
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'))->comment('更新日時');
             $table->string('updated_by')->comment('更新者', 12);
         });
-        DB::statement("alter table wnetdb_test.businessunits comment '事業所';");
+        DB::statement("alter table wnetdb_test.edifiles comment 'EDIファイル';");
     }
 
     /**
@@ -45,6 +44,6 @@ class CreateBusinessunitsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('businessunits');
+        Schema::dropIfExists('edifiles');
     }
 }

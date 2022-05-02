@@ -59,7 +59,7 @@
         ])
     @endif
     <?php if ($mode == 'show' || $mode == 'create') {
-        $href = '/table/'.$tablename.'?page='.$page;
+        $href = '/table/'.$tablename.'?tablename='.$tablename.'&page='.$page;
     } else {
         $href = '/table/'.$tablename.'/'.$row->id.'/show';
     } ?>

@@ -165,8 +165,12 @@ class ModelService {
     private function delveId ($refcolumnsprop, $modelindex, $tablename, $columnname) {
         // '_id_'が含まれていればそこまで消す
         if (strripos($columnname, '_id_') && substr($columnname,-7) !== '_id_2nd') {
-            $realcolumnname = substr($columnname, strripos($columnname, '_id_') + 4);
-        } else {
+            if (strripos($columnname, '_id_2nd_')) {
+                $realcolumnname = substr($columnname, strripos($columnname, '_id_2nd_') + 8);
+            } else {
+                $realcolumnname = substr($columnname, strripos($columnname, '_id_') + 4);
+            }
+         } else {
             $refcolumnsprop[$columnname] = $this->getColumnProp($tablename, $columnname, $columnname);
             $realcolumnname = $columnname ;
         }
