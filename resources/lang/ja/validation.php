@@ -153,6 +153,7 @@ return [
     */
 
     'attributes' => [
+        'address1'      => '住所1',
         'approved_at'   => '承認日時',
         'approved_by'   => '承認者',
         'created_at'    => '作成日時',

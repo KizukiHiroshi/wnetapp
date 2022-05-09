@@ -20,7 +20,7 @@ class User extends Authenticatable
         'id' => 'asc',
     ];
     static $referencedcolumns = [
-        'name'
+        'company_id','name'
     ];
     static $uniquekeys = [
         ['email'],

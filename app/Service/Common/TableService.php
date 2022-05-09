@@ -290,10 +290,15 @@ class TableService  {
                 } else {
                     $findkey .= $separator;
                 }
+                $subcnt = 1;
                 foreach ($uniquekey as $colname){
                     if (array_key_exists($colname, $form)) {
+                        if ($subcnt > 1) {
+                            $findkey .= $separator;
+                        }
                         $findkey .= $colname.'='.$form[$colname];
                     }
+                    $subcnt += 1;
                 }
                 $cnt +=1;
             }

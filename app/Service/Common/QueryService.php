@@ -20,10 +20,10 @@ class QueryService
         // Trashの扱い
         if ($displaymode == 'card') {
             $tablequery = $modelname::withTrashed();
-        } elseif (isset($request->trashed)) {   // 検索条件から
-            if ($request->trashed == 'with') {
+        } elseif (isset($searchinput['trashed'])) {   // 検索条件から
+            if ($searchinput['trashed'] == 'with') {
                 $tablequery = $modelname::withTrashed();
-            } elseif ($request->trashed == 'only') {
+            } elseif ($searchinput['trashed'] == 'only') {
                 $tablequery = $modelname::onlyTrashed();
             } else {
                 $tablequery = $modelname::query();
@@ -166,6 +166,8 @@ class QueryService
         }
         // 参照の浅い順に並べ替える
         asort($foreignkeys);
+        // 同じテーブルをJOINする際にエイリアスを作る
+        $foreigntablenames = [];
         // join句にして追加する（$valueは'_id'の数)
         foreach ($foreignkeys as $foreignkey => $value) {
             $sourcetablename = '';  // 参照元テーブル名
@@ -190,8 +192,17 @@ class QueryService
                 $foreigntablename = Str::plural(substr($sourcecolumnname, 0, -3));    
 
             }
+            $jointablename = $foreigntablename;
+            $jointableclauce = $foreigntablename;
+            if (array_key_exists($foreigntablename, $foreigntablenames)) {
+                $cnt = $foreigntablenames[$foreigntablename]+1;
+                $jointablename = $foreigntablename.strval($cnt);
+                $jointableclauce = $foreigntablename.' AS '.$jointablename;
+            } else {
+                $foreigntablenames[$foreigntablename] = 0;
+            }
             $tablequery = $tablequery
-                ->join($foreigntablename, $sourcetablename.'.'.$sourcecolumnname,'=', $foreigntablename.".id");
+                ->join($jointableclauce, $sourcetablename.'.'.$sourcecolumnname,'=', $jointablename.".id");
         }
         return $tablequery;
     }
@@ -222,7 +233,6 @@ class QueryService
             }
         }
         $selectclause = implode(', ', $selectclausearray);
-        // dd($selectclause);
         return $selectclause;
     }
 

@@ -19,11 +19,12 @@ class CreateBusinessunitsTable extends Migration
             $table->foreignId('company_id')->comment('企業')->references('id')->on('companies');
             $table->string('code')->comment('code', 4)->unique();
             $table->string('name')->comment('事業所名', 30)->unique();
-            $table->string('name_short')->comment('略称', 10);
+            $table->string('name_short')->comment('事業所略称', 10);
             $table->string('postalcode')->comment('郵便番号', 8);
             $table->string('address1')->comment('住所1', 40);
             $table->string('address2')->comment('住所2', 40)->nullable();
-            $table->string('telno')->comment('電話', 13);
+            $table->string('telno')->comment('電話', 14);
+            $table->string('telno2')->comment('電話2', 14)->nullable();
             $table->string('foxno')->comment('FAX', 13)->nullable();
             $table->string('url')->comment('URL', 100)->nullable();
             $table->string('email')->comment('email', 50)->nullable();

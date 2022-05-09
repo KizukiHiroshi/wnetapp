@@ -26,12 +26,12 @@ class CreateMembersTable extends Migration
             $table->string('name_short')->comment('略称', 12);
             $table->string('password')->comment('パスワード', 16)->default('password');
             $table->string('email')->comment('個人メール', 50)->nullable();
-            $table->smallInteger('hourlywage')->comment('時給');
+            $table->smallInteger('hourlywage')->comment('時給')->nullable();
             $table->date('start_fulltime_on')->comment('社員採用日')->nullable();
             $table->date('start_2nd_on')->comment('異動日')->nullable();
             $table->foreignId('businessunit_id_2nd')->comment('新事業所');
             $table->foreignId('employtype_id_2nd')->comment('新雇用形態');
-            $table->smallInteger('hourlywage_2nd')->comment('新時給');
+            $table->smallInteger('hourlywage_2nd')->comment('新時給')->nullable();
             $table->date('start_on')->comment('開始日')->default(NULL)->nullable();
             $table->date('end_on')->comment('終了日')->default('2049/12/31')->nullable();
             $table->softDeletes()->comment('削除日時');

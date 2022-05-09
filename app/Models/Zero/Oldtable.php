@@ -18,10 +18,16 @@ class Oldtable extends Model
     static $defaultsort = [
     ];
     static $referencedcolumns = [
+        'name', 
     ];
     static $uniquekeys = [
        ['name'], 
     ];
+
+    // input has_many clause here
+    public function columnreplacements() {
+        return $this->hasMany(Columnreplacement::class);
+    }
 
     protected function rules()
     {
