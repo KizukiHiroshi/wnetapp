@@ -17,7 +17,7 @@ class CreateEmploytypesTable extends Migration
         Schema::create('employtypes', function (Blueprint $table) {
             $table->id()->comment('id');
             $table->string('code', 2)->unique()->comment('コード');
-            $table->string('name', 20)->unique()->comment('雇用形態');
+            $table->string('name', 20)->comment('雇用形態');
             $table->softDeletes()->comment('削除日時');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->string('created_by', 12)->comment('作成者');

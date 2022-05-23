@@ -2,55 +2,71 @@
 declare(strict_types=1);
 namespace App\Http\Controllers\Common;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Service\Common\SessionService;
+use App\Http\Controllers\Controller;
+use App\Service\Common\DeviceService;
 
 class DeviceController extends Controller {
 
-    private $sessionservice;
-    public function __construct(SessionService $sessionservice) {
-        $this->sessionservice = $sessionservice;
+    private $deviceservice;
+    public function __construct(DeviceService $deviceservice) {
+        $this->deviceservice = $deviceservice;
     }
 
     public function index() {
-        // 登録済のデバイスかどうか判断する
-        // cookie取得
-        // devicesへ照合
-        if (true) {
-            // 登録済みならdevicesからディスプレーの高さを取得してセッションに入れる
-            // accountの確認へ
-            return redirect('/account');
+        // デバイス名が設定されているか確認する
+        $name = $this->deviceservice->comfirmDeviceName();
+        if ($name) {
+            $devicekey = $this->deviceservice->getDevicekeyCookie();
+            // devicesテーブルへの登録を確認する
+            $deviceid = $this->deviceservice->getRegistedDevice($name, $devicekey);
+            if ($deviceid) {
+                // 使用可能なレコードか確認する
+                $tablename = 'devices';
+                $is_availableid = $this->deviceservice->isAvailableId($deviceid);
+                if ($is_availableid) {
+                    // accountの確認へ
+                    return redirect('/account');
+                } else {
+                    // 未認可の知らせ
+                    $errormsg = $name.'のアクセスは未認可です。管理者にお問い合わせください。';
+                    return view('common/alert',compact('errormsg'));
+                }
+            }
+        }
+        // 設定されていなければ設定画面へ遷移
+        return view('common/device');
+    }
+
+    // デバイス名・キーを保存・登録
+    public function setname(Request $request) {
+        $name = $request->name;
+        $is_regitedname = $this->deviceservice->checkIsRegistedName($name);
+        if (!$is_regitedname) {
+            $tablename = 'devices';
+            $form = $this->deviceservice->getDeviceForm($request);
+            $id = null;
+            // 汎用の登録・更新プロセス 
+            $createdid = $this->deviceservice->excuteProcess($tablename, $form, $id);
+            if ($createdid) {
+                // デバイスへのCookie登録
+                $this->deviceservice->setDeviceCookie($form);
+                // 管理者へメール送信
+                $this->deviceservice->sendDeviceRequestMail($name);
+                // 完了メッセージ
+                $success = '登録しました。管理者からの承認メールをお待ちください。';
+                return view('common/alert',compact('success'));
+            }
         } else {
-            // ログインユーザー情報と共にデバイス登録画面へ
-            // ログインユーザー情報取得
-            $params = null;
-            return view('common/device')->with($params);;
+            $errormsg = 'その名前は既に使用されているので登録できません';
+            return view('common/device',compact('errormsg'));
         }
     }
 
-    // デバイス登録
-    public function regist(Request $request) {
-        
-        // 最初のアクセス時のみディスプレーの高さを取得して、
-
-        // デバイステーブル(devices?)に記入する
-        $paginatecnt = 15;
-        $this->sessionservice->putSession('paginatecnt', $paginatecnt);
-        return redirect('/account');
-        return view('common/components/get_screenheight');
-    }
-
-    public function store(Request $request) {
-        // 登録済のデバイスかどうか判断する
-
-        // ★未実装
-        // 最初のアクセス時のみディスプレーの高さを取得して、
-
-        // デバイステーブル(devices?)に記入する
-        $paginatecnt = 15;
-        $this->sessionservice->putSession('paginatecnt', $paginatecnt);
-        return redirect('/account');
-        return view('common/components/get_screenheight');
-    }
+    // デバイス情報のクッキーを削除する
+    public function delete() {
+        $this->deviceservice->deleteDeviceCookie();
+        $success = '登録を削除しました';
+        return view('common/alert',compact('success'));
+}
 }

@@ -4,11 +4,18 @@
 // 汎用性のある関数を登録する
 
 declare(strict_types=1);
-namespace App\Service\Common;
+namespace App\Service\Utility;
+
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use App\Service\Utility\SessionService;
 
 class CommonService {
 
+    private $sessionservice;
+    public function __construct(SessionService $sessionservice) {
+        $this->sessionservice = $sessionservice;
+    }
     // $nを$bで囲む
     public function brackets($n, $b){
         return $b.$n.$b;
@@ -53,5 +60,19 @@ class CommonService {
                 Storage::delete($file);
             }
         }
+    }
+
+    // Formに_byを加える
+    public function addBytoForm($columnnames, $form, $mode) {
+        $accountvalue = $this->sessionservice->getSession('accountvalue');
+        if (!$accountvalue) { $accountvalue = []; }
+        $username = array_key_exists('name', $accountvalue) ? $accountvalue['name'] : Auth::user()->name;
+        if (in_array('created_by', $columnnames) && $mode == 'store') {
+            $form['created_by'] = $username;
+        }        
+        if (in_array('updated_by', $columnnames)) {
+            $form['updated_by'] = $username;
+        }        
+        return $form;
     }
 }

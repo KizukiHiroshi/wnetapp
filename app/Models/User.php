@@ -20,7 +20,7 @@ class User extends Authenticatable
         'id' => 'asc',
     ];
     static $referencedcolumns = [
-        'company_id','name'
+        'name', 'email'
     ];
     static $uniquekeys = [
         ['email'],
@@ -35,6 +35,9 @@ class User extends Authenticatable
     }
     public function members() {
         return $this->hasMany(Member::class);
+    }
+    public function devices() {
+        return $this->hasMany(Device::class);
     }
 
     /**

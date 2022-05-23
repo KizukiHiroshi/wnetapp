@@ -26,17 +26,20 @@ class Businessunit extends Model
         'company_id', 'code', 'name', 
     ];
     static $uniquekeys = [
-       ['code'], ['name'], 
+       ['code'] 
     ];
 
     // input has_many clause here
+    public function devices() {
+        return $this->hasMany(Device::class);
+    }
 
     protected function rules()
     {
         return [
             'company_id' => ['required','integer','numeric',],
             'code' => ['required','string','max:4',Rule::unique('businessunits')->ignore($this->id),'regex:/[0-9]{4}/'],
-            'name' => ['required','string','max:30',Rule::unique('businessunits')->ignore($this->id),'regex:/[^\x01-\x7E\uFF61-\uFF9Fa-zA-Z0-9-]/'],
+            'name' => ['required','string','max:30','regex:/[^\x01-\x7E\uFF61-\uFF9Fa-zA-Z0-9-]/'],
             'name_short' => ['required','string','max:10','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
             'postalcode' => ['required','string','max:8','regex:/[0-9]{3}-?[0-9]{4}/'],
             'address1' => ['required','string','max:40',],

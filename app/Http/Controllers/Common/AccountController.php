@@ -3,16 +3,14 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Controller;
-use App\Service\Common\SessionService;
 
 class AccountController extends Controller {
 
-    private $sessionservice;
-    public function __construct(SessionService $sessionservice) {
-        $this->sessionservice = $sessionservice;
+    public function __construct() {
     }
 
     public function index() {
+        // accountの確認へ
         return view('common/menu');
     }
 }

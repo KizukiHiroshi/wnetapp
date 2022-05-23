@@ -4,17 +4,22 @@
 // Listのソート情報を管理する
 
 declare(strict_types=1);
-namespace App\Service\Common;
+namespace App\Service\Utility\Table;
 
-use App\Service\Common\SessionService;
+use App\Service\Utility\SessionService;
+use App\Service\Utility\CommonService;
 use Illuminate\Support\Str;
 
 class SortService
 {
     private $sessionservice;
-    public function __construct(SessionService $sessionservice) {
-        $this->sessionservice = $sessionservice;
-    }
+    private $commonservice;
+    public function __construct(
+        SessionService $sessionservice,
+        CommonService $commonservice) {
+            $this->sessionservice = $sessionservice;
+            $this->commonservice = $commonservice;
+        }
 
     /* tempsort:Listのソート順を取得する
     直近のソート要求＞タスク独自ソート＞テーブル既存ソート＞一般ソートの順に整理する
@@ -72,8 +77,7 @@ class SortService
         $newarray = $tasksort;
         $temparray = $tempsort;
         $knownkeys = $showcolumns;
-        $commonserveice = new CommonService;
-        $tempsort = $commonserveice->addArrayIfknownsKeyAndNotExist($newarray, $temparray, $knownkeys);
+        $tempsort = $this->commonservice->addArrayIfknownsKeyAndNotExist($newarray, $temparray, $knownkeys);
         return $tempsort;
     }
     
@@ -99,8 +103,7 @@ class SortService
         $newarray = $defaultsort;
         $temparray = $tempsort;
         $knownkeys = $showcolumns;
-        $commonserveice = new CommonService;
-        $tempsort = $commonserveice->addArrayIfknownsKeyAndNotExist($newarray, $temparray, $knownkeys);
+        $tempsort = $this->commonservice->addArrayIfknownsKeyAndNotExist($newarray, $temparray, $knownkeys);
         return $tempsort;
     }
 
@@ -130,8 +133,7 @@ class SortService
         $newarray = $generalsort;
         $temparray = $tempsort;
         $knownkeys = $showcolumns;
-        $commonserveice = new CommonService;
-        $tempsort = $commonserveice->addArrayIfknownsKeyAndNotExist($newarray, $temparray, $knownkeys);
+        $tempsort = $this->commonservice->addArrayIfknownsKeyAndNotExist($newarray, $temparray, $knownkeys);
         return $tempsort;
     }
 

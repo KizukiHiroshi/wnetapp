@@ -4,12 +4,13 @@
 // DbioService:Databaseへの直接のAccsessを担う
 
 declare(strict_types=1);
-namespace App\Service\Common;
+namespace App\Service\Utility;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use App\Service\Common\SessionService;
-use App\Service\Common\QueryService;
+use Illuminate\Support\Facades\Schema;
+use App\Service\Utility\SessionService;
+use App\Service\Utility\QueryService;
 
 class DbioService 
 {
@@ -20,6 +21,46 @@ class DbioService
         $this->modelindex = $sessionservice->getSession('modelindex');
         $this->queryservice = $queryservice;
         $this->sessionservice = $sessionservice;
+    }
+
+    // 汎用の登録・更新プロセス
+    // tablename:対象のテーブル
+    // $form:挿入変更するカラムと値
+    // $id:isnull->STORE,not null->UPDATE
+    // return:ERRORであればException又はText、正常であれば$id
+    public function excuteProcess($tablename, $form, $id){
+        $modelname = $this->modelindex[$tablename]['modelname'];
+        if (!$id) {
+            $targetrow = new $modelname;
+        } else {
+            $targetrow = $modelname::findOrFail($id);
+        }
+        $targetrow->fill($form)->save();
+        return $targetrow->id;
+    }
+
+    // upload用の登録・更新プロセス
+    // tablename:対象のテーブル
+    // $form:挿入変更するカラムと値
+    // $id:isnull->STORE,not null->UPDATE
+    // $mode:実行かテスト:save or check
+    // save->失敗したらARRAYを返す、check->チェックしてARRAYを返す
+    public function excuteCsvprocess($tablename, $form, $id, $mode){
+        $modelname = $this->modelindex[$tablename]['modelname'];
+        if (!$id) {
+            $targetrow = new $modelname;
+        } else {
+            $targetrow = $modelname::findOrFail($id);
+        }
+        if ($mode == 'save') {
+            $error = $targetrow->fill($form)->csvSave();
+            return $error;
+        } elseif ($mode == 'check') {
+            $error = $targetrow->fill($form)->csvCheck();
+            return $error;
+        } else {
+            return false;
+        }
     }
 
     // 削除実行
@@ -194,42 +235,23 @@ class DbioService
         return $foundid;
     }
 
-    // 汎用の登録・更新プロセス
-    // tablename:対象のテーブル
-    // $form:挿入変更するカラムと値
-    // $id:isnull->STORE,not null->UPDATE
-    // return:ERRORであればException又はText、正常であれば$id
-    public function excuteProcess($tablename, $form, $id){
+    // 使用可能なレコードか確認する
+    public function isAvailableId($tablename, $id) {
         $modelname = $this->modelindex[$tablename]['modelname'];
-        if (!$id) {
-            $targetrow = new $modelname;
-        } else {
-            $targetrow = $modelname::findOrFail($id);
+        $targetrow = $modelname::withTrashed()->findOrFail($id);
+        if ($targetrow) {
+            $columnnames = Schema::getColumnListing($tablename);
+            if (in_array('deleted_at', $columnnames)) {
+                if ($targetrow->deleted_at !== null) { return false; }
+            }
+            if (in_array('start_on', $columnnames)) {
+                if ($targetrow->start_on == null || $targetrow->start_on > date("Y-m-d")) { return false; }
+            }
+            if (in_array('end_on', $columnnames)) {
+                if ($targetrow->end_on == null || $targetrow->end_on < date("Y-m-d")) { return false; }
+            }
         }
-        $targetrow->fill($form)->save();
-        return $targetrow->id;
+        return true;
     }
 
-    // tablename:対象のテーブル
-    // $form:挿入変更するカラムと値
-    // $id:isnull->STORE,not null->UPDATE
-    // $mode:実行かテスト:save or check
-    // save->失敗したらARRAYを返す、check->チェックしてARRAYを返す
-    public function excuteCsvprocess($tablename, $form, $id, $mode){
-        $modelname = $this->modelindex[$tablename]['modelname'];
-        if (!$id) {
-            $targetrow = new $modelname;
-        } else {
-            $targetrow = $modelname::findOrFail($id);
-        }
-        if ($mode == 'save') {
-            $error = $targetrow->fill($form)->csvSave();
-            return $error;
-        } elseif ($mode == 'check') {
-            $error = $targetrow->fill($form)->csvCheck();
-            return $error;
-        } else {
-            return false;
-        }
-    }
 }

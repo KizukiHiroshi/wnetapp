@@ -41,11 +41,11 @@
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
                         <!-- Authentication Links -->
-                        @if (Route::has('login'))
-                            <li class="nav-item">
-                                <a class="nav-link text-white" href="{{ route('login') }}">{{ __('ログイン') }}</a>
-                            </li>
-                        @endif
+                        <!-- @if (Route::has('login')) -->
+                            <!-- <li class="nav-item"> -->
+                                <!-- <a class="nav-link text-white" href="{{ route('login') }}">{{ __('ログイン') }}</a> -->
+                            <!-- </li> -->
+                        <!-- @endif -->
 
                         <!-- @if (Route::has('register')) -->
                             <!-- <li class="nav-item"> -->
@@ -61,6 +61,11 @@
         </main>
         <div style="text-align: center">
             @include ('layouts/components/wnet2020_logo', ['size' => 300])
+        </div>
+        <div style="text-align: right">
+            <a class="btn btn-link" href="/device/delete">
+                {{ __('アクセス登録削除') }}
+            </a>
         </div>
     </div>
 </body>

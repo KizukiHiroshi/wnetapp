@@ -6,34 +6,18 @@
 declare(strict_types=1);
 namespace App\Service\Common;
 
-use App\Service\Common\CommonService;
-use App\Service\Common\DbioService;
-use App\Service\Common\SortService;
-use App\Service\Common\ModelService;
-use App\Service\Common\SessionService;
+use App\Service\Utility\CommonService;
+use App\Service\Utility\DbioService;
+use App\Service\Utility\Table\SortService;
+use App\Service\Utility\ModelService;
+use App\Service\Utility\SessionService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use SplFileObject;
 
 class TableService  {
 
-    /* modelindex:全てのモデルの一覧
-    tablename => [         // テーブルの物理名
-        'modelname' => '',            // モデル名        
-        'modelzone' => '',            // モデルの分類名
-        'tablecomment' => '',         // テーブルの和名
-    ] */
-
-    /* columnsprop:表示用のカラム名とプロパティ
-    columnname => [  // 表示カラム名
-        'tablename' => '',  // 所属テーブルの物理名
-        'sortcolumn' => '', // ソート時に使うカラム
-        'type' => '',       // 変数タイプ
-        'length' => '',     // 変数の長さ
-        'comment' => '',    // カラムの和名
-        'notnull' => '',    // NULL許可   
-        'default' => '',    // 初期値
-    ]*/
     private $commonservice;
     private $dbioservice;
     private $sortservice;
@@ -178,13 +162,14 @@ class TableService  {
                         }
                     }           
                     // テーブルに登録できる値リストに更新
+                    $modelindex = $this->sessionservice->getSession('modelindex');                       
                     $form = $this->modelservice->arangeForm($tablename, $rawform, $foreginkeys, $iddictionary);
                     // validation
                     if ($is_insertonly) {     // 全て新規なので$idはnull
                         $id = null;
                     } else {                            // $formの$idを探しに行く
                         // $form内のuniqueKeyの値を取得
-                        $findkey = $this->getFindkeyForUpload($tablename, $form);
+                        $findkey = $this->getFindkeyForUpload($modelindex, $tablename, $form);
                         $id = $this->dbioservice->findId($findkey);
                         if ($id == 'many') {
                             $csverrors[] = strval($row_count-2).':▼'.$findkey.' は複数の行を変更します';
@@ -201,7 +186,7 @@ class TableService  {
                     } elseif ($csvmode == 'csvsave') {  // 3.登録実行モード
                         // '〇_by'の値を入れる
                         $mode = !$id ? 'store' : 'update';
-                        $form = $this->modelservice->addBytoForm($rawcolumns, $form, $mode);
+                        $form = $this->commonservice->addBytoForm($rawcolumns, $form, $mode);
                         // 登録実行
                         $mode = 'save';
                         $errortips = $this->dbioservice->excuteCsvprocess($tablename, $form, $id, $mode);
@@ -276,10 +261,9 @@ class TableService  {
     ※複合カラムユニークと、カラム毎のユニークを区別するためにセパレータを変える
     　複合カラムの場合は &&、カラム毎の場合は &
     */
-    private function getFindkeyForUpload($tablename, $form) {
+    private function getFindkeyForUpload($modelindex, $tablename, $form) {
         // テーブルのユニークキーを取得
         $findkey = null;
-        $modelindex = $this->sessionservice->getSession('modelindex');
         $uniquekeys = $modelindex[$tablename]['modelname']::$uniquekeys;
         if (count($uniquekeys) > 0) {
             $separator = count($uniquekeys) == 1 ? '&&' : '&';
@@ -310,8 +294,9 @@ class TableService  {
     private function getForeginkeysForUpload($rawform) {
         $foreginkeys =[];
         $findidset = $this->getForeginFindidsetForUpload($rawform);
+        $modelindex = $this->sessionservice->getSession('modelindex');
         foreach ($findidset as $foregintablename => $colandvalue) {
-            $foreginkey = $this->getFindkeyForUpload($foregintablename, $colandvalue);
+            $foreginkey = $this->getFindkeyForUpload($modelindex, $foregintablename, $colandvalue);
             $foreginkeys[] = $foreginkey;
         }
         return $foreginkeys;
@@ -320,16 +305,21 @@ class TableService  {
     // $findidset = [参照テーブル名 => [参照カラム名 => 値, 参照カラム名 => 値,],]
     private function getForeginFindidsetForUpload($rawform) {
         $findidset = [];
-        foreach($rawform as $columnname => $value) {
-            if (Str::contains($columnname,'_id_')) {
-                // 一番後ろのテーブル名
-                $foregintablename = substr($columnname, 0, strrpos($columnname, '_id_'));
-                // 前に残っていればそれも消す
-                if (strrpos($foregintablename, '_id_')) {
-                    $foregintablename = substr($foregintablename, strrpos($foregintablename, '_id_') +4);
+        foreach ($rawform as $columnname => $value) {
+            if (strripos($columnname, '_id_') && substr($columnname, -7) !== '_id_2nd' && $value !== '') {
+                // 一番後ろのテーブル名とカラム名
+                $foregintablename = substr($columnname, 0, strripos($columnname, '_id_'));
+                $foregincolname = substr($columnname, strripos($columnname, '_id_') + 4);
+                if (strripos($foregintablename, '_id_')) {
+                    $foregintablename = substr($foregintablename, strripos($foregintablename, '_id_') + 4);
+                }
+                if (substr($foregintablename, 0, 4) == '2nd_') {
+                    $foregintablename = substr($foregintablename, 4);
+                }
+                if (substr($foregincolname, 0, 4) == '2nd_') {
+                    $foregincolname = substr($foregincolname, 4);
                 }
                 $foregintablename = Str::plural($foregintablename);
-                $foregincolname = substr($columnname, strrpos($columnname, '_id_') +4);
                 if (array_key_exists($foregintablename, $findidset)) {
                     $findidset[$foregintablename] = 
                         array_merge($findidset[$foregintablename],[ $foregincolname => $value ]);
@@ -579,7 +569,10 @@ class TableService  {
         foreach ($rows as $row) {
             $values = [];
             foreach ($columnsprop as $columnname => $pops) {
-                array_push($values, $row->$columnname);
+                $rowvalue = str_replace(array('\r\n','\r','\n',',',chr(10)), '', $row->$columnname);
+                $rowvalue = str_replace('\n', '\\n', $rowvalue);
+                // $rowvalue = str_replace(',', '', $rowvalue);
+                array_push($values, $rowvalue);
             }
             $downloadcsv[]= $values;
         }
@@ -605,5 +598,44 @@ class TableService  {
             $this->sessionservice->forgetSession('page');
         }
     }
+    
+    // requestをtableに登録可能な配列に替える
+    public function getForm($request, $mode) {
+        $form = [];
+        $tablename = $request->tablename;
+        $rawform = $request->all();
+        $columnnames = Schema::getColumnListing($tablename);
+        foreach ($rawform as $key => $value) {
+            if ($mode == 'store' && $key == 'id') {
+                // store時のidは除外
+            } elseif (in_array($key, $columnnames) && substr($key,-3) !== '_at') {
+                $form[$key] = $value;
+            }
+        }
+        $form = $this->commonservice->addBytoForm($columnnames, $form, $mode);
+        return $form;
+    }
+
+    // 汎用の登録・更新プロセス
+    public function excuteProcess($tablename, $form, $id) {
+        $createdid = $this->dbioservice->excuteProcess($tablename, $form, $id);
+        return $createdid;
+    }
+
+    // 削除更新(softDelete)実行
+    public function is_Deleted($tablename, $id) {
+        return $this->dbioservice->is_Deleted($tablename, $id);
+    }
+
+    // 完全削除実行
+    public function is_forceDeleted($tablename, $id) {
+        return $this->dbioservice->is_forceDeleted($tablename, $id);
+    }
+
+    // 復活実行
+    public function is_Restored($tablename, $id) {
+        return $this->dbioservice->is_Restored($tablename, $id);
+    }
+
 }
 

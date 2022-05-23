@@ -4,26 +4,27 @@
 // Sessionの多用を避けるためにAccessは全てここを経由する
 
 declare(strict_types=1);
-namespace App\Service\Common;
+namespace App\Service\Utility;
 
 class SessionService
 {
     public function __construct() {
-
     }
     
     // Session使用が許された変数
     private $wnetsessions = [
-        'modelindex'    => ['service' => 'ModelService', 'function' => 'getModelindex'],
-        'modelselects'  => ['service' => 'ModelService', 'function' => 'getModelselects'],
-        'columnsprop'   => ['service' => 'ModelService', 'function' => 'getColumnsProp'],
-        'paginatecnt'   => ['service' => 'ModelService', 'function' => 'getPainatecnt'],
+        'modelindex'    => ['service' => 'BasevalueService', 'function' => 'getModelindex'],
+        'modelselects'  => ['service' => 'BasevalueService', 'function' => 'getModelselects'],
+        'columnsprop'   => ['service' => 'BasevalueService', 'function' => 'getColumnsProp'],
+        'paginatecnt'   => ['service' => 'BasevalueService', 'function' => 'getPaginatecnt'],
         'tablename'     => ['service' => '', 'redirect' => ''],
         'lastsort'      => ['service' => '', 'redirect' => ''],
         'page'          => ['service' => '', 'redirect' => ''],
         'tempsql'       => ['service' => '', 'redirect' => ''],
         'iddictionary'  => ['service' => '', 'redirect' => ''],
         'searchinput'   => ['service' => '', 'redirect' => ''],
+        'screen_height' => ['service' => '', 'redirect' => ''],
+        'accountvalue'  => ['service' => '', 'redirect' => ''],
     ];
 
     // 外部からのSession呼び出しに答える
@@ -48,7 +49,7 @@ class SessionService
     private function makeSessionvalue($value, ...$params) {
         $sessionvalue = null;
         if ($value['service'] !== '') {
-            $classname = 'App\Service\Common\\'.$value['service'];
+            $classname = 'App\Service\Utility\Session\\'.$value['service'];
             $tempservice = new $classname;
             $func = $value['function'];
             $sessionvalue = $tempservice->$func(...$params);

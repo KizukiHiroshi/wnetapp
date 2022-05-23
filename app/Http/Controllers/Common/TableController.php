@@ -5,27 +5,15 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Controller;
-use App\Service\Common\CommonService;
-use App\Service\Common\DbioService;
-use App\Service\Common\ModelService;
 use App\Service\Common\TableService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TableController extends Controller
 {
-    private $commonservice;
-    private $dbioservice;
-    private $modelservice;
+
     private $tableservice;
-    public function __construct(
-        CommonService $commonservice,
-        DbioService $dbioservice,
-        ModelService $modelservice,
-        TableService $tableservice) {
-            $this->commonservice = $commonservice;
-            $this->dbioservice = $dbioservice;
-            $this->modelservice = $modelservice;
+    public function __construct(TableService $tableservice) {
             $this->tableservice = $tableservice;
     }
 
@@ -72,14 +60,13 @@ class TableController extends Controller
     // (POST) http://wnet2020.com/table/{tablename}　・・・　追加。store()
     public function store(Request $request) {
         // $requestから新規登録に必要な値の配列を得る
-        $form = $request->all();
         $sqlmode = 'store';
-        $form = $this->modelservice->getForm($request, $sqlmode);
+        $form = $this->tableservice->getForm($request, $sqlmode);
         // 登録実行
         $tablename = $request->tablename;
         $id = null;
         // 汎用の登録・更新プロセス 
-        $createdid = $this->dbioservice->excuteProcess($tablename, $form, $id);
+        $createdid = $this->tableservice->excuteProcess($tablename, $form, $id);
         if ($createdid) {
             // 完了メッセージ
             $success = '登録しました';
@@ -93,12 +80,12 @@ class TableController extends Controller
         // $requestから更新に必要な値の配列を得る
         $form = $request->all();
         $sqlmode = 'update';
-        $form = $this->modelservice->getForm($request, $sqlmode);
+        $form = $this->tableservice->getForm($request, $sqlmode);
         // 更新実行
         $tablename = $request->tablename;
         $id = $request->id;
         // 汎用の登録・更新プロセス 
-        $id = $this->dbioservice->excuteProcess($tablename, $form, $id);
+        $id = $this->tableservice->excuteProcess($tablename, $form, $id);
         if ($id) {
             // 完了メッセージ
             $success = '更新しました';
@@ -112,7 +99,7 @@ class TableController extends Controller
         $tablename = $request->tablename;
         $id = $request->id;
         // 削除更新(softDelete)実行
-        if ($this->dbioservice->is_Deleted($tablename, $id)) {
+        if ($this->tableservice->is_Deleted($tablename, $id)) {
             // 完了メッセージ
             $success = '削除しました';
             // 元のページ表示
@@ -128,7 +115,7 @@ class TableController extends Controller
         $tablename = $request->tablename;
         $id = $request->id;
         // 完全削除実行
-        if ($this->dbioservice->is_forceDeleted($tablename, $id)) {
+        if ($this->tableservice->is_forceDeleted($tablename, $id)) {
             // 完了メッセージ
             $success = '完全削除しました';
             // 元のページ表示
@@ -144,7 +131,7 @@ class TableController extends Controller
         $tablename = $request->tablename;
         $id = $request->id;
         // 復活実行
-        if ($this->dbioservice->is_Restored($tablename, $id)) {
+        if ($this->tableservice->is_Restored($tablename, $id)) {
             // 完了メッセージ
             $success = '復活しました';
             // 復活した行の表示

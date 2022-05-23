@@ -2,9 +2,12 @@
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Common\TableController;
+
+use App\Http\Controllers\MailController;
+use App\Http\Controllers\Common\DeviceController;
+use App\Http\Controllers\Common\AccountController;
 use App\Http\Controllers\Common\MenuController;
+use App\Http\Controllers\Common\TableController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,6 +19,7 @@ use App\Http\Controllers\Common\MenuController;
 |
 */
 
+
 Route::get('/', function () {
     return view('auth.login');
 });
@@ -24,11 +28,13 @@ Auth::routes();
 
 Route::middleware('auth')->group(function () {
 
-    Route::get('/home', [DeviceController::class, 'index']);
+    Route::get('/device', [DeviceController::class, 'index']);
+    Route::post('/device/setname', [DeviceController::class, 'setname']);
     Route::post('/device/regist', [DeviceController::class, 'regist']);
-
+    Route::get('/device/delete', [DeviceController::class, 'delete']);
     Route::get('/account',[AccountController::class, 'index']);
     Route::get('/menu',[MenuController::class, 'index']);
+    Route::get('/mail/send', [MailController::class, 'send']);
 
     Route::post('/table/csvupload/{csvmode}',[TableController::class, 'csvupload']);    // アップロード処理
     Route::post('/table/{tablename}/{id}/update',[TableController::class, 'update']);   // 更新

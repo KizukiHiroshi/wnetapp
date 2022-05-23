@@ -4,14 +4,13 @@
 // Modelから取得したデータを整理する
 
 declare(strict_types=1);
-namespace App\Service\Common;
+namespace App\Service\Utility\Session;
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
-class ModelService {
+class BasevalueService {
 
     public function __construct() {
     }
@@ -35,9 +34,7 @@ class ModelService {
         $modelindex = []; // 返すモデルリスト
         // 拡張子を着けてディレクトリ名でヒットしないようにする
         // Models直下のモデル検索する
-        $dir = __DIR__;
-        $dir = str_replace('Service\Common', 'Models', $dir);
-        $modeldirs = glob($dir.'/*');
+        $modeldirs = glob(base_path('app/Models').'/*');
         foreach($modeldirs as $modeldir) {
             if (strpos($modeldir, '.php')) {
                 $modelindex = $this->addModels($modelindex, $modeldir);
@@ -68,7 +65,6 @@ class ModelService {
         ];
         return $modelindex;
     }
-    
     private function organizeModelname($modelname) {
         // Modelnameに余分な文字を削除する
         $modelname = substr($modelname,strpos($modelname,'Models'));
@@ -118,13 +114,7 @@ class ModelService {
         $columns = DB::select('show full columns from '.$tablename);
         $columnsprop = [];
         // テーブルのuniquekey取得
-        $model = $modelindex[$tablename];
-        $uniquekeys = $model['modelname']::$uniquekeys;
-        $uniquekeystr = '';
-        foreach ($uniquekeys as $key => $uniquekey) {
-            $uniquekeystr .= implode(',', $uniquekey);
-        }
-        $uniquekeys = explode(',', $uniquekeystr);
+        $uniquekeys = $this->getUniquekeys($modelindex, $tablename);
         foreach ($columns as $column) {
             $columnname = $column->Field;
             $sortcolumn = $columnname;
@@ -132,7 +122,11 @@ class ModelService {
             // foreign_idの場合
             if (substr($columnname,-3) == '_id' || substr($columnname,-7) == '_id_2nd') {
                 $refcolumnsprop = [];
+                // 参照キー(〇〇_id)の参照先を$columnspropに入れる再帰関数
                 $refcolumnsprop = $this->delveId($refcolumnsprop, $modelindex, $tablename, $columnname);
+                // 参照値のnotnull値を管理する
+                $refcolumnsprop = $this->setNotnullgToRefcolumnsprop($refcolumnsprop);
+                // $refcolumnspropを参照の深い順に並べ替える
                 $refcolumnsprop = $this->sortRefcolumnsporp($refcolumnsprop);
                 $columnsprop = array_merge($columnsprop, $refcolumnsprop);
             } else {
@@ -141,7 +135,37 @@ class ModelService {
         }
         return $columnsprop;
     }
-
+    // テーブルのuniquekey取得
+    private function getUniquekeys($modelindex, $tablename) {
+        $model = $modelindex[$tablename];
+        $uniquekeys = $model['modelname']::$uniquekeys;
+        $uniquekeystr = '';
+        foreach ($uniquekeys as $key => $uniquekey) {
+            $uniquekeystr .= implode(',', $uniquekey);
+        }
+        $uniquekeys = explode(',', $uniquekeystr);
+        return $uniquekeys;
+    }
+    // 参照値のnotnull値を管理する
+    private function setNotnullgToRefcolumnsprop($refcolumnsprop) {
+        foreach ($refcolumnsprop as $columnname => $prop) {
+            if (substr($columnname,-3) == '_id') {
+                // _idには何もしない
+            } else {
+                if (strpos($columnname, '_2nd') !== false) {
+                    // _2nd要素の参照は全てnotnull=false
+                    $refcolumnsprop[$columnname]['isunique'] = false;
+                    $refcolumnsprop[$columnname]['notnull'] = false;
+                } else {
+                    // 参照元でnotonullであってもunique以外のものは、notnull=falseとする
+                    if ($refcolumnsprop[$columnname]['isunique'] == null) {
+                        $refcolumnsprop[$columnname]['notnull'] = false;
+                    }
+                }
+            }
+        }
+        return $refcolumnsprop;
+    }
     // $refcolumnspropを参照の深い順に並べ替える
     private function sortRefcolumnsporp($refcolumnsprop) {
         $newarray = [];
@@ -160,9 +184,9 @@ class ModelService {
         }
         return $newarray;
     }
-
     // 参照キー(〇〇_id)の参照先を$columnspropに入れる再帰関数
     private function delveId ($refcolumnsprop, $modelindex, $tablename, $columnname) {
+        $uniquekeys = $this->getUniquekeys($modelindex, $tablename);
         // '_id_'が含まれていればそこまで消す
         if (strripos($columnname, '_id_') && substr($columnname,-7) !== '_id_2nd') {
             if (strripos($columnname, '_id_2nd_')) {
@@ -171,18 +195,21 @@ class ModelService {
                 $realcolumnname = substr($columnname, strripos($columnname, '_id_') + 4);
             }
          } else {
-            $refcolumnsprop[$columnname] = $this->getColumnProp($tablename, $columnname, $columnname);
+            $isunique = in_array($columnname, $uniquekeys) ? TRUE : NULL;
+            $refcolumnsprop[$columnname] = $this->getColumnProp($tablename, $columnname, $columnname, $isunique);
             $realcolumnname = $columnname ;
         }
         $foreigntablename = Str::plural(Str::before($realcolumnname, '_id'));
+        $foreignuniquekeys = $this->getUniquekeys($modelindex, $foreigntablename);
         $foreignmodel = $modelindex[$foreigntablename];
         $referencedcolumnnames = $foreignmodel['modelname']::$referencedcolumns;
         $refcolumnname = '';
         foreach($referencedcolumnnames AS $referencedcolumnname) {
             $referencedsortcolumnname
                 = $this->checkAlternativeSortColumn($referencedcolumnname, $foreigntablename);
-            $newprop = [$columnname.'_'.$referencedcolumnname =>
-                $this->getColumnProp($foreigntablename, $referencedcolumnname, $referencedsortcolumnname)];
+                $isunique = in_array($referencedcolumnname, $foreignuniquekeys) ? TRUE : NULL;
+                $newprop = [$columnname.'_'.$referencedcolumnname =>
+                $this->getColumnProp($foreigntablename, $referencedcolumnname, $referencedsortcolumnname, $isunique)];
             $refcolumnsprop = array_merge($refcolumnsprop, $newprop);
             if (substr($referencedcolumnname,-3) == '_id') {
                 $refcolumnname = $columnname.'_'.$referencedcolumnname;
@@ -194,7 +221,6 @@ class ModelService {
             return $this->delveId ($refcolumnsprop, $modelindex, $foreigntablename, $refcolumnname);
         }
     }
-
     // $columnsprop取得
     private function getColumnProp($tablename, $realcolumn, $sortcolumn, $isunique = NULL) {
         $tgtschema = Schema::getConnection()->getDoctrineColumn($tablename, $realcolumn);
@@ -209,6 +235,7 @@ class ModelService {
             'realcolumn'    => $realcolumn,
             'sortcolumn'    => $sortcolumn,
         ];
+        
         return $columnprop;
     }
 
@@ -258,77 +285,8 @@ class ModelService {
         return $cardcolumnsprop;
     }
     
-    // 表示する行の空データを作る
-    public function getEmptyRow($columnsprop) {
-        $rawrow =[];
-        foreach ($columnsprop AS $columnname => $value) {
-            $rawrow[$columnname] = 'old('.$columnname.')';
-        }
-        $row = (object) $rawrow;
-        return $row;
-    }
-
-    // uploadされたリストをiddictionary参照利用して登録可能な配列に替える
-    public function arangeForm($tablename, $rawform, $foreginkeys, $iddictionary) {
-        $form = [];
-        $columnnames = Schema::getColumnListing($tablename);
-        foreach ($rawform as $key => $value) {
-            if (in_array($key, $columnnames) && substr($key,-3) !== '_at') {
-                $form[$key] = $value;
-            }
-        }
-        foreach ($foreginkeys as $foreginkey) {
-            $foregintablename = Str::singular(Str::before($foreginkey,'?')).'_id';
-            if (in_array($foregintablename, $columnnames)) {
-                $form[$foregintablename] = $iddictionary[$foreginkey];
-            }
-        }
-        return $form;
-    }
-
-    // requestをtableに登録可能な配列に替える
-    public function getForm($request, $mode) {
-        $form = [];
-        $tablename = $request->tablename;
-        $rawform = $request->all();
-        $columnnames = Schema::getColumnListing($tablename);
-        foreach ($rawform as $key => $value) {
-            if ($mode == 'store' && $key == 'id') {
-                // store時のidは除外
-            } elseif (in_array($key, $columnnames) && substr($key,-3) !== '_at') {
-                $form[$key] = $value;
-            }
-        }
-        $form = $this->addBytoForm($columnnames, $form, $mode);
-        return $form;
-    }
-
-    // Formに_byを加える
-    public function addBytoForm($columnnames, $form, $mode) {
-        $username = Auth::user()->name;
-        if (in_array('created_by', $columnnames) && $mode == 'store') {
-            $form['created_by'] = $username;
-        }        
-        if (in_array('updated_by', $columnnames)) {
-            $form['updated_by'] = $username;
-        }        
-        return $form;        
-    }
-
     // ページネートの値はデバイス＞変更可能
-    public function getPainatecnt() {
+    public function getPaginatecnt() {
         return 15;
-    }
-
-    // searchで入力されたbigin_,end_ヘッダー付検索条件を、
-    // validationの対象にするために元のカラム名に戻す
-    public function getFormforSearch($withhearder, $columnsprop, $searchinput) {
-        $form = [];
-        foreach ($columnsprop as $columnname => $value) {
-            if (array_key_exists($withhearder.$columnname, $searchinput)) {
-                $form[$columnname] = $searchinput[$withhearder.$columnname];
-            }
-        }
-        return $form;
     }
 }
