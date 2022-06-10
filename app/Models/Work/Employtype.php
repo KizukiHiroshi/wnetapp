@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Common;
+namespace App\Models\Work;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,7 +14,7 @@ class Employtype extends Model
     use ValidateTrait;
     protected $guarded = [];
     static $tablecomment = '雇用形態';
-    static $modelzone = '共通';
+    static $modelzone = '労務管理';
     static $defaultsort = [
         'code' => 'asc',
     ];

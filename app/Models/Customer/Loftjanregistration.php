@@ -13,7 +13,7 @@ class Loftjanregistration extends Model
     use SoftDeletes;
     use ValidateTrait;
     protected $guarded = [];
-    static $tablecomment = '対応カラム';
+    static $tablecomment = 'ロフトJAN登録';
     static $modelzone = '顧客用';
     static $defaultsort = [
         'shopcode' => 'asc',

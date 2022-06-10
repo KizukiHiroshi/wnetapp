@@ -4,20 +4,22 @@
 // DbioService:Databaseへの直接のAccsessを担う
 
 declare(strict_types=1);
-namespace App\Service\Utility;
+namespace App\Services;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use App\Service\Utility\SessionService;
-use App\Service\Utility\QueryService;
+use App\Services\SessionService;
+use App\Services\Dbio\QueryService;
 
 class DbioService 
 {
     private $modelindex;
     private $queryservice;
     private $sessionservice;
-    public function __construct(SessionService $sessionservice, QueryService $queryservice) {
+    public function __construct(
+        SessionService $sessionservice, 
+        QueryService $queryservice) {
         $this->modelindex = $sessionservice->getSession('modelindex');
         $this->queryservice = $queryservice;
         $this->sessionservice = $sessionservice;

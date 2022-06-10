@@ -4,11 +4,11 @@
 // Modelから取得したデータを整理する
 
 declare(strict_types=1);
-namespace App\Service\Utility;
+namespace App\Services\Table;
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
-use App\Service\Utility\CommonService;
+use App\Services\CommonService;
 
 class ModelService {
 

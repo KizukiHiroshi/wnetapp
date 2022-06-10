@@ -4,21 +4,17 @@
 // Listのソート情報を管理する
 
 declare(strict_types=1);
-namespace App\Service\Utility\Table;
+namespace App\Services\Table;
 
-use App\Service\Utility\SessionService;
-use App\Service\Utility\CommonService;
+use App\Services\SessionService;
 use Illuminate\Support\Str;
 
 class SortService
 {
     private $sessionservice;
-    private $commonservice;
     public function __construct(
-        SessionService $sessionservice,
-        CommonService $commonservice) {
+        SessionService $sessionservice) {
             $this->sessionservice = $sessionservice;
-            $this->commonservice = $commonservice;
         }
 
     /* tempsort:Listのソート順を取得する
@@ -77,7 +73,7 @@ class SortService
         $newarray = $tasksort;
         $temparray = $tempsort;
         $knownkeys = $showcolumns;
-        $tempsort = $this->commonservice->addArrayIfknownsKeyAndNotExist($newarray, $temparray, $knownkeys);
+        $tempsort = $this->addArrayIfknownsKeyAndNotExist($newarray, $temparray, $knownkeys);
         return $tempsort;
     }
     
@@ -103,7 +99,7 @@ class SortService
         $newarray = $defaultsort;
         $temparray = $tempsort;
         $knownkeys = $showcolumns;
-        $tempsort = $this->commonservice->addArrayIfknownsKeyAndNotExist($newarray, $temparray, $knownkeys);
+        $tempsort = $this->addArrayIfknownsKeyAndNotExist($newarray, $temparray, $knownkeys);
         return $tempsort;
     }
 
@@ -133,7 +129,7 @@ class SortService
         $newarray = $generalsort;
         $temparray = $tempsort;
         $knownkeys = $showcolumns;
-        $tempsort = $this->commonservice->addArrayIfknownsKeyAndNotExist($newarray, $temparray, $knownkeys);
+        $tempsort = $this->addArrayIfknownsKeyAndNotExist($newarray, $temparray, $knownkeys);
         return $tempsort;
     }
 
@@ -145,4 +141,15 @@ class SortService
         }
         return $tempsort;
     }
+
+    // 新規配列の内、既知のKeyで既存配列に存在しないKeyValueを既存配列に追加する
+    private function addArrayIfknownsKeyAndNotExist($newarray, $temparray, $knownkeys) {
+        foreach ($newarray as $key => $value) {
+            if (!array_key_exists($key, $temparray) && in_array($key, $knownkeys)) {
+                $temparray[$key] = $value;
+            }
+        }
+        return $temparray;
+    }
+    
 }

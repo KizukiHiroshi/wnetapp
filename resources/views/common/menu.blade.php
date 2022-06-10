@@ -1,12 +1,4 @@
 @extends('layouts.app')
-<style>
-    .pagination { font-size:10pt; }
-    .pagination li { display:inline-block; }
-    tr th a:link { color: black; }
-    tr th a:visited { color: black; }
-    tr th a:hover { color: black; }
-    tr th a:active { color: black; }
-</style>
 
 <?php $title = '>menu'; ?>
 @section('title', $title )

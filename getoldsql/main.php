@@ -1,21 +1,16 @@
 <?php
 
-require 'getold.php';
+require 'transold.php';
 
-// 取得済みSQLの最新日時を確認する
-$lastcreated = getLastCreated();
-// 旧DBのSQLを取得する
-$oldsqls = getOldSql($lastcreated);
-// oldsqlに登録する
-insertOldsql($oldsqls);
-
-
-
-// // タスク開始時の最大IDを取得する
-// $maxid = getMaxID();
-// // 旧DBトレースのID最大値までの内容を取得する
-// $oldtracerows = getOldTraceRows($maxid);
-// // SQL文をtrandbに保存する
-// saveTrandb($oldtracerows);
-// // 旧DBトレースのID最大値までを削除する
-// deleteOldtrace($maxid);
+// masterテーブル
+$oldtablename = '１２：仕入先Ｍ';
+// 旧テーブルの既得登録更新日時と取得する
+// Oldtableの値と比較してより新しい場合に処理開始
+    /* 
+    未転記の旧テーブルレコードのカラム内容を
+    
+    */
+    // 旧テーブルの未処理登録レコードを新テーブルに登録処理する
+    // 旧テーブルのカラムによっては複数の新テーブルに登録する
+    // 旧テーブルの未処理更新レコードを新テーブルに登録・更新処理する
+    // 処理が終わったらOldtableの値を更新する

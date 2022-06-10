@@ -4,7 +4,7 @@
 // データ実態を取得るためのQueryを取得する
 
 declare(strict_types=1);
-namespace App\Service\Utility;
+namespace App\Services\Dbio;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -15,7 +15,6 @@ class QueryService
     public function getTableQuery($request, $modelindex, $columnsprop, $searchinput, $displaymode, $tempsort = null) {
         $tablename= $request->tablename;
         $where = $this->getWhere($searchinput, $columnsprop);
-        $group = $request->group;
         $modelname = $modelindex[$tablename]['modelname'];
         // Trashの扱い
         if ($displaymode == 'card') {

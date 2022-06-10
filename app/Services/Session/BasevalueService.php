@@ -4,7 +4,7 @@
 // Modelから取得したデータを整理する
 
 declare(strict_types=1);
-namespace App\Service\Utility\Session;
+namespace App\Services\Session;
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
@@ -284,9 +284,9 @@ class BasevalueService {
         }
         return $cardcolumnsprop;
     }
-    
-    // ページネートの値はデバイス＞変更可能
+
     public function getPaginatecnt() {
-        return 15;
+        $paginatecnt = 15;
+        return $paginatecnt;
     }
 }

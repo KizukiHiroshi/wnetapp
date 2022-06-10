@@ -5,24 +5,26 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Common;
+namespace App\Usecases\Device;
 
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Auth;
-use App\Service\Utility\DbioService;
-use App\Service\Utility\SessionService;
-use App\Service\Utility\ModelService;
+use App\Services\CommonService;
+use App\Services\DbioService;
+use App\Services\SessionService;
 
-class DeviceService {
+class DeviceCase {
 
+    private $commonservice;
     private $dbioservice;
+    private $sessionservice;
     public function __construct(
+        CommonService $commonservice,
         DbioService $dbioservice,
-        ModelService $modelService,
         SessionService $sessionservice) {
+        $this->commonservice = $commonservice;
         $this->dbioservice = $dbioservice;
         $this->sessionservice = $sessionservice;
-        $this->modelService = $modelService;       
     }
 
     // 登録済のデバイス名と重複しないかチェックする
@@ -62,7 +64,8 @@ class DeviceService {
     }
 
     public function excuteProcess($tablename, $form, $id){
-        $this->dbioservice->excuteProcess($tablename, $form, $id);
+        $id = $this->dbioservice->excuteProcess($tablename, $form, $id);
+        return $id;
     }
 
     public function isAvailableId($deviceid) {
@@ -119,11 +122,17 @@ class DeviceService {
         $name = $this->comfirmDeviceName();
         if ($name) {
             $devicekey = $this->getDevicekeyCookie();
-            // cookieの削除
-            Cookie::queue(Cookie::forget('name'));
-            Cookie::queue(Cookie::forget('devicekey'));
-            // devicesの登録削除
-            $this->deleteRegistedDevice($name, $devicekey);
+            try {
+                // cookieの削除
+                Cookie::queue(Cookie::forget('name'));
+                Cookie::queue(Cookie::forget('devicekey'));
+                // devicesの登録削除
+                $this->deleteRegistedDevice($name, $devicekey);
+            } catch ( \Exception $e){
+                // ★エラー処理の方法未知
+                report($e);
+                session()->flash('flash_message', '更新が失敗しました');
+            }            
         }
     }
 

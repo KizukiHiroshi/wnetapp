@@ -2,29 +2,29 @@
 
 // ControllerではIlluminate\Support\Facades\DB,Schema にアクセスしない
 declare(strict_types=1);
-namespace App\Http\Controllers\Common;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Service\Common\TableService;
+use App\Usecases\Table\TableCase;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TableController extends Controller
 {
 
-    private $tableservice;
-    public function __construct(TableService $tableservice) {
-            $this->tableservice = $tableservice;
+    private $tablecase;
+    public function __construct(TableCase $tablecase) {
+            $this->tablecase = $tablecase;
     }
 
     // (GET) http://wnet2020.com/table/{tablename}　・・・　一覧表示。index()    
     public function index(Request $request) {
         // request内容の変更に応じて既存のセッションを消す
-        $this->tableservice->sessionOptimaize($request);
+        $this->tablecase->sessionOptimaize($request);
         // Table選択、検索表示のパラメータを取得する
-        $params = $this->tableservice->getMenuParams($request);
+        $params = $this->tablecase->getMenuParams($request);
         // List表示用のパラメータを取得する
-        $params = array_merge($params, $this->tableservice->getListParams($request, $params));
+        $params = array_merge($params, $this->tablecase->getListParams($request, $params));
         return view('common/table')->with($params);
     }
 
@@ -49,11 +49,11 @@ class TableController extends Controller
     // カードを表示する
     public function displayCard($mode, $request) {
         // request内容の変更に応じて既存のセッションを消す
-        $this->tableservice->sessionOptimaize($request);
+        $this->tablecase->sessionOptimaize($request);
         // Table選択、検索表示のパラメータを取得する
-        $params = $this->tableservice->getMenuParams($request);
+        $params = $this->tablecase->getMenuParams($request);
         // Card表示用のパラメータを取得する
-        $params += $this->tableservice->getCardParams($request, $mode);
+        $params += $this->tablecase->getCardParams($request, $mode);
         return view('common/table')->with($params);
     }
 
@@ -61,12 +61,12 @@ class TableController extends Controller
     public function store(Request $request) {
         // $requestから新規登録に必要な値の配列を得る
         $sqlmode = 'store';
-        $form = $this->tableservice->getForm($request, $sqlmode);
+        $form = $this->tablecase->getForm($request, $sqlmode);
         // 登録実行
         $tablename = $request->tablename;
         $id = null;
         // 汎用の登録・更新プロセス 
-        $createdid = $this->tableservice->excuteProcess($tablename, $form, $id);
+        $createdid = $this->tablecase->excuteProcess($tablename, $form, $id);
         if ($createdid) {
             // 完了メッセージ
             $success = '登録しました';
@@ -80,12 +80,12 @@ class TableController extends Controller
         // $requestから更新に必要な値の配列を得る
         $form = $request->all();
         $sqlmode = 'update';
-        $form = $this->tableservice->getForm($request, $sqlmode);
+        $form = $this->tablecase->getForm($request, $sqlmode);
         // 更新実行
         $tablename = $request->tablename;
         $id = $request->id;
         // 汎用の登録・更新プロセス 
-        $id = $this->tableservice->excuteProcess($tablename, $form, $id);
+        $id = $this->tablecase->excuteProcess($tablename, $form, $id);
         if ($id) {
             // 完了メッセージ
             $success = '更新しました';
@@ -99,7 +99,7 @@ class TableController extends Controller
         $tablename = $request->tablename;
         $id = $request->id;
         // 削除更新(softDelete)実行
-        if ($this->tableservice->is_Deleted($tablename, $id)) {
+        if ($this->tablecase->is_Deleted($tablename, $id)) {
             // 完了メッセージ
             $success = '削除しました';
             // 元のページ表示
@@ -115,7 +115,7 @@ class TableController extends Controller
         $tablename = $request->tablename;
         $id = $request->id;
         // 完全削除実行
-        if ($this->tableservice->is_forceDeleted($tablename, $id)) {
+        if ($this->tablecase->is_forceDeleted($tablename, $id)) {
             // 完了メッセージ
             $success = '完全削除しました';
             // 元のページ表示
@@ -131,7 +131,7 @@ class TableController extends Controller
         $tablename = $request->tablename;
         $id = $request->id;
         // 復活実行
-        if ($this->tableservice->is_Restored($tablename, $id)) {
+        if ($this->tablecase->is_Restored($tablename, $id)) {
             // 完了メッセージ
             $success = '復活しました';
             // 復活した行の表示
@@ -148,7 +148,7 @@ class TableController extends Controller
      */
     public function download(Request $request) {
         // 表示Listのダウンロード用CSVを取得する
-        $downloadcsv = $this->tableservice->getDownloadCSV($request);
+        $downloadcsv = $this->tablecase->getDownloadCSV($request);
         // CSV出力処理
         $response = new StreamedResponse (function() use ($downloadcsv){
             $stream = fopen('php://output', 'w');
@@ -171,15 +171,15 @@ class TableController extends Controller
         $csvmode = $request->csvmode;
         if ($csvmode !== 'csvcancel') {
             // $csvmodeに合わせて処理する
-            $uploadresult = $this->tableservice->csvUpload($request, $csvmode);
+            $uploadresult = $this->tablecase->csvUpload($request, $csvmode);
             // Table選択、検索表示のパラメータを取得する
-            $params = $this->tableservice->getMenuParams($request);
+            $params = $this->tablecase->getMenuParams($request);
             // Upload画面表示に必要なパラメータを準備する
-            $params += $this->tableservice->getUploadParams($request, $uploadresult);
+            $params += $this->tablecase->getUploadParams($request, $uploadresult);
             return view('common/table')->with($params);    
         } elseif ($csvmode == 'csvcancel') {
             // strage/app/public/csv内の自分のファイル削除
-            $this->tableservice->killMyfile();
+            $this->tablecase->killMyfile();
             $tablename = $request->tablename;
             // リスト表示
             return redirect('/table/'.$tablename);

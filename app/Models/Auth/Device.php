@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Common;
+namespace App\Models\Auth;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -8,7 +8,6 @@ use Illuminate\Validation\Rule;
 use App\ValidateTrait;
 
 use App\Models\Common\User;
-use App\Models\Common\Businessunit;
 
 class Device extends Model
 {
@@ -20,7 +19,7 @@ class Device extends Model
     
     protected $guarded = [];
     static $tablecomment = 'デバイス';
-    static $modelzone = '共通';
+    static $modelzone = '認証';
     static $defaultsort = [
         'user_id' => 'asc',
         'name' => 'asc',

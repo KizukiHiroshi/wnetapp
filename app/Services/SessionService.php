@@ -4,7 +4,7 @@
 // Sessionの多用を避けるためにAccessは全てここを経由する
 
 declare(strict_types=1);
-namespace App\Service\Utility;
+namespace App\Services;
 
 class SessionService
 {
@@ -49,7 +49,7 @@ class SessionService
     private function makeSessionvalue($value, ...$params) {
         $sessionvalue = null;
         if ($value['service'] !== '') {
-            $classname = 'App\Service\Utility\Session\\'.$value['service'];
+            $classname = 'App\Services\Session\\'.$value['service'];
             $tempservice = new $classname;
             $func = $value['function'];
             $sessionvalue = $tempservice->$func(...$params);

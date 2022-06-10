@@ -1,8 +1,6 @@
 @extends('layouts.app')
 
-<?php
-$title = '>アラート';
-?>
+<?php $title = '>alert'; ?>
 @section('title', $title )
 
 @section('menu')

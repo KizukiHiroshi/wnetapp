@@ -3,11 +3,11 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\MailController;
-use App\Http\Controllers\Common\DeviceController;
-use App\Http\Controllers\Common\AccountController;
-use App\Http\Controllers\Common\MenuController;
-use App\Http\Controllers\Common\TableController;
+use App\Http\Controllers\MenuController;
+use App\Http\Controllers\TableController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -32,8 +32,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/device/setname', [DeviceController::class, 'setname']);
     Route::post('/device/regist', [DeviceController::class, 'regist']);
     Route::get('/device/delete', [DeviceController::class, 'delete']);
+
     Route::get('/account',[AccountController::class, 'index']);
+
     Route::get('/menu',[MenuController::class, 'index']);
+
     Route::get('/mail/send', [MailController::class, 'send']);
 
     Route::post('/table/csvupload/{csvmode}',[TableController::class, 'csvupload']);    // アップロード処理

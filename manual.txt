@@ -14,7 +14,7 @@ Service
 	DbioService	データベースに直接アクセスする
 	SortService	ソートの準備をする
 	ModelService	モデルの情報を整理する
-	TableService	テーブル単体を管理するための情報を揃える
+	TableCase	テーブル単体を管理するための情報を揃える
 	QueryService	クエリーの情報を管理する
 
 	SessionService	セッションを過多用しないために変数名を管理する

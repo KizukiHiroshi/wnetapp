@@ -1,22 +1,24 @@
 <?php
 
 // ServiceではIlluminate\Http\Requestにアクセスしない
-// TableServiceではTable表示に必要なデータの実体を取得する
+// TableCaseではTable表示に必要なデータの実体を取得する
 
 declare(strict_types=1);
-namespace App\Service\Common;
+namespace App\Usecases\Table;
 
-use App\Service\Utility\CommonService;
-use App\Service\Utility\DbioService;
-use App\Service\Utility\Table\SortService;
-use App\Service\Utility\ModelService;
-use App\Service\Utility\SessionService;
+use App\Services\CommonService;
+use App\Services\DbioService;
+use App\Services\SessionService;
+use App\Services\Table\SortService;
+use App\Services\Table\ModelService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+
 use Illuminate\Support\Str;
 use SplFileObject;
 
-class TableService  {
+class TableCase  {
 
     private $commonservice;
     private $dbioservice;
@@ -176,17 +178,18 @@ class TableService  {
                             $can_gosave = false;
                         }
                     }
+                    // '登録者・更新者'の値を入れる
+                    $mode = !$id ? 'store' : 'update';
+                    $form = $this->commonservice->addBytoForm($rawcolumns, $form, $mode);
                     if ($csvmode == 'csvcheck') {       // 2.チェックモード
                         $mode = 'check';
+                        $form = $this->commonservice->addBytoForm($rawcolumns, $form, $mode);
                         $errortips = $this->dbioservice->excuteCsvprocess($tablename, $form, $id, $mode);
                         if ($errortips !== null) {
                             $csverrors[] = strval($row_count-2).':▼'.$this->errortipsTotext($errortips);
                             $can_gosave = false;
                         }
                     } elseif ($csvmode == 'csvsave') {  // 3.登録実行モード
-                        // '〇_by'の値を入れる
-                        $mode = !$id ? 'store' : 'update';
-                        $form = $this->commonservice->addBytoForm($rawcolumns, $form, $mode);
                         // 登録実行
                         $mode = 'save';
                         $errortips = $this->dbioservice->excuteCsvprocess($tablename, $form, $id, $mode);
@@ -579,12 +582,29 @@ class TableService  {
         return $downloadcsv;
     }
 
-    //
+    // wnetapp\storage\app\public\csv内の$useridがuploadしたファイルを削除する
     public function killMyfile() {
         $userid = Auth::id();
-        $this->commonservice->killMyfile($userid);
+        $files = Storage::allFiles('public/csv/');;
+        foreach ($files as $file) {
+            if (strpos($file,'_'.strval($userid).'.csv') !== false) {
+                Storage::delete($file);
+            }
+        }
     }
 
+    // wnetapp\storage\app\public\csv内の10分以上前にuploadされたファイルを削除する
+    public function killOldfile() {
+        $setminuts = 10;
+        $files = Storage::allFiles('public/csv/');;
+        foreach ($files as $file) {
+            $updatedtime = Storage::lastModified($file);;
+            if ((time()-$updatedtime)/60 > $setminuts && substr($file, -4) == '.csv') {
+                Storage::delete($file);
+            }
+        }
+    }
+    
     // $requestの状態からSessionを適正化する
     public function sessionOptimaize($request) {
         // テーブル名が更新されている時は既存のtable関連Sessionを消す

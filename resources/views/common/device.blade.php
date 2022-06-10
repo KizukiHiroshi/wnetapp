@@ -1,12 +1,4 @@
 @extends('layouts.app')
-<style>
-    .pagination { font-size:10pt; }
-    .pagination li { display:inline-block; }
-    tr th a:link { color: black; }
-    tr th a:visited { color: black; }
-    tr th a:hover { color: black; }
-    tr th a:active { color: black; }
-</style>
 
 <?php $title = '>アクセス機器登録'; ?>
 @section('title', $title )
@@ -56,7 +48,6 @@
 
                             <div class="col-md-6 mt-2">
                                 <input id="name" type="text" class="form-control" name="name" value="{{ old('name') }}" autofocus>
-
                                 @error('name')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>

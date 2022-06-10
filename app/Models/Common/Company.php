@@ -33,6 +33,9 @@ class Company extends Model
     public function businessunits() {
         return $this->hasMany(Businessunit::class);
     }
+    public function vendor_in_companies() {
+        return $this->hasMany(VendorInCompany::class);
+    }
 
     protected function rules()
     {
@@ -49,6 +52,7 @@ class Company extends Model
             'foxno' => ['nullable','string','max:14','regex:/^[a-zA-Z0-9-]+$/'],
             'url' => ['nullable','string','max:100','url'],
             'email' => ['nullable','string','max:50','email'],
+            'remarks' => ['nullable','string','max:100',],
             'has_businessunit' => ['required','boolean',],
             'is_buyer' => ['required','boolean',],
             'is_vendor' => ['required','boolean',],

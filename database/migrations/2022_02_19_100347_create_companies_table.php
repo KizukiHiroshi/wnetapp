@@ -28,6 +28,7 @@ class CreateCompaniesTable extends Migration
             $table->string('foxno')->comment('FAX', 14)->nullable();
             $table->string('url')->comment('URL', 100)->nullable();
             $table->string('email')->comment('email', 50)->nullable();
+            $table->string('remarks')->comment('備考', 100)->nullable();
             $table->boolean('has_businessunit')->comment('事業所有無')->default(0);
             $table->boolean('is_buyer')->comment('顧客先FLAG')->default(0);
             $table->boolean('is_vendor')->comment('仕入先FLAG')->default(0);
@@ -40,7 +41,7 @@ class CreateCompaniesTable extends Migration
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'))->comment('更新日時');
             $table->string('updated_by')->comment('更新者', 12);
         });
-        DB::statement("alter table wnetdb_test.companys comment '企業';");
+        DB::statement("alter table wnetdb_test.companies comment '企業';");
     }
 
     /**
