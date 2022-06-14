@@ -1,8 +1,4 @@
 <?php
-
-// ServiceではIlluminate\Http\Requestにアクセスしない
-// Sessionの多用を避けるためにAccessは全てここを経由する
-
 declare(strict_types=1);
 namespace App\Services;
 
@@ -13,10 +9,9 @@ class SessionService
     
     // Session使用が許された変数
     private $wnetsessions = [
-        'modelindex'    => ['service' => 'BasevalueService', 'function' => 'getModelindex'],
-        'modelselects'  => ['service' => 'BasevalueService', 'function' => 'getModelselects'],
-        'columnsprop'   => ['service' => 'BasevalueService', 'function' => 'getColumnsProp'],
-        'paginatecnt'   => ['service' => 'BasevalueService', 'function' => 'getPaginatecnt'],
+        'modelindex'    => ['service' => 'Model\GetModelIndexService', 'function' => 'getModelIndex'],
+        'columnsprop'   => ['service' => 'Table\GetColumnsPropService', 'function' => 'getColumnsProp'],
+        'paginatecnt'   => ['service' => 'Device\GetDevicePagenateCntService', 'function' => 'getDevicePagenateCnt'],
         'tablename'     => ['service' => '', 'redirect' => ''],
         'lastsort'      => ['service' => '', 'redirect' => ''],
         'page'          => ['service' => '', 'redirect' => ''],
@@ -25,6 +20,7 @@ class SessionService
         'searchinput'   => ['service' => '', 'redirect' => ''],
         'screen_height' => ['service' => '', 'redirect' => ''],
         'accountvalue'  => ['service' => '', 'redirect' => ''],
+        'devicename'    => ['service' => '', 'redirect' => ''],
     ];
 
     // 外部からのSession呼び出しに答える
@@ -49,7 +45,7 @@ class SessionService
     private function makeSessionvalue($value, ...$params) {
         $sessionvalue = null;
         if ($value['service'] !== '') {
-            $classname = 'App\Services\Session\\'.$value['service'];
+            $classname = 'App\Services\\'.$value['service'];
             $tempservice = new $classname;
             $func = $value['function'];
             $sessionvalue = $tempservice->$func(...$params);

@@ -21,6 +21,7 @@ class CreateJobtypesTable extends Migration
             $table->string('name_system', 40)->default('')->unique()->comment('Jobtype');
             $table->string('remarks', 80)->default('')->nullable()->comment('備考');
             $table->softDeletes()->comment('削除日時');
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'))->comment('更新日時');
             $table->string('updated_by', 12)->comment('更新者');
         });

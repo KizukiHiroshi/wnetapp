@@ -16,10 +16,10 @@
     </div>
     @endif
     <!-- エラーメッセージ -->
-    <?php if(!isset($errormsg)) {$errormsg = '';} ?>
-    @if ($errormsg !== '')
+    <?php if(!isset($danger)) {$danger = '';} ?>
+    @if ($danger !== '')
     <div class="alert alert-danger">
-        <strong>{{ $errormsg }}</strong>
+        <strong>{{ $danger }}</strong>
     </div>
     @endif
     @include ('layouts/components/wnet2020_logo', ['size' => 360])

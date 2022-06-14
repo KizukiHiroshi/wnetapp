@@ -29,7 +29,6 @@ Auth::routes();
 Route::middleware('auth')->group(function () {
 
     Route::get('/device', [DeviceController::class, 'index']);
-    Route::post('/device/setname', [DeviceController::class, 'setname']);
     Route::post('/device/regist', [DeviceController::class, 'regist']);
     Route::get('/device/delete', [DeviceController::class, 'delete']);
 

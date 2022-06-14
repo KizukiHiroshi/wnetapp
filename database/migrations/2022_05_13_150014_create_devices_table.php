@@ -18,7 +18,7 @@ class CreateDevicesTable extends Migration
             $table->id()->comment('id');
             $table->foreignId('user_id')->comment('ログイン名')->references('id')->on('users');
             $table->string('name')->comment('デバイス名', 50)->unique();
-            $table->string('devicekey')->comment('デバイスキー', 200);
+            $table->string('key')->comment('デバイスキー', 200);
             $table->integer('paginatecnt')->comment('画面行数')->default(15);
             $table->dateTime('accesstime')->comment('アクセス日時');
             $table->string('accessip')->comment('アクセスIP', 20);

@@ -64,7 +64,7 @@
         </div>
         <div style="text-align: right">
             <a class="btn btn-link" href="/device/delete">
-                {{ __('デバイス登録削除') }}
+                {{ __('アクセス機器登録削除') }}
             </a>
         </div>
     </div>

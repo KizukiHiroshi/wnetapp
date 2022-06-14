@@ -29,7 +29,7 @@
         <tr>
             @include('layouts/components/select_withgroup', [
                 'name'      => 'tablename',
-                'selects'   => $modelselects,
+                'selects'   => $modelselect,
                 'selected'  => $selectedtable,
                 'selectmark'  => '★選択中',
             ])

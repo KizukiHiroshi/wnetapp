@@ -4,13 +4,9 @@
 // Modelから取得したデータを整理する
 
 declare(strict_types=1);
-namespace App\Services\Session;
+namespace App\Services\Table;
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-
-class BasevalueService {
+class ArangeColumnspropToCardService {
 
     public function __construct() {
     }
@@ -38,10 +34,5 @@ class BasevalueService {
             }
         }
         return $cardcolumnsprop;
-    }
-
-    public function getPaginatecnt() {
-        $paginatecnt = 15;
-        return $paginatecnt;
     }
 }

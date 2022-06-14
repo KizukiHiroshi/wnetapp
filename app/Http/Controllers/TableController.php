@@ -1,11 +1,10 @@
 <?php
-
-// ControllerではIlluminate\Support\Facades\DB,Schema にアクセスしない
 declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Usecases\Table\TableCase;
+use App\Usecases\Table\ListCase;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -13,18 +12,21 @@ class TableController extends Controller
 {
 
     private $tablecase;
-    public function __construct(TableCase $tablecase) {
+    private $listcase;
+    public function __construct(
+        TableCase $tablecase,
+        ListCase $listcase) {
             $this->tablecase = $tablecase;
+            $this->listcase = $listcase;
     }
 
     // (GET) http://wnet2020.com/table/{tablename}　・・・　一覧表示。index()    
     public function index(Request $request) {
         // request内容の変更に応じて既存のセッションを消す
-        $this->tablecase->sessionOptimaize($request);
-        // Table選択、検索表示のパラメータを取得する
-        $params = $this->tablecase->getMenuParams($request);
-        // List表示用のパラメータを取得する
-        $params = array_merge($params, $this->tablecase->getListParams($request, $params));
+        $this->tablecase->sessionOptimize($request);
+        // 表示用のパラメータを取得する
+        $params = $this->listcase->getParams($request);
+        // ■■■■
         return view('common/table')->with($params);
     }
 
@@ -49,7 +51,7 @@ class TableController extends Controller
     // カードを表示する
     public function displayCard($mode, $request) {
         // request内容の変更に応じて既存のセッションを消す
-        $this->tablecase->sessionOptimaize($request);
+        $this->tablecase->sessionOptimize($request);
         // Table選択、検索表示のパラメータを取得する
         $params = $this->tablecase->getMenuParams($request);
         // Card表示用のパラメータを取得する
@@ -64,7 +66,7 @@ class TableController extends Controller
         $form = $this->tablecase->getForm($request, $sqlmode);
         // 登録実行
         $tablename = $request->tablename;
-        $id = null;
+        $id = 0;
         // 汎用の登録・更新プロセス 
         $createdid = $this->tablecase->excuteProcess($tablename, $form, $id);
         if ($createdid) {

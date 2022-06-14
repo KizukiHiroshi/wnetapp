@@ -16,11 +16,11 @@ if (isset($row)) {$title .='>行の';
 @section('menu')
 <div class="col-md-3 border-bottom border-primary">
     <?php if(!isset($mode)) {$mode = '';} ?>
-    @if ($modelselects)
+    @if ($modelselect)
         <!-- テーブル選択 -->
         <?php if(!isset($selectedtable)) {$selectedtable = '';} ?>
         @include('layouts/components/table_selectmodel', [
-            'selects'   => $modelselects,
+            'selects'   => $modelselect,
             'selected'  => $selectedtable,
         ])
         <!-- 検索条件入力 -->
@@ -48,10 +48,10 @@ if (isset($row)) {$title .='>行の';
     </div>
     @endif
     <!-- エラーメッセージ -->
-    <?php if(!isset($errormsg)) {$errormsg = '';} ?>
-    @if ($errormsg !== '')
+    <?php if(!isset($danger)) {$danger = '';} ?>
+    @if ($danger !== '')
     <div class="alert alert-danger">
-        <strong>{{ $errormsg }}</strong>
+        <strong>{{ $danger }}</strong>
     </div>
     @endif
     <!-- バリデーションからのメッセージ -->

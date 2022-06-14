@@ -1,18 +1,18 @@
 <?php
 
 // ServiceではIlluminate\Http\Requestにアクセスしない
-// DbioService:Databaseへの直接のAccsessを担う
+// DatabaseService:Databaseへの直接のAccsessを担う
 
 declare(strict_types=1);
-namespace App\Services;
+namespace App\Services\Database;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use App\Services\SessionService;
-use App\Services\Dbio\QueryService;
+use App\Services\Database\QueryService;
 
-class DbioService 
+class DatabaseService 
 {
     private $modelindex;
     private $queryservice;
@@ -28,11 +28,11 @@ class DbioService
     // 汎用の登録・更新プロセス
     // tablename:対象のテーブル
     // $form:挿入変更するカラムと値
-    // $id:isnull->STORE,not null->UPDATE
+    // $id==0:STORE,$id!==0:UPDATE
     // return:ERRORであればException又はText、正常であれば$id
     public function excuteProcess($tablename, $form, $id){
         $modelname = $this->modelindex[$tablename]['modelname'];
-        if (!$id) {
+        if ($id == 0) {
             $targetrow = new $modelname;
         } else {
             $targetrow = $modelname::findOrFail($id);
@@ -73,31 +73,12 @@ class DbioService
         return $is_deleted;
     }
 
-    // 完全削除実行
-    public function is_forceDeleted($tablename, $id) {
-        $modelname = $this->modelindex[$tablename]['modelname'];
-        $targetrow = $modelname::withTrashed()->findOrFail($id);
-        $is_forceDeleted = $targetrow->forceDelete();
-        return $is_forceDeleted;
-    }
-
     // 復元実行
     public function is_Restored($tablename, $id) {
         $modelname = $this->modelindex[$tablename]['modelname'];
         $targetrow = $modelname::withTrashed()->findOrFail($id);
         $is_restored = $targetrow->restore();
         return $is_restored;
-    }
-    
-    // 表示するListの実体を取得する
-    public function getRows($request, $modelindex, $columnsprop, $searchinput, $paginatecnt, $tempsort) {
-        $displaymode = 'list';
-        $tablequery = $this->queryservice->getTableQuery($request, $modelindex, $columnsprop, $searchinput, $displaymode, $tempsort);
-        // $tablequeryからリスト表示に使用したsql文をSessionに保存する
-        $this->saveTempsql($tablequery);
-        // 取得実行
-        $rows = $tablequery->Paginate($paginatecnt);
-        return $rows;
     }
 
     // $tablequeryからリスト表示に使用したsql文をSessionに保存する
@@ -198,62 +179,4 @@ class DbioService
         $rows = DB::select($rawsql);
         return $rows;
     }
-
-    // 参照id取得
-    // $findidset =  参照テーブル名?参照カラム名=値&参照カラム名=値
-    public function findId($findidset) {
-        $foundid = null;
-        $tablename = Str::plural(Str::before($findidset,'?'));
-        $is_joinedunique = strpos(Str::after($findidset,'?'),'&&',) !== false ? true : false;
-        if ($is_joinedunique) {
-            $subcolset = explode('&&',Str::after($findidset,'?'));
-        } else {
-            $subcolset = explode('&',Str::after($findidset,'?'));
-        }
-        foreach($subcolset as $subcol) {
-            $colset[Str::before($subcol,'=')] = Str::after($subcol,'=');
-        }
-        $modelname = $this->modelindex[$tablename]['modelname'];
-        $tablequery = $modelname::query();
-        // from句
-        $tablequery = $tablequery->from($tablename);
-        $wherecnt = 1;
-        foreach ($colset as $columnnama => $value) {
-            if ($wherecnt == 1 || $is_joinedunique) {
-                $tablequery = $tablequery->where($tablename.'.'.$columnnama, '=', ''.$value.'');
-            } else {
-                $tablequery = $tablequery->orWhere($tablename.'.'.$columnnama, '=', ''.$value.'');
-            }
-            $wherecnt += 1;
-        }
-        $rows = $tablequery->get();
-        if (count($rows) == 1) {
-            foreach ($rows as $row) {
-                $foundid = $row->id;
-            }
-        } elseif (count($rows) > 1) {
-            $foundid = 'many';
-        }
-        return $foundid;
-    }
-
-    // 使用可能なレコードか確認する
-    public function isAvailableId($tablename, $id) {
-        $modelname = $this->modelindex[$tablename]['modelname'];
-        $targetrow = $modelname::withTrashed()->findOrFail($id);
-        if ($targetrow) {
-            $columnnames = Schema::getColumnListing($tablename);
-            if (in_array('deleted_at', $columnnames)) {
-                if ($targetrow->deleted_at !== null) { return false; }
-            }
-            if (in_array('start_on', $columnnames)) {
-                if ($targetrow->start_on == null || $targetrow->start_on > date("Y-m-d")) { return false; }
-            }
-            if (in_array('end_on', $columnnames)) {
-                if ($targetrow->end_on == null || $targetrow->end_on < date("Y-m-d")) { return false; }
-            }
-        }
-        return true;
-    }
-
 }

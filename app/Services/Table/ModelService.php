@@ -8,30 +8,21 @@ namespace App\Services\Table;
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
-use App\Services\CommonService;
+use App\Services\Database\Get_ByNameService;
+use App\Services\Database\Add_ByNameToFormService;
+
 
 class ModelService {
 
-    private $commonservice;
-    public function __construct(CommonService $commonservice) {
-        $this->commonservice = $commonservice;
+    private $get_bynameservice;
+    private $add_bynametoformservice;
+    public function __construct(
+        Get_ByNameService $get_bynameservice,
+        Add_ByNameToFormService $add_bynametoformservice
+    ) {
+        $this->add_bynametoformservice = $add_bynametoformservice;
+        $this->get_bynameservice = $get_bynameservice;
     }
-
-    /* modelindex:全てのモデルの一覧
-    tablename => [         // テーブルの物理名
-        'modelname' => '',            // モデル名        
-        'modelzone' => '',            // モデルの分類名
-        'tablecomment' => '',         // テーブルの和名
-    ]
-        'referencedcolumns' => '',    // 被参照カラム    
-        'defaultsort' => '',          // ソート順
-        'validationrule' => ''        // バリデーションルール
-        は、
-        $modelname::$referencedcolumns,    
-        $modelname::$defaultsort,    
-        $modelname::$validationrule,
-        で、取得すること  
-    */
     /* 表示カラムの一覧:$columnsprop
     ['columnname' =>   // 表示カラム名 ★参照カラムの場合はforeign_id_?????(referensdcolum)
         [
@@ -51,7 +42,6 @@ class ModelService {
     public function arangeColumnspropToCard($columnsprop) {
         $cardcolumnsprop = [];
         $foreigncolumn = '';
-        // $referencecolumns = $this->getReferenceColumns($columnsprop);
         foreach ($columnsprop AS $columnname => $prop) {
             if (strpos($columnname, '_id_') == false || substr($columnname, -3) =='_id' || substr($columnname, -7) =='_id_2nd') {
                 $cardcolumnsprop[$columnname] = $prop;
@@ -80,53 +70,5 @@ class ModelService {
         }
         $row = (object) $rawrow;
         return $row;
-    }
-
-    // uploadされたリストをiddictionary参照利用して登録可能な配列に替える
-    public function arangeForm($tablename, $rawform, $foreginkeys, $iddictionary) {
-        $form = [];
-        // ★ Columnspropと比較して、数値にはnullを
-        $columnnames = Schema::getColumnListing($tablename);
-        foreach ($rawform as $key => $value) {
-            if (in_array($key, $columnnames) && substr($key,-3) !== '_at') {
-                $form[$key] = $value == '' ? null : $value;
-            }
-        }
-        foreach ($foreginkeys as $foreginkey) {
-            $foregintablename = Str::singular(Str::before($foreginkey,'?')).'_id';
-            if (in_array($foregintablename, $columnnames)) {
-                $form[$foregintablename] = $iddictionary[$foreginkey];
-            }
-        }
-        return $form;
-    }
-
-    // requestをtableに登録可能な配列に替える
-    public function getForm($request, $mode) {
-        $form = [];
-        $tablename = $request->tablename;
-        $rawform = $request->all();
-        $columnnames = Schema::getColumnListing($tablename);
-        foreach ($rawform as $key => $value) {
-            if ($mode == 'store' && $key == 'id') {
-                // store時のidは除外
-            } elseif (in_array($key, $columnnames) && substr($key,-3) !== '_at') {
-                $form[$key] = $value;
-            }
-        }
-        $form = $this->commonservice->addBytoForm($columnnames, $form, $mode);
-        return $form;
-    }
-
-    // searchで入力されたbigin_,end_ヘッダー付検索条件を、
-    // validationの対象にするために元のカラム名に戻す
-    public function getFormforSearch($withhearder, $columnsprop, $searchinput) {
-        $form = [];
-        foreach ($columnsprop as $columnname => $value) {
-            if (array_key_exists($withhearder.$columnname, $searchinput)) {
-                $form[$columnname] = $searchinput[$withhearder.$columnname];
-            }
-        }
-        return $form;
     }
 }

@@ -39,7 +39,7 @@ class Device extends Model
         return [
             'user_id' => ['required','integer','numeric',],
             'name' => ['required','string','max:50',],
-            'devicekey' => ['required','string','max:200',],
+            'key' => ['required','string','max:200',],
             'paginatecnt' => ['required','integer','numeric',],
             'accesstime' => ['required','date',],
             'accessip' => ['required','string','max:20',],

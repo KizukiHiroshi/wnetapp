@@ -4,7 +4,7 @@
 // データ実態を取得るためのQueryを取得する
 
 declare(strict_types=1);
-namespace App\Services\Dbio;
+namespace App\Services\Database;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
