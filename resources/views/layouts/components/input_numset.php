@@ -8,9 +8,9 @@
     //      );
 
 
-    if (!isset($step)) {$step = '1';}
-    if (!isset($min)) {$min = '0';}
-    if (!isset($max)) {$max = '100';}
+    if (!isset($step)){$step = '1';}
+    if (!isset($min)){$min = '0';}
+    if (!isset($max)){$max = '100';}
 
 ?>
 

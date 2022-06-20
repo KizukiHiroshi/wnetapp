@@ -14,7 +14,7 @@ class CreateLoftjanregistrationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('loftjanregistrations', function (Blueprint $table) {
+        Schema::create('loftjanregistrations', function (Blueprint $table){
             $table->id()->comment('id');
             $table->string('region')->comment('領域', 20);
             $table->string('linecode')->comment('ラインコード', 2);

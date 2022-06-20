@@ -13,7 +13,7 @@ class VendorInCompany extends Model
 {
     use SoftDeletes;
     use ValidateTrait;
-    public function companies() {
+    public function companies(){
         return $this->belongsTo(Company::class)->withDefault();
     }
     protected $guarded = [];

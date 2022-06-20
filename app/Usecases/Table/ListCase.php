@@ -3,45 +3,32 @@ declare(strict_types=1);
 namespace App\Usecases\Table;
 
 use App\Services\SessionService;
-use App\Services\Database\DatabaseService;
-use App\Services\Database\GetRowsService;
+use App\Services\Table\GetTableRowsService;
 use App\Services\Table\GetMenuParamsService;
 use App\Services\Table\SortService;
 
 class ListCase {
 
-    private $dbioservice;
-    private $sortservice;
     private $sessionservice;
     public function __construct(
-        DatabaseService $dbioservice, 
-        SortService $sortservice, 
-        SessionService $sessionservice) {
-            $this->dbioservice = $dbioservice;
-            $this->sortservice = $sortservice;
-            $this->sessionservice = $sessionservice;
+         SessionService $sessionservice){
+             $this->sessionservice = $sessionservice;
     }
     
-    public function getParams($request) {
+    public function getParams($request){
         $tablename = $request->tablename;
         // 現在のテーブル名をSessionに保存する
         $this->sessionservice->putSession('tablename', $tablename);
         // Table選択、検索表示のパラメータを取得する
-        $params = $this->getMenuParams($request);
+        $getmenuparamsservice = new GetMenuParamsService;
+        $params = $getmenuparamsservice->getMenuParams($request);
         // List表示用のパラメータを取得する
-        $params = array_merge($params, $this->getListParams($request, $params));
+        $params += $this->getListParams($request, $params);
         return $params;
     }
 
-    // Menu表示用のパラメータを取得する
-    private function getMenuParams($request) {
-        $getmenuparamsservice = new GetMenuParamsService;
-        $param = $getmenuparamsservice->getMenuParams($request);
-        return $param;
-    }
-
     // List表示用のパラメータを取得する
-    private function getListParams($request, $params = null) {
+    private function getListParams($request, $params = null){
         $tablename = $request->tablename;
         $modelindex = $this->sessionservice->getSession('modelindex');
         $tablecomment = '';
@@ -54,10 +41,10 @@ class ListCase {
         $mode = '';
         $page = $request->page ? $request->page : $this->sessionservice->getSession('page');
         $searchinput = $params['searchinput'];
-        if (array_key_exists($tablename, $modelindex)) {
+        if (array_key_exists($tablename, $modelindex)){
             // リストの行数
             $paginatecnt = $this->sessionservice->getSession('paginatecnt');
-            if (!$paginatecnt) {$paginatecnt = 15;}
+            if (!$paginatecnt){$paginatecnt = 15;}
             // 成功メッセージ
             $success = $request->success !== '' ? $request->success : '';
             // 表示リストの詳細
@@ -68,15 +55,16 @@ class ListCase {
             // 作業用に指定が必要な場合のソート順（ここでは既存テーブルの参照なので不要）
             $tasksort = null;
             // Listのソート順を取得する
-            $tempsort = $this->sortservice->getTempsort($request, $modelindex, $columnsprop, $tasksort);
+            $sortservice = new SortService;
+            $tempsort = $sortservice->getTempsort($request, $modelindex, $columnsprop, $tasksort);
             // 表示するListの実体を取得する
             $is_pagerequest = $this->getIspagerequest($request);
-            if ($is_pagerequest) {
+            if ($is_pagerequest){
                 $searchinput = $this->sessionservice->getSession('searchinput');
                 $searchinput = is_null($searchinput) ? [] : $searchinput;
             }
-            $getrowsservice = new GetRowsService;
-            $rows = $getrowsservice->getRows($request, $columnsprop, $searchinput, $paginatecnt, $tempsort);
+            $getrowsservice = new GetTableRowsService;
+            $rows = $getrowsservice->getTableRows($request, $columnsprop, $searchinput, $paginatecnt, $tempsort);
             // 今回ソートの先頭部分を「行表示から戻ってきた時」のためにSessionに保存する
             $lastsort = ($tempsort ? array_key_first($tempsort).'--'.array_values($tempsort)[0] : '');
             $this->sessionservice->putSession('lastsort', $lastsort);
@@ -104,12 +92,12 @@ class ListCase {
     }
 
     // pagenateのリクエストかどうか判断する
-    private function getIspagerequest($request) {
+    private function getIspagerequest($request){
         $is_pagerequest = false;
         $requestparams = $request->all();
         if (count($requestparams ) == 2 
             && array_key_exists('tablename', $requestparams )
-            && array_key_exists('page', $requestparams )) {
+            && array_key_exists('page', $requestparams )){
             $is_pagerequest = true;
         }
         return $is_pagerequest;

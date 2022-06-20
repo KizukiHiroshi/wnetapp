@@ -4,7 +4,7 @@ namespace App\Services;
 
 class SessionService
 {
-    public function __construct() {
+    public function __construct(){
     }
     
     // Session使用が許された変数
@@ -24,47 +24,47 @@ class SessionService
     ];
 
     // 外部からのSession呼び出しに答える
-    public function getSession($sessionname, ...$params) {
-        if (session($sessionname)) {
+    public function getSession($sessionname, ...$params){
+        if (session($sessionname)){
             return session($sessionname);
         } else {
             $sessionvalue = null;
-            foreach ($this->wnetsessions AS $wanetsession => $value) {
-                if ($sessionname == $wanetsession) {
+            foreach ($this->wnetsessions AS $wanetsession => $value){
+                if ($sessionname == $wanetsession){
                     $sessionvalue = $this->makeSessionvalue($value, ...$params);
                     break;
                 }
             }
-            if ($sessionvalue) {
+            if ($sessionvalue){
                 session([$sessionname => $sessionvalue]);
             }
             return $sessionvalue;
         }
     }
 
-    private function makeSessionvalue($value, ...$params) {
+    private function makeSessionvalue($value, ...$params){
         $sessionvalue = null;
-        if ($value['service'] !== '') {
+        if ($value['service'] !== ''){
             $classname = 'App\Services\\'.$value['service'];
             $tempservice = new $classname;
             $func = $value['function'];
             $sessionvalue = $tempservice->$func(...$params);
-        } elseif ($value['redirect'] !== '') {
+        } elseif ($value['redirect'] !== ''){
             redirect($value['redirect']);
         }
         return $sessionvalue;
     }
 
     // 外部からのsession作成要請に答える
-    public function putSession($sessionname, $sessionvalue) {
-        if (array_key_exists($sessionname, $this->wnetsessions)) {
+    public function putSession($sessionname, $sessionvalue){
+        if (array_key_exists($sessionname, $this->wnetsessions)){
             session([$sessionname => $sessionvalue]);
         }
     }
 
     // 外部からのsession削除要請に答える
-    public function forgetSession($sessionname) {
-        if (session()->has($sessionname)) {
+    public function forgetSession($sessionname){
+        if (session()->has($sessionname)){
             session()->forget($sessionname);
         }
     }

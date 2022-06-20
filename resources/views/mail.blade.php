@@ -6,5 +6,5 @@
     <br>
     content
     <br>
-    {{ $content }}<br>
+    テストメール<br>
 </p>

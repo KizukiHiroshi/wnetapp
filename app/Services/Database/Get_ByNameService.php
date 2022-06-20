@@ -1,7 +1,4 @@
 <?php
-// ServiceではIlluminate\Http\Requestにアクセスしない
-// 汎用性のある関数を登録する
-
 declare(strict_types=1);
 namespace App\Services\Database;
 
@@ -10,15 +7,14 @@ use App\Services\SessionService;
 
 class Get_ByNameService {
     private $byname;
-    private $sessionservice;
-    public function __construct(SessionService $sessionservice) {
-        $this->sessionservice = $sessionservice;
+    public function __construct(){
     }
 
     // Formで〇〇_byに使用する名前を取得する
-    public function Get_ByName() {
-        $accountvalue = $this->sessionservice->getSession('accountvalue');
-        if (!$accountvalue) {
+    public function Get_ByName(){
+        $sessionservice = new SessionService;
+        $accountvalue = $sessionservice->getSession('accountvalue');
+        if (!$accountvalue){
             $this->byname = ''; 
         } else {
             $this->byname = array_key_exists('name', $accountvalue) ? $accountvalue['name'] : '';            

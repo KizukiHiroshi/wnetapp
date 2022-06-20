@@ -16,20 +16,20 @@ class ConfirmCase
     public function __construct(
         SessionService $sessionservice,
         IsAvailableIdService $isavailableidservice,
-        GetDeviceCookieService $getdevicecookieservice) {
+        GetDeviceCookieService $getdevicecookieservice){
             $this->sessionservice = $sessionservice;
             $this->isavailableidservice = $isavailableidservice;
             $this->getdevicecookieservice = $getdevicecookieservice;
     }
 
     // デバイスクッキー設定を取得する
-    public function getDeviceCookie() {
+    public function getDeviceCookie(){
         $devicecookie = $this->getdevicecookieservice->getDeviceCookie();
         return $devicecookie;
     }
 
     // 登録済のデバイスかチェックする
-    public function getDeviceId($devicecookie) {
+    public function getDeviceId($devicecookie){
         // $findvalueset =  参照テーブル名?参照カラム名=値&参照カラム名=値
         $tablename = 'devices';
         $findvalueset = $tablename.'?name='.$devicecookie['name'].'&key='.$devicecookie['key'];
@@ -39,14 +39,14 @@ class ConfirmCase
     }
 
     // 使用可能なレコードか確認する
-    public function isAvailableId($deviceid) {
+    public function isAvailableId($deviceid){
         $tablename = 'devices';
         $is_availableid = $this->isavailableidservice->isAvailableId($tablename, $deviceid);
         return $is_availableid;
     }
 
     // sessionにdevice名を入れる
-    public function putSession($devicename) {
+    public function putSession($devicename){
         $this->sessionservice->putSession('devicename', $devicename);
     }
 }

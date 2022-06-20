@@ -1,13 +1,13 @@
 <?php
-if (!isset($type)) {$type ='submit';}
-if (!isset($color)) {$color ='primary';}
-if (!isset($size)) {$size ='sm';}
-if (!isset($value)) {$value ='error';}
+if (!isset($type)){$type ='submit';}
+if (!isset($color)){$color ='primary';}
+if (!isset($size)){$size ='sm';}
+if (!isset($value)){$value ='error';}
 $name = isset($name) ? 'name='.$name : '';
 $form = isset($form) ? 'form='.$form : '';
 $formmethod = isset($formmethod) ? 'formmethod='.$formmethod : '';
 $formaction = isset($formaction) ? 'formaction='.$formaction : '';
-if (!isset($alert)) {$alert ='delete_alert';}
+if (!isset($alert)){$alert ='delete_alert';}
 ?>
 @if (isset($href))
 <a href="{{ $href }}">

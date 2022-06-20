@@ -14,7 +14,7 @@ class CreateCompaniesTable extends Migration
      */
     public function up()
     {
-        Schema::create('companies', function (Blueprint $table) {
+        Schema::create('companies', function (Blueprint $table){
             $table->id()->comment('id');
             $table->string('code')->comment('code', 4)->unique();
             $table->string('name')->comment('企業名', 30);

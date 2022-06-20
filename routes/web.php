@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\MailController;
-use App\Http\Controllers\MenuController;
+use App\Http\Controllers\JobMenuController;
 use App\Http\Controllers\TableController;
 /*
 |--------------------------------------------------------------------------
@@ -20,13 +20,13 @@ use App\Http\Controllers\TableController;
 */
 
 
-Route::get('/', function () {
+Route::get('/', function (){
     return view('auth.login');
 });
 
 Auth::routes();
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function (){
 
     Route::get('/device', [DeviceController::class, 'index']);
     Route::post('/device/regist', [DeviceController::class, 'regist']);
@@ -34,9 +34,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/account',[AccountController::class, 'index']);
 
-    Route::get('/menu',[MenuController::class, 'index']);
+    Route::get('/jobmenu',[JobMenuController::class, 'index']);
 
-    Route::get('/mail/send', [MailController::class, 'send']);
+    Route::get('/mail', [MailController::class, 'send']);
 
     Route::post('/table/csvupload/{csvmode}',[TableController::class, 'csvupload']);    // アップロード処理
     Route::post('/table/{tablename}/{id}/update',[TableController::class, 'update']);   // 更新

@@ -6,11 +6,11 @@ use App\Services\Model\GetModelIndexService;
 
 class IsForceDeletedService 
 {
-    public function __construct() {
+    public function __construct(){
     }
 
     // 完全削除実行
-    public function isForceDeleted($tablename, $id) {
+    public function isForceDeleted($tablename, $id){
         $getmodelindexservice = new GetModelIndexService;
         $modelindex = $getmodelindexservice->getModelIndex();
         $modelname = $modelindex[$tablename]['modelname'];

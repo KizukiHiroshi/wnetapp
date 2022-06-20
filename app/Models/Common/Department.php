@@ -13,7 +13,7 @@ class Department extends Model
     use SoftDeletes;
     use ValidateTrait;
 
-    public function companies() {
+    public function companies(){
         return $this->belongsTo(Company::class)->withDefault();
     }
     protected $guarded = [];
@@ -28,10 +28,10 @@ class Department extends Model
     static $uniquekeys = [
         ['code'], ['name'], 
     ];
-     public function businessunits() {
+     public function businessunits(){
         return $this->hasMany(Businessunit::class);
     }
-    protected function rules() {
+    protected function rules(){
         return [
             'company_id' => ['required','integer','numeric',],
             'code' => ['required','string','max:4',

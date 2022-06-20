@@ -12,17 +12,17 @@ use Illuminate\Support\Str;
 class QueryService 
 {
     // queryのfrom,join,select句を取得する
-    public function getTableQuery($request, $modelindex, $columnsprop, $searchinput, $displaymode, $tempsort = null) {
+    public function getTableQuery($request, $modelindex, $columnsprop, $searchinput, $displaymode, $tempsort = null){
         $tablename= $request->tablename;
         $where = $this->getWhere($searchinput, $columnsprop);
         $modelname = $modelindex[$tablename]['modelname'];
         // Trashの扱い
-        if ($displaymode == 'card') {
+        if ($displaymode == 'card'){
             $tablequery = $modelname::withTrashed();
-        } elseif (isset($searchinput['trashed'])) {   // 検索条件から
-            if ($searchinput['trashed'] == 'with') {
+        } elseif (isset($searchinput['trashed'])){   // 検索条件から
+            if ($searchinput['trashed'] == 'with'){
                 $tablequery = $modelname::withTrashed();
-            } elseif ($searchinput['trashed'] == 'only') {
+            } elseif ($searchinput['trashed'] == 'only'){
                 $tablequery = $modelname::onlyTrashed();
             } else {
                 $tablequery = $modelname::query();
@@ -38,9 +38,9 @@ class QueryService
         $selectclause = $this->setSelectClauseForDisplaymode($columnsprop, $displaymode);
         $tablequery = $tablequery->select(DB::raw($selectclause));
         // where句
-        if ($where) {$this->setWhereclause($tablequery, $where);}
+        if ($where){$this->setWhereclause($tablequery, $where);}
         // order句
-        if ($tempsort) {
+        if ($tempsort){
             $rawText = $this->changeSortarrayToRawtext($tempsort);
             $tablequery = $tablequery->orderByRaw($rawText);
         }
@@ -48,14 +48,14 @@ class QueryService
     }
 
     // $tablequeryに$whereclauseを追加する
-    private function setWhereclause($tablequery, $where) {
-        foreach ($where as $columnname => $values) {
-            if (count($values) == 1) {
+    private function setWhereclause($tablequery, $where){
+        foreach ($where as $columnname => $values){
+            if (count($values) == 1){
                 $is_or = false; 
                 $value = $values[0];
-                if (strpos($value, ' ') !== false) {    // 同じカラムのAND要素
+                if (strpos($value, ' ') !== false){    // 同じカラムのAND要素
                     $subvalues = explode(' ', $value);
-                    foreach ($subvalues as $subvalue) {
+                    foreach ($subvalues as $subvalue){
                         $this->addWhereToQuery($tablequery, $is_or, $columnname, $subvalue);
                     }
                 } else {
@@ -63,7 +63,7 @@ class QueryService
                 }
             } else {    // 同じカラムのOR要素
                 $tablequery = $tablequery->where(function($query) use($columnname, $values){
-                    foreach ($values as $value) {
+                    foreach ($values as $value){
                         $is_or = true;
                         $this->addWhereToQuery($query, $is_or, $columnname, $value);
                     }
@@ -75,18 +75,18 @@ class QueryService
     }
 
     // whereを実際に加える
-    private function addWhereToQuery($query, $is_or, $columnname, $value) {
+    private function addWhereToQuery($query, $is_or, $columnname, $value){
         $subvalues = explode(' ', $value);
-        foreach ($subvalues as $subvalue) {
-            if (substr($subvalue, 0, 1) == '%') {
+        foreach ($subvalues as $subvalue){
+            if (substr($subvalue, 0, 1) == '%'){
                 $inequality = 'like';
-            } elseif (strpos($subvalue, '|') !== false) {
+            } elseif (strpos($subvalue, '|') !== false){
                 $inequality = substr($subvalue, 0, strpos($subvalue, '|'));
                 $subvalue =substr($subvalue, strpos($subvalue, '|')+1);
             } else {
                 $inequality = '=';
             }
-            if ($is_or) {
+            if ($is_or){
                 $query = $query->orWhere($columnname, $inequality, $subvalue);
             } else {
                 $query = $query->where($columnname, $inequality, $subvalue);
@@ -97,27 +97,27 @@ class QueryService
 
     // $requestから検索要素を抽出する
     // 'string'は like
-    private function getWhere($searchinput, $columnsprop) {
+    private function getWhere($searchinput, $columnsprop){
         $where =[];
-        if ($searchinput) {
+        if ($searchinput){
             // 文字の検索
-            foreach ($columnsprop as $columnname => $prop) {
+            foreach ($columnsprop as $columnname => $prop){
                 if (array_key_exists($columnname, $searchinput)
-                    && $searchinput[$columnname] !== null) {
-                    if ($prop['type'] == 'string') {
+                    && $searchinput[$columnname] !== null){
+                    if ($prop['type'] == 'string'){
                         // ' ' スペース検索でAND検索（半角に直しておく）
                         $words = str_replace('　', ' ', $searchinput[$columnname]);;
                         // ' ' スペース毎に%を補完する
                         $wordsarray = explode(' ', $words);
                         $words = '';
-                        foreach ($wordsarray as $word) {
+                        foreach ($wordsarray as $word){
                             $words .= '%' . addcslashes($word, '%_\\') . '% ';
                         }
                         $words = substr($words, 0, strlen($words)-1);
                         // '^' キャレット検索でOR検索
                         $words = explode('^', $words);
                         $values = [];
-                        foreach ($words as $word) {
+                        foreach ($words as $word){
                             $word = substr($word,0,1) == '%' ? $word : '%'.$word;
                             $word = substr($word,-1) == '%' ? $word : $word.'%';
                             $values[] = $word;
@@ -129,22 +129,22 @@ class QueryService
                 }
             }
             // 数値、日付の範囲検索
-            foreach ($columnsprop as $columnname => $prop) {
+            foreach ($columnsprop as $columnname => $prop){
                 $bigin = 'bigin_'.$columnname;
                 $end = 'end_'.$columnname;
                 if (array_key_exists($bigin, $searchinput)
-                    && $searchinput[$bigin] !== null) {
+                    && $searchinput[$bigin] !== null){
                     $value = '>=|'.$searchinput[$bigin];        // '|'は不等式と値の間のキャラクター
                     if (array_key_exists($end, $searchinput)
-                        && $searchinput[$end] !== null) {
+                        && $searchinput[$end] !== null){
                         $value  .= ' <=|'.$searchinput[$end];   // 先頭のスペースがアンド検索要素
                     }
                     $where[$prop['tablename'].'.'.$columnname] = [$value];
                 } elseif (array_key_exists($end, $searchinput)
-                    && $searchinput[$end] !== null) {
+                    && $searchinput[$end] !== null){
                     $value = '<=|'.$searchinput[$end];              // '|'は不等式と値の間のキャラクター
                     if (array_key_exists($bigin, $searchinput)
-                        && $searchinput[$bigin] !== null) {
+                        && $searchinput[$bigin] !== null){
                         $value  .= ' >=|'.$searchinput[$bigin];     // 先頭のスペースがアンド検索要素
                     }
                     $where[$prop['tablename'].'.'.$columnname] = [$value];
@@ -155,10 +155,10 @@ class QueryService
     }
 
     // tablequeryにjoin句を足す
-    private function addJoinToQuery($tablequery, $tablename, $columnsprop) {
+    private function addJoinToQuery($tablequery, $tablename, $columnsprop){
         // '〇_id'と参照の深さを得る
         $foreignkeys = [];
-        foreach ($columnsprop as $columnname => $poroperty) {
+        foreach ($columnsprop as $columnname => $poroperty){
             if (substr($columnname, -3) == '_id' && strpos($columnname, '_id_2nd_') == false){
                 $foreignkeys[$columnname] = substr_count($columnname, '_id');
             }
@@ -168,11 +168,11 @@ class QueryService
         // 同じテーブルをJOINする際にエイリアスを作る
         $foreigntablenames = [];
         // join句にして追加する（$valueは'_id'の数)
-        foreach ($foreignkeys as $foreignkey => $value) {
+        foreach ($foreignkeys as $foreignkey => $value){
             $sourcetablename = '';  // 参照元テーブル名
             $sourcecolumnname ='';  // 参照元カラム;
             $foreigntablename = ''; // 参照先テーブル名
-            if ($value == 1) {  // '_id_'が含まれていない
+            if ($value == 1){  // '_id_'が含まれていない
                 $sourcetablename = $tablename;
                 $sourcecolumnname = $foreignkey;
                 $foreigntablename = Str::plural(substr($foreignkey, 0, -3));
@@ -181,7 +181,7 @@ class QueryService
                 // 一番後ろを消す
                 $sourcetablename = substr($foreignkey, 0, strrpos($foreignkey, '_id_'));
                 // 前に残っていればそれも消す
-                if (strrpos($sourcetablename, '_id_')) {
+                if (strrpos($sourcetablename, '_id_')){
                     $sourcetablename = substr($sourcetablename, strrpos($sourcetablename, '_id_') +4);
                 }
                 $sourcetablename = Str::plural($sourcetablename);
@@ -193,7 +193,7 @@ class QueryService
             }
             $jointablename = $foreigntablename;
             $jointableclauce = $foreigntablename;
-            if (array_key_exists($foreigntablename, $foreigntablenames)) {
+            if (array_key_exists($foreigntablename, $foreigntablenames)){
                 $cnt = $foreigntablenames[$foreigntablename]+1;
                 $jointablename = $foreigntablename.strval($cnt);
                 $jointableclauce = $foreigntablename.' AS '.$jointablename;
@@ -207,26 +207,26 @@ class QueryService
     }
 
     // list,card表示に合わせてselect句を作る
-    private function setSelectClauseForDisplaymode($columnsprop, $displaymode) {
+    private function setSelectClauseForDisplaymode($columnsprop, $displaymode){
         $selectclausearray = [];
-        if ($displaymode == 'list') {
-            foreach ($columnsprop AS $columnname => $prop) {
-                if (strpos($columnname, '_id_') == false) {
+        if ($displaymode == 'list'){
+            foreach ($columnsprop AS $columnname => $prop){
+                if (strpos($columnname, '_id_') == false){
                     $selectclausearray[]= $prop['tablename'].'.'.$prop['realcolumn'];
                 } else {
                     $selectclausearray[] = $prop['tablename'].'.'.$prop['realcolumn'].' as '.$columnname;
                 }
             }
-        } elseif ($displaymode == 'card') {
+        } elseif ($displaymode == 'card'){
             // card表示用に参照カラムをまとめる
             $foreignconcat = $this->getForeignConcat($columnsprop);
-            foreach ($columnsprop AS $columnname => $prop) {
-                if (strpos($columnname, '_id_') == false) {
+            foreach ($columnsprop AS $columnname => $prop){
+                if (strpos($columnname, '_id_') == false){
                     $selectclausearray[] = $prop['tablename'].'.'.$prop['realcolumn'];
-                    if (strpos($columnname, '_id') !== false) {
+                    if (strpos($columnname, '_id') !== false){
                         $selectclausearray[] = $foreignconcat[$columnname];
                     }
-                } elseif (strpos($columnname, '_id_') !== false) {
+                } elseif (strpos($columnname, '_id_') !== false){
                     // 参照カラムは_idの後にまとめて登録するので何もしない
                 }
             }
@@ -240,25 +240,25 @@ class QueryService
     //      カラム名 => 参照先テーブル.参照先カラム AS カラム名,
     //      カラム名 => CONCAT_WS(参照先テーブル.参照先カラム, 参照先テーブル.参照先カラム) AS 表示カラム名
     // ]
-    private function getForeignConcat($columnsprop) {
+    private function getForeignConcat($columnsprop){
         $foreignconcat = [];
         $concats = [];
         // 参照元カラム名を取得
-        foreach ($columnsprop AS $columnname => $prop) {
-            if (substr($columnname,-3) == '_id') {
+        foreach ($columnsprop AS $columnname => $prop){
+            if (substr($columnname,-3) == '_id'){
                 $concats[$columnname] = [];
             }
         }
         // 参照先カラムを取得
-        foreach ($columnsprop AS $columnname => $prop) {
-            if (strpos($columnname, '_id_') > 0) {
+        foreach ($columnsprop AS $columnname => $prop){
+            if (strpos($columnname, '_id_') > 0){
                 $foreigncolumn = Str::before($columnname, '_id_').'_id';
                 $concats[$foreigncolumn][] = $prop['tablename'].'.'.$prop['realcolumn'];
             }
         }
         // selectclauceに使える様に加工
-        foreach ($concats AS $foreigncolumn => $concat) {
-            if (count($concat) == 1) {
+        foreach ($concats AS $foreigncolumn => $concat){
+            if (count($concat) == 1){
                 $foreignconcat[$foreigncolumn] = $concat[0].' as '.$foreigncolumn;
             } else {
                 $forerignreferencename = substr($foreigncolumn,0,-3).'_reference';
@@ -273,9 +273,9 @@ class QueryService
     // $concat = [参照先テーブル.参照先カラム名, 参照先テーブル.参照先カラム名, ...]
     // $joinchar:表示の際に値を繋ぐ文字
     // $referencedcolumnname:表示の際に使うカラム名
-    public function getConcatClause($concat, $joinchar, $referencedcolumnname) {
+    public function getConcatClause($concat, $joinchar, $referencedcolumnname){
         $concatclause = "CONCAT_WS('".$joinchar."', ";
-        foreach ($concat AS $column) {
+        foreach ($concat AS $column){
             $concatclause .= $column.", ";
         }
         $concatclause = rtrim($concatclause, ", ");
@@ -285,10 +285,10 @@ class QueryService
     }
 
     // Sort条件の配列を、orderByRaw句に使えるテキストに変える
-    private function changeSortarrayToRawtext($sortarray) {
+    private function changeSortarrayToRawtext($sortarray){
         $sortText = '';
-        if (isset($sortarray)) {
-            foreach($sortarray as $key => $value) {
+        if (isset($sortarray)){
+            foreach($sortarray as $key => $value){
                 $sortText .= $key .' '. $value .', ';
             }
             $sortText = rtrim($sortText, ", ");

@@ -4,10 +4,10 @@ namespace App\Services\Device;
 use Illuminate\Support\Facades\Cookie;
 
 class GetDeviceCookieService {
-    public function __construct() {
+    public function __construct(){
     }
     // デバイスクッキー設定を取得する
-    public function getDeviceCookie() {
+    public function getDeviceCookie(){
         $name = Cookie::get('devicename');
         $key = Cookie::get('devicekey');
         $devicecookie['name'] = !$name ? '' : $name;

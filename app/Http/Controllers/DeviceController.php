@@ -16,26 +16,26 @@ class DeviceController extends Controller {
     public function __construct(
         ConfirmCase $confirmcase,
         RegistCase $registcase,
-        DeleteCase $deletecase) {
+        DeleteCase $deletecase){
             $this->confirmcase = $confirmcase;
             $this->registcase = $registcase;
             $this->deletecase = $deletecase;
         }
 
-    public function index() {
+    public function index(){
         // デバイス名が設定されているか確認する
         // デバイスクッキー設定を取得する
         $devicecookie = $this->confirmcase->getDeviceCookie();
-        if ($devicecookie['name'] == '') {
+        if ($devicecookie['name'] == ''){
             // 設定されていなければ設定画面へ遷移
             return view('common/device_regist');
         }
         // devicesテーブルへの登録を確認する
         $deviceid = $this->confirmcase->getDeviceId($devicecookie);
-        if ($deviceid) {
+        if ($deviceid){
             // 使用可能なレコードか確認する
             $is_availableid = $this->confirmcase->isAvailableId($deviceid);
-            if ($is_availableid) {
+            if ($is_availableid){
                 // sessionにdevice名を入れる
                 $this->confirmcase->putSession($devicecookie['name']);
                 // ■■■■ accountの確認へ進む ■■■■
@@ -49,16 +49,16 @@ class DeviceController extends Controller {
     }
 
     // デバイス名・キーを保存・登録
-    public function regist(Request $request) {
+    public function regist(Request $request){
         // 登録済のデバイス名と重複しないかチェックする
         $is_regitedname = $this->registcase->isRegistedName($request);
-        if ($is_regitedname) {
+        if ($is_regitedname){
             $danger = 'その名前は既に使用されているので登録できません';
             return view('common/device_regist',compact('danger'));
         } else {
             // devicesテーブルへ登録する
             $createdid = $this->registcase->registDevice($request);
-            if ($createdid !== 0) {
+            if ($createdid !== 0){
                 // デバイスへのCookie登録
                 $this->registcase->setDeviceCookie($request);
                 // 管理者へメール送信 ★未実装
@@ -74,7 +74,7 @@ class DeviceController extends Controller {
     }
 
     // デバイス情報のクッキーを削除する
-    public function delete() {
+    public function delete(){
         $this->deletecase->deleteDevice();
         $success = '登録を削除しました';
         return view('common/alert',compact('success'));

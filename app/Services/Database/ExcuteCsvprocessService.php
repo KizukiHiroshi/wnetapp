@@ -1,8 +1,4 @@
 <?php
-
-// ServiceではIlluminate\Http\Requestにアクセスしない
-// DatabaseService:Databaseへの直接のAccsessを担う
-
 declare(strict_types=1);
 namespace App\Services\Database;
 
@@ -10,7 +6,7 @@ use App\Services\SessionService;
 
 class ExcuteCsvprocessService 
 {
-    public function __construct() {
+    public function __construct(){
     }
 
     // upload用の登録・更新プロセス
@@ -23,15 +19,15 @@ class ExcuteCsvprocessService
         $sessionservice = new SessionService;
         $modelindex = $sessionservice->getSession('modelindex');
         $modelname = $modelindex[$tablename]['modelname'];
-        if ($id == 0) {
+        if ($id == 0){
             $targetrow = new $modelname;
         } else {
             $targetrow = $modelname::findOrFail($id);
         }
-        if ($mode == 'save') {
+        if ($mode == 'save'){
             $error = $targetrow->fill($form)->csvSave();
             return $error;
-        } elseif ($mode == 'check') {
+        } elseif ($mode == 'check'){
             $error = $targetrow->fill($form)->csvCheck();
             return $error;
         } else {

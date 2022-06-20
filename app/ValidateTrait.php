@@ -28,10 +28,10 @@ trait ValidateTrait
     {
         $rules = $this->rules();
         $rules = array_merge($rules, $this->properrules);
-        if (count($rules)) {
+        if (count($rules)){
             $subject   = $this->attributes;
             $validator = Validator::make($subject, $rules);
-            if ($validator->fails()) {
+            if ($validator->fails()){
                 throw new ValidationException($validator);
             }
         }
@@ -42,10 +42,10 @@ trait ValidateTrait
     {
         $rules = $this->rules();
         $rules = array_merge($rules, $this->properrules);
-        if (count($rules)) {
+        if (count($rules)){
             $subject   = $this->attributes;
             $validator = Validator::make($subject, $rules);
-            if ($validator->fails()) {
+            if ($validator->fails()){
                 $errors = $validator->errors()->toArray();
                 return $errors;
             }
@@ -57,10 +57,10 @@ trait ValidateTrait
     {
         $rules = $this->rules();
         $rules = array_merge($rules, $this->properrules);
-        if (count($rules)) {
+        if (count($rules)){
             $subject   = $this->attributes;
             $validator = Validator::make($subject, $rules);
-            if ($validator->fails()) {
+            if ($validator->fails()){
                 $errors = $validator->errors()->toArray();
                 return $errors;
             } else {

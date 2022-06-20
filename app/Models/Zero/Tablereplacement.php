@@ -28,7 +28,7 @@ class Tablereplacement extends Model
     ];
 
     // input has_many clause here
-    public function columnreplacements() {
+    public function columnreplacements(){
         return $this->hasMany(Columnreplacement::class);
     }
 
@@ -40,12 +40,12 @@ class Tablereplacement extends Model
             'systemname' => ['required','string','max:30',],
             'oldtablename' => ['required','string','max:30',],
             'newtablename' => ['required','string','max:30',
-                Rule::unique('tablereplacements')->ignore($this->id)->where(function($query) {
+                Rule::unique('tablereplacements')->ignore($this->id)->where(function($query){
                     $query->where('oldtablename', $this->oldtablename);
                 }),],
             'latest_created' => ['required','date',],
             'latest_updated' => ['required','date',],
-            'remarks' => ['required','string','max:200',],
+            'remarks' => ['nullable','string','max:200',],
         ];
     }
 }

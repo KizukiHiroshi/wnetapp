@@ -14,7 +14,7 @@ class CreateVendorincompaniesTable extends Migration
      */
     public function up()
     {
-        Schema::create('vendor_in_companies', function (Blueprint $table) {
+        Schema::create('vendor_in_companies', function (Blueprint $table){
             $table->id()->comment('id');
             $table->foreignId('company_id')->comment('企業名')->references('id')->on('companies');
             $table->string('department')->comment('担当部署', 30)->nullable();

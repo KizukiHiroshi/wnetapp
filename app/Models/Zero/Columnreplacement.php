@@ -13,7 +13,7 @@ class Columnreplacement extends Model
 {
     use SoftDeletes;
     use ValidateTrait;
-    public function tablereplacements() {
+    public function tablereplacements(){
         return $this->belongsTo(Tablereplacement::class)->withDefault();
     }
     protected $guarded = [];
@@ -41,7 +41,7 @@ class Columnreplacement extends Model
             'oldcolumnname' => ['required','string','max:50',],
             'is_keycolumn' => ['required','boolean',],
             'newcolumnname' => ['required','string','max:50',
-                Rule::unique('columnreplacements')->ignore($this->id)->where(function($query) {
+                Rule::unique('columnreplacements')->ignore($this->id)->where(function($query){
                     $query->where('oldcolumnname', $this->oldcolumnname);
                 }),],
             'remarks' => ['required','string','max:200',],

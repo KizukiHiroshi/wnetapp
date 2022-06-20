@@ -2,23 +2,25 @@
 
 <?php
 $title = '>テーブル管理';
-if ($tablecomment !== '') {$title .='>['.$tablecomment.']';}
-if (isset($row)) {$title .='>行の';
-    if ($mode == 'show') {$title .='表示';}
-    if ($mode == 'edit') {$title .='編集';}
-    if ($mode == 'create') {$title .='新規登録';}
-} else {
-    if (strpos($mode,'csv') !== false) {$title .='>一括登録';}
+if ($tablecomment !== ''){
+    $title .='>['.$tablecomment.']';
+    if (isset($row)){$title .='>行の';
+        if ($mode == 'show'){$title .='表示';}
+        if ($mode == 'edit'){$title .='編集';}
+        if ($mode == 'create'){$title .='新規登録';}
+    } else {
+        if (strpos($mode,'csv') !== false){$title .='>一括登録';}
+    }
 }
 ?>
 @section('title', $title )
 
 @section('menu')
 <div class="col-md-3 border-bottom border-primary">
-    <?php if(!isset($mode)) {$mode = '';} ?>
+    <?php if(!isset($mode)){$mode = '';} ?>
     @if ($modelselect)
         <!-- テーブル選択 -->
-        <?php if(!isset($selectedtable)) {$selectedtable = '';} ?>
+        <?php if(!isset($selectedtable)){$selectedtable = '';} ?>
         @include('layouts/components/table_selectmodel', [
             'selects'   => $modelselect,
             'selected'  => $selectedtable,
@@ -41,14 +43,14 @@ if (isset($row)) {$title .='>行の';
 @section('content')
 <div class="col-md-9 border-bottom border-primary">
     <!-- 完了メッセージ -->
-    <?php if(!isset($success)) {$success = '';} ?>
+    <?php if(!isset($success)){$success = '';} ?>
     @if ($success !== '')
     <div class="alert alert-success">
         <strong>{{ $success }}</strong>
     </div>
     @endif
     <!-- エラーメッセージ -->
-    <?php if(!isset($danger)) {$danger = '';} ?>
+    <?php if(!isset($danger)){$danger = '';} ?>
     @if ($danger !== '')
     <div class="alert alert-danger">
         <strong>{{ $danger }}</strong>

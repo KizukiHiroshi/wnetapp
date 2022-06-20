@@ -13,7 +13,7 @@ class Businessunit extends Model
 {
     use SoftDeletes;
     use ValidateTrait;
-    public function companies() {
+    public function companies(){
         return $this->belongsTo(Company::class)->withDefault();
     }
     protected $guarded = [];
@@ -30,7 +30,7 @@ class Businessunit extends Model
     ];
 
     // input has_many clause here
-    public function devices() {
+    public function devices(){
         return $this->hasMany(Device::class);
     }
 

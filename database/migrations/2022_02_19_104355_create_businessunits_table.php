@@ -14,7 +14,7 @@ class CreateBusinessunitsTable extends Migration
      */
     public function up()
     {
-        Schema::create('businessunits', function (Blueprint $table) {
+        Schema::create('businessunits', function (Blueprint $table){
             $table->id()->comment('id');
             $table->foreignId('company_id')->comment('企業')->references('id')->on('companies');
             $table->string('code')->comment('code', 4)->unique();

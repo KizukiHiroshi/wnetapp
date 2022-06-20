@@ -1,7 +1,7 @@
 @if ($name !== 'id' && substr($name,-3) !== '_id')   {{-- idは表示しない --}}
     <?php 
     // 数値は右揃えにする
-    if (strpos($type,'int') !== false || $type == 'decimal') {
+    if (strpos($type,'int') !== false || $type == 'decimal'){
         $stylecontent = 'text-align:right';
         $style = 'style='.$stylecontent;
     } else {

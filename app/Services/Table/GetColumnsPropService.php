@@ -10,7 +10,7 @@ use App\Services\Model\GetModelIndexService;
 
 class GetColumnsPropService {
 
-    public function __construct() {
+    public function __construct(){
     }
 
     /* 表示カラムの一覧:$columnsprop
@@ -27,19 +27,19 @@ class GetColumnsPropService {
         ],
     ]
     */
-    public function getColumnsProp($tablename) {
+    public function getColumnsProp($tablename){
         $modelindexservice = new GetModelIndexService;
         $modelindex = $modelindexservice->getModelindex();
         $columns = DB::select('show full columns from '.$tablename);
         $columnsprop = [];
         // テーブルのuniquekey取得
         $uniquekeys = $this->getUniquekeys($modelindex, $tablename);
-        foreach ($columns as $column) {
+        foreach ($columns as $column){
             $columnname = $column->Field;
             $sortcolumn = $columnname;
             $isunique = in_array($columnname, $uniquekeys) ? TRUE : NULL;
             // foreign_idの場合
-            if (substr($columnname,-3) == '_id' || substr($columnname,-7) == '_id_2nd') {
+            if (substr($columnname,-3) == '_id' || substr($columnname,-7) == '_id_2nd'){
                 $refcolumnsprop = [];
                 // 参照キー(〇〇_id)の参照先を$columnspropに入れる再帰関数
                 $refcolumnsprop = $this->delveId($refcolumnsprop, $modelindex, $tablename, $columnname);
@@ -55,15 +55,15 @@ class GetColumnsPropService {
         return $columnsprop;
     }
 
-    private function makeService() {
+    private function makeService(){
 
     }
     // テーブルのuniquekey取得
-    private function getUniquekeys($modelindex, $tablename) {
+    private function getUniquekeys($modelindex, $tablename){
         $model = $modelindex[$tablename];
         $uniquekeys = $model['modelname']::$uniquekeys;
         $uniquekeystr = '';
-        foreach ($uniquekeys as $key => $uniquekey) {
+        foreach ($uniquekeys as $key => $uniquekey){
             $uniquekeystr .= implode(',', $uniquekey);
         }
         $uniquekeys = explode(',', $uniquekeystr);
@@ -72,18 +72,18 @@ class GetColumnsPropService {
 
 
     // 参照値のnotnull値を管理する
-    private function setNotnullgToRefcolumnsprop($refcolumnsprop) {
-        foreach ($refcolumnsprop as $columnname => $prop) {
-            if (substr($columnname,-3) == '_id') {
+    private function setNotnullgToRefcolumnsprop($refcolumnsprop){
+        foreach ($refcolumnsprop as $columnname => $prop){
+            if (substr($columnname,-3) == '_id'){
                 // _idには何もしない
             } else {
-                if (strpos($columnname, '_2nd') !== false) {
+                if (strpos($columnname, '_2nd') !== false){
                     // _2nd要素の参照は全てnotnull=false
                     $refcolumnsprop[$columnname]['isunique'] = false;
                     $refcolumnsprop[$columnname]['notnull'] = false;
                 } else {
                     // 参照元でnotonullであってもunique以外のものは、notnull=falseとする
-                    if ($refcolumnsprop[$columnname]['isunique'] == null) {
+                    if ($refcolumnsprop[$columnname]['isunique'] == null){
                         $refcolumnsprop[$columnname]['notnull'] = false;
                     }
                 }
@@ -92,29 +92,29 @@ class GetColumnsPropService {
         return $refcolumnsprop;
     }
     // $refcolumnspropを参照の深い順に並べ替える
-    private function sortRefcolumnsporp($refcolumnsprop) {
+    private function sortRefcolumnsporp($refcolumnsprop){
         $newarray = [];
         $sortarray = [];
         $keyarray = array_keys($refcolumnsprop);
-        foreach($keyarray as $key) {
-            if (substr($key, -3) == '_id') {
+        foreach($keyarray as $key){
+            if (substr($key, -3) == '_id'){
                 $sortarray[$key] = substr_count($key, '_id') * 10;
             } else {
                 $sortarray[$key] = substr_count($key, '_id') * 10 - 1;
             }
         }
         arsort($sortarray);
-        foreach($sortarray as $key => $value) {
+        foreach($sortarray as $key => $value){
             $newarray[$key] = $refcolumnsprop[$key];
         }
         return $newarray;
     }
     // 参照キー(〇〇_id)の参照先を$columnspropに入れる再帰関数
-    private function delveId ($refcolumnsprop, $modelindex, $tablename, $columnname) {
+    private function delveId ($refcolumnsprop, $modelindex, $tablename, $columnname){
         $uniquekeys = $this->getUniquekeys($modelindex, $tablename);
         // '_id_'が含まれていればそこまで消す
-        if (strripos($columnname, '_id_') && substr($columnname,-7) !== '_id_2nd') {
-            if (strripos($columnname, '_id_2nd_')) {
+        if (strripos($columnname, '_id_') && substr($columnname,-7) !== '_id_2nd'){
+            if (strripos($columnname, '_id_2nd_')){
                 $realcolumnname = substr($columnname, strripos($columnname, '_id_2nd_') + 8);
             } else {
                 $realcolumnname = substr($columnname, strripos($columnname, '_id_') + 4);
@@ -129,25 +129,25 @@ class GetColumnsPropService {
         $foreignmodel = $modelindex[$foreigntablename];
         $referencedcolumnnames = $foreignmodel['modelname']::$referencedcolumns;
         $refcolumnname = '';
-        foreach($referencedcolumnnames AS $referencedcolumnname) {
+        foreach($referencedcolumnnames AS $referencedcolumnname){
             $referencedsortcolumnname
                 = $this->checkAlternativeSortColumn($referencedcolumnname, $foreigntablename);
                 $isunique = in_array($referencedcolumnname, $foreignuniquekeys) ? TRUE : NULL;
                 $newprop = [$columnname.'_'.$referencedcolumnname =>
                 $this->getColumnProp($foreigntablename, $referencedcolumnname, $referencedsortcolumnname, $isunique)];
             $refcolumnsprop = array_merge($refcolumnsprop, $newprop);
-            if (substr($referencedcolumnname,-3) == '_id') {
+            if (substr($referencedcolumnname,-3) == '_id'){
                 $refcolumnname = $columnname.'_'.$referencedcolumnname;
             }
         }
-        if ($refcolumnname == '') {
+        if ($refcolumnname == ''){
             return $refcolumnsprop;
         } else {
             return $this->delveId ($refcolumnsprop, $modelindex, $foreigntablename, $refcolumnname);
         }
     }
     // $columnsprop取得
-    private function getColumnProp($tablename, $realcolumn, $sortcolumn, $isunique = NULL) {
+    private function getColumnProp($tablename, $realcolumn, $sortcolumn, $isunique = NULL){
         $tgtschema = Schema::getConnection()->getDoctrineColumn($tablename, $realcolumn);
         $columnprop = [
             'tablename' => $tablename,
@@ -165,17 +165,17 @@ class GetColumnsPropService {
     }
 
     // 代替ソートカラム名に替えるかチェックする
-    private function checkAlternativeSortColumn($columnname, $tablename) {
+    private function checkAlternativeSortColumn($columnname, $tablename){
         // ソートカラムとして入れ替えが必要なカラム名
         $alternativesortcolumns = [
             'name' => 'name_kana'
         ]; 
         // 入れ替え対象かどうか 
-        if (array_key_exists($columnname, $alternativesortcolumns)) {
+        if (array_key_exists($columnname, $alternativesortcolumns)){
             // ターブルのカラム名取得
             $columnnames = Schema::getColumnListing($tablename);
             // テーブルに代替カラムが存在すれば入れ替える
-            if (in_array($alternativesortcolumns[$columnname], $columnnames)) {
+            if (in_array($alternativesortcolumns[$columnname], $columnnames)){
                 return $alternativesortcolumns[$columnname];
             } else {
                 return $columnname;

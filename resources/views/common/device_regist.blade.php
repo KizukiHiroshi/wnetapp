@@ -14,14 +14,14 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <!-- 完了メッセージ -->
-            <?php if(!isset($success)) {$success = '';} ?>
+            <?php if(!isset($success)){$success = '';} ?>
             @if ($success !== '')
             <div class="alert alert-success">
                 <strong>{{ $success }}</strong>
             </div>
             @endif
             <!-- エラーメッセージ -->
-            <?php if(!isset($danger)) {$danger = '';} ?>
+            <?php if(!isset($danger)){$danger = '';} ?>
             @if ($danger !== '')
             <div class="alert alert-danger">
                 <strong>{{ $danger }}</strong>

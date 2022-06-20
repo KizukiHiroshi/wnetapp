@@ -3,6 +3,8 @@
 <?php $title = '>menu'; ?>
 @section('title', $title )
 
+@section('devicename', $devicename )
+
 @section('menu')
 <div class="col-md-2 d-flex justify-content-sm-center">
     @include('layouts/components/button', [

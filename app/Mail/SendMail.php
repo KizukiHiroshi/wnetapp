@@ -16,21 +16,41 @@ class SendMail extends Mailable
      *
      * @return void
      */
-    public function __construct(string $content) {
-        $this->content = $content;
-    }
+    public $from;
+    public $subject;
+    private $content;
+    // private $files;
+    public function __construct(
+        // $from,
+        // $subject,
+        // $body
+        // $files
+        ){
+            // $this->from = $from;
+            // $this->subject = $subject;
+            // $this->body = $body;
+            // $this->files = $files;
+        }
 
     /**
      * Build the message.
      *
      * @return $this
      */
-    public function build() {
-        return $this->from('wnet@wisecorp.net')
-            ->subject('テストタイトル')
-            ->view('mail')
-            ->with([
-                'content' => $this->content,
-            ]);
+    public function build(){
+        // $this->from = 'wnet@wisecorp.net';
+        // $this->subject = 'subject2';
+        // $this->body = 'body2';
+        $mail = $this->text('mailbody')
+        ->from('wnet@wisecorp.net')
+        ->subject('subject2')
+        ->with(['body' => 'body2']);
+        // ->from($this->from)
+        // ->subject($this->subject)
+        // ->with(['body' => $this->body]);
+// foreach($this->files as $file){
+        //     $mail->attach($file);
+        // }
+        return $mail;
     }
 }

@@ -27,13 +27,13 @@ class Company extends Model
     ];
 
     // input has_many clause here
-    public function edifiles() {
+    public function edifiles(){
         return $this->hasMany(Edifile::class);
     }
-    public function businessunits() {
+    public function businessunits(){
         return $this->hasMany(Businessunit::class);
     }
-    public function vendor_in_companies() {
+    public function vendor_in_companies(){
         return $this->hasMany(VendorInCompany::class);
     }
 

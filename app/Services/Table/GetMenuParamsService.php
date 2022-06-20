@@ -9,11 +9,11 @@ use App\Services\Table\GetFormforSearchService;
 
 class GetMenuParamsService {
 
-    public function __construct() {
+    public function __construct(){
     }
     
     // Menu表示用のパラメータを取得する
-    public function getMenuParams($request) {
+    public function getMenuParams($request){
         $tablename = $request->tablename;
         // モデル選択に渡す現在のテーブル名
         $selectedtable = $tablename;
@@ -25,7 +25,7 @@ class GetMenuParamsService {
         $searchinput = [];
         $searcherrors = null;
         $foreignselects = null;
-        if ($tablename) {
+        if ($tablename){
             $columnsprop = $sessionservice->getSession('columnsprop', $tablename);
             $arangecolumnsproptocardservice = new ArangeColumnspropToCardService;
             $cardcolumnsprop = $arangecolumnsproptocardservice->arangeColumnspropToCard($columnsprop);
@@ -51,9 +51,9 @@ class GetMenuParamsService {
         'value'     => tablecomment,    // テーブル和名        
     ] 
     */
-    private function getModelselect($modelindex) {
+    private function getModelselect($modelindex){
         $modelselect = []; // 返すグループセレクト配列名
-        foreach($modelindex as $key => $model) {
+        foreach($modelindex as $key => $model){
             $modelselect[$key] = [
                 'group' => $model['modelzone'],
                 'value' => $model['tablecomment'],
@@ -63,15 +63,15 @@ class GetMenuParamsService {
     }
 
     // $requestからtable_searchの情報を抽出してSessionに保存する
-    private function setSerachinput($request) {
+    private function setSerachinput($request){
         $searchinput =[];
         $rawparams = $request->all();
-        foreach($rawparams as $rawname => $value) {
-            if (substr($rawname,0,7) == 'search_') {
+        foreach($rawparams as $rawname => $value){
+            if (substr($rawname,0,7) == 'search_'){
                 $searchinput[substr($rawname,7)] = $value;
             }
         }
-        if (count($searchinput) > 0) {
+        if (count($searchinput) > 0){
             $sessionservice = new SessionService;
             $sessionservice->putSession('searchinput', $searchinput);
         }
@@ -79,7 +79,7 @@ class GetMenuParamsService {
     }
 
     // 検索条件のValidation
-    private function validateSerch($tablename, $columnsprop, $searchinput) {
+    private function validateSerch($tablename, $columnsprop, $searchinput){
         $searcherrors  = [];
         // 通常検索分
         $searcherrors += $this->getSearcherros('', $tablename, $columnsprop, $searchinput);
@@ -87,7 +87,7 @@ class GetMenuParamsService {
         $searcherrors += $this->getSearcherros('bigin_', $tablename, $columnsprop, $searchinput);
         // 終了条件検索分
         $searcherrors += $this->getSearcherros('end_', $tablename, $columnsprop, $searchinput);
-        if (count($searcherrors) > 0) {
+        if (count($searcherrors) > 0){
             return $searcherrors ;       
         } else {
             return null;
@@ -95,7 +95,7 @@ class GetMenuParamsService {
     }
 
     // searchValidationを開始値、終了値、通常毎に処理する
-    private function getSearcherros($withhearder, $tablename, $columnsprop, $searchinput) {
+    private function getSearcherros($withhearder, $tablename, $columnsprop, $searchinput){
         $id = 0;
         $mode = "check";
         $getformforsearchservice = new GetFormforSearchService;
@@ -108,25 +108,25 @@ class GetMenuParamsService {
 
     // searchValidationからの戻り値から$oldinputの値が空のものを除く。
     // searchValidationからの戻り値から'はすでに使われています。''正しい形式の'を除く。
-    private function dropNonfitFromErrortips($withhearder, $errortips, $searchinput) {
+    private function dropNonfitFromErrortips($withhearder, $errortips, $searchinput){
         $errors = [];
-        if ($errortips !== null) {
+        if ($errortips !== null){
             $header = '';
-            if ($withhearder == 'bigin_') {$header = '開始値:';}
-            if ($withhearder == 'end_') {$header = '終了値:';}
-            foreach ($errortips as $columnname => $error) {
+            if ($withhearder == 'bigin_'){$header = '開始値:';}
+            if ($withhearder == 'end_'){$header = '終了値:';}
+            foreach ($errortips as $columnname => $error){
                 // $oldinputに値が入っているものだけをリストに追加する
                 if (array_key_exists($withhearder.$columnname, $searchinput) 
-                    && $searchinput[$withhearder.$columnname] !== null) {
+                    && $searchinput[$withhearder.$columnname] !== null){
                     $needederror = [];
-                    foreach( $error as $errortext) {
+                    foreach( $error as $errortext){
                         // 'はすでに使われています。'が無いものだけをリストに追加する
                         if (strpos($errortext, 'はすでに使われています。') == false
-                            && strpos($errortext, '正しい形式の') !== 0) {
+                            && strpos($errortext, '正しい形式の') !== 0){
                             $needederror[] = $errortext;
                         }
                     }
-                    if (count($needederror) > 0) {
+                    if (count($needederror) > 0){
                         $errors[] = $header.implode( ',', array_values($needederror));
                     }
                 }

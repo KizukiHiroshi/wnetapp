@@ -1,10 +1,10 @@
 <?php
 if (!isset($type))  {$type ='submit';}
-if (!isset($color)) {$color ='primary';}
-if (!isset($margin)) {$margin ='m-0';}
+if (!isset($color)){$color ='primary';}
+if (!isset($margin)){$margin ='m-0';}
 if (!isset($size))  {$size ='sm';}
-if (!isset($value)) {$value ='error';}
-if (!isset($disabled)) {$disabled ='';}
+if (!isset($value)){$value ='error';}
+if (!isset($disabled)){$disabled ='';}
 $name = isset($name) ? 'name='.$name : '';
 $form = isset($form) ? 'form='.$form : '';
 $formmethod = isset($formmethod) ? 'formmethod='.$formmethod : '';

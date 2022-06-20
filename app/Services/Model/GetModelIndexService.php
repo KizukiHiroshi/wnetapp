@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class GetModelIndexService {
 
-    public function __construct() {
+    public function __construct(){
     }
 
     /* modelindex:全てのモデルの一覧
@@ -25,18 +25,18 @@ class GetModelIndexService {
         $modelname::$validationrule,
         で、取得すること  
     */
-    public function getModelIndex() {
+    public function getModelIndex(){
         $modelindex = []; // 返すモデルリスト
         // 拡張子を着けてディレクトリ名でヒットしないようにする
         // Models直下のモデル検索する
         $modeldirs = glob(base_path('app/Models').'/*');
-        foreach($modeldirs as $modeldir) {
-            if (strpos($modeldir, '.php')) {
+        foreach($modeldirs as $modeldir){
+            if (strpos($modeldir, '.php')){
                 $modelindex = $this->addModels($modelindex, $modeldir);
             } else {
                 $indirmodelindex = glob($modeldir . '/*');
-                foreach($indirmodelindex as $indirmodel) {
-                    if (strpos($indirmodel, '.php')) {
+                foreach($indirmodelindex as $indirmodel){
+                    if (strpos($indirmodel, '.php')){
                         $modelindex = $this->addModels($modelindex, $indirmodel);
                     }
                 }
@@ -48,7 +48,7 @@ class GetModelIndexService {
         return $modelindex;
     }
 
-    private function addModels($modelindex, $modelname) {
+    private function addModels($modelindex, $modelname){
         // Modelnameに余分な文字を削除する
         $modelname = $this->organizeModelname($modelname);
         // table名に余分な文字を削除する
@@ -60,7 +60,7 @@ class GetModelIndexService {
         ];
         return $modelindex;
     }
-    private function organizeModelname($modelname) {
+    private function organizeModelname($modelname){
         // Modelnameに余分な文字を削除する
         $modelname = substr($modelname,strpos($modelname,'Models'));
         $modelname = 'App/'.$modelname;
@@ -68,7 +68,7 @@ class GetModelIndexService {
         $modelname = str_replace('/', '\\', $modelname);
         return $modelname;
     }    
-    private function ModelnameToTablename($modelname) {
+    private function ModelnameToTablename($modelname){
         // table名に余分な文字を削除する
         $tablename = Str::afterLast($modelname, '\\');
         $tablename = Str::plural(Str::lower($tablename));

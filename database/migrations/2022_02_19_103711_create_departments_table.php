@@ -14,7 +14,7 @@ class CreateDepartmentsTable extends Migration
      */
     public function up()
     {
-        Schema::create('departments', function (Blueprint $table) {
+        Schema::create('departments', function (Blueprint $table){
             $table->id()->comment('id');
             $table->foreignId('company_id')->comment('企業');
             $table->string('code', 5)->unique()->comment('code');
