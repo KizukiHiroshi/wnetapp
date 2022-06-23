@@ -14,14 +14,14 @@ class CreateVendorincompaniesTable extends Migration
      */
     public function up()
     {
-        Schema::create('vendor_in_companies', function (Blueprint $table){
+        Schema::create('vendor_in_companies', function (Blueprint $table) {
             $table->id()->comment('id');
             $table->foreignId('company_id')->comment('企業名')->references('id')->on('companies');
             $table->string('department')->comment('担当部署', 30)->nullable();
             $table->string('position')->comment('担当者役職', 30)->nullable();
             $table->string('pic')->comment('担当者', 20)->nullable();
             $table->string('telno')->comment('電話', 14)->nullable();
-            $table->string('foxno')->comment('FAX', 14)->nullable();
+            $table->string('faxno')->comment('FAX', 14)->nullable();
             $table->string('emails')->comment('発注先アドレス', 200)->nullable();
             $table->string('orderdayofweek')->comment('発注曜日', 7)->default('0')->nullable();
             $table->time('ordertimeonday')->comment('当日発注時間制限')->nullable();

@@ -14,7 +14,7 @@ class CreateMembersTable extends Migration
      */
     public function up()
     {
-        Schema::create('members', function (Blueprint $table){
+        Schema::create('members', function (Blueprint $table) {
             $table->id()->comment('id');
             $table->foreignId('user_id')->comment('ログイン名')->references('id')->on('users');
             $table->foreignId('businessunit_id')->comment('所属事業所')->references('id')->on('businessunits');

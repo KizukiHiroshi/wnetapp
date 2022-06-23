@@ -14,7 +14,7 @@ class CreateTablereplacementsTable extends Migration
      */
     public function up()
     {
-        Schema::create('tablereplacements', function (Blueprint $table){
+        Schema::create('tablereplacements', function (Blueprint $table) {
             $table->id()->comment('id');
             $table->tinyInteger('no')->comment('no');
             $table->string('name')->comment('置換名', 30);

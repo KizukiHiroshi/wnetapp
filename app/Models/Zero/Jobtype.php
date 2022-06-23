@@ -25,10 +25,10 @@ class Jobtype extends Model
        ['code'], ['name_system'], 
     ];
 
-    public function concerns(){
+    public function concerns() {
         return $this->hasMany(Concern::class);
     }
-    public function accountauthorities(){
+    public function accountauthorities() {
         return $this->hasMany(Accountauthority::class);
     }
 

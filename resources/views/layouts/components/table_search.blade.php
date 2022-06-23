@@ -103,7 +103,7 @@
                     @default
                         <div class="input-group">
                         <?php // 数値は右揃えにする
-                            if (strpos($prop['type'],'int') !== false || $prop['type'] == 'decimal'){
+                            if (strpos($prop['type'],'int') !== false || $prop['type'] == 'decimal') {
                                 $style = 'text-right';
                                 $wide = 'w-25';
                             } else {

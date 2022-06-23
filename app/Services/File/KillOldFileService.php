@@ -6,15 +6,15 @@ use Illuminate\Support\Facades\Storage;
 
 class KillOldFileService
 {
-    public function __construct(){
+    public function __construct() {
     }
     // wnetapp\storage\app\public\csv内の10分以上前にuploadされたファイルを削除する
-    public function killOldFile(){
+    public function killOldFile() {
         $setminuts = 10;
         $files = Storage::allFiles('public/csv/');;
-        foreach ($files as $file){
+        foreach ($files as $file) {
             $updatedtime = Storage::lastModified($file);;
-            if ((time()-$updatedtime)/60 > $setminuts && substr($file, -4) == '.csv'){
+            if ((time()-$updatedtime)/60 > $setminuts && substr($file, -4) == '.csv') {
                 Storage::delete($file);
             }
         }

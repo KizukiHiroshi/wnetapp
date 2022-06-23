@@ -15,13 +15,13 @@ class Member extends Model
 {
     use SoftDeletes;
     use ValidateTrait;
-    public function users(){
+    public function users() {
         return $this->belongsTo(User::class)->withDefault();
     }
-    public function businessunits(){
+    public function businessunits() {
         return $this->belongsTo(Businessunit::class)->withDefault();
     }
-    public function employtypes(){
+    public function employtypes() {
         return $this->belongsTo(Employtype::class)->withDefault();
     }
     protected $guarded = [];

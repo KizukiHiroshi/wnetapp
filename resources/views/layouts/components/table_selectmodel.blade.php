@@ -22,7 +22,7 @@
                 @include('layouts/components/button', [
                     'value'     => '戻る',
                     'color'     => 'secondary',
-                    'formaction'=> '/menu',
+                    'formaction'=> '/jobmenu',
                 ])
             </div>
         </tr>

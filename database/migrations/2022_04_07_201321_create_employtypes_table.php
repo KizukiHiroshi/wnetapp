@@ -14,7 +14,7 @@ class CreateEmploytypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('employtypes', function (Blueprint $table){
+        Schema::create('employtypes', function (Blueprint $table) {
             $table->id()->comment('id');
             $table->string('code', 2)->unique()->comment('コード');
             $table->string('name', 20)->comment('雇用形態');

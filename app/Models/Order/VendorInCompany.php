@@ -13,7 +13,7 @@ class VendorInCompany extends Model
 {
     use SoftDeletes;
     use ValidateTrait;
-    public function companies(){
+    public function companies() {
         return $this->belongsTo(Company::class)->withDefault();
     }
     protected $guarded = [];
@@ -39,7 +39,7 @@ class VendorInCompany extends Model
             'position' => ['nullable','string','max:30',],
             'pic' => ['nullable','string','max:20',],
             'telno' => ['nullable','string','max:14','regex:/^[a-zA-Z0-9-]+$/'],
-            'foxno' => ['nullable','string','max:14','regex:/^[a-zA-Z0-9-]+$/'],
+            'faxno' => ['nullable','string','max:14','regex:/^[a-zA-Z0-9-]+$/'],
             'emails' => ['nullable','string','max:200',],
             'orderdayofweek' => ['nullable','string','max:7',],
             'ordertimeonday' => ['nullable','date',],

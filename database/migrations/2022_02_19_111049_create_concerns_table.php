@@ -14,7 +14,7 @@ class CreateConcernsTable extends Migration
      */
     public function up()
     {
-        Schema::create('concerns', function (Blueprint $table){
+        Schema::create('concerns', function (Blueprint $table) {
             $table->id()->comment('id');
             $table->foreignId('jobtype_id')->references('id')->on('jobtypes')->comment('業務種類');
             $table->string('name', 40)->default('')->unique()->comment('テーマ');

@@ -58,7 +58,7 @@
             'formaction'=> '/table/'.$tablename.'/store',
         ])
     @endif
-    <?php if ($mode == 'show' || $mode == 'create'){
+    <?php if ($mode == 'show' || $mode == 'create') {
         $href = '/table/'.$tablename.'?tablename='.$tablename.'&page='.$page;
     } else {
         $href = '/table/'.$tablename.'/'.$row->id.'/show';
@@ -77,13 +77,13 @@
         @if ($columnname !== 'id' && substr($columnname,-3) !== '_id' && substr($columnname,-7) !== '_id_2nd')
         <?php
         // システム制御カラムはリードオンリーにする
-            if (substr($columnname, -3) == '_at' || substr($columnname, -3) == '_by'){
+            if (substr($columnname, -3) == '_at' || substr($columnname, -3) == '_by') {
                 $readonly = 'readonly="readonly"';
             } else {
                 $readonly ='';
             }
         // mode==showでは全てリードオンリーにする 
-        if ($mode == 'show'){ $readonly ='readonly="readonly"';} 
+        if ($mode == 'show') { $readonly ='readonly="readonly"';} 
         // 作成日・更新者等の情報は小さな文字にする
         if (substr($columnname, -3) == '_at' || substr($columnname, -3) == '_on' || substr($columnname, -3) == '_by') 
             {$is_small = true;} else {$is_small = false;}
@@ -141,7 +141,7 @@
                 @default
                     <div class="input-group">
                     <?php // 数値は右揃えにする
-                        if (strpos($prop['type'],'int') !== false || $prop['type'] == 'decimal'){
+                        if (strpos($prop['type'],'int') !== false || $prop['type'] == 'decimal') {
                             $style = 'style="text-align:right"';
                         } else {
                             $style ='';

@@ -167,7 +167,7 @@ window.onload = ()=>{
  * @return {void}
  */
 
-function drawSheet(){
+function drawSheet() {
     ctx    = Banner.canvas.ctx;
     width  = Banner.canvas.width;
     height = Banner.canvas.height;
@@ -180,7 +180,7 @@ function drawSheet(){
 
     // Baseを描画
     ctx.fillStyle = Banner.basecolor;
-    if(baseshape=="rectangle"){
+    if(baseshape=="rectangle") {
         ctx.fillRect((height-basewidth)/2, (width-baseheight)/2, basewidth, baseheight);
     } else {
 
@@ -192,16 +192,16 @@ function drawSheet(){
         ctx.beginPath();
         var x = width/2 + radius * Math.cos(0);
         var y = height/2 - ratio * radius * Math.sin(0);
-        if(baseheight<basewidth){
+        if(baseheight<basewidth) {
             ctx.lineTo(x,y);
         } else {
             ctx.lineTo(y,x);
         }
     
-        for(var radians=increment; radians<PI2; radians+=increment){ 
+        for(var radians=increment; radians<PI2; radians+=increment) { 
             var x = width/2 + radius * Math.cos(radians);
             var y = height/2 - ratio * radius * Math.sin(radians);
-            if(baseheight<basewidth){
+            if(baseheight<basewidth) {
                 ctx.lineTo(x,y);
             } else {
                 ctx.lineTo(y,x);
@@ -225,7 +225,7 @@ function drawSheet(){
 
 }
 
-function drawCanvas(){
+function drawCanvas() {
     ctx    = Banner.canvas.ctx;
     width  = Banner.canvas.width;
     height = Banner.canvas.height;
@@ -238,7 +238,7 @@ function drawCanvas(){
 
     // Baseを描画
     ctx.fillStyle = Banner.basecolor;
-    if(baseshape=="rectangle"){
+    if(baseshape=="rectangle") {
         ctx.fillRect((height-basewidth)/2, (width-baseheight)/2, basewidth, baseheight);
     } else {
         var PI2=Math.PI*2;
@@ -250,16 +250,16 @@ function drawCanvas(){
         ctx.beginPath();
         var x = width/2 + radius * Math.cos(0);
         var y = height/2 - ratio * radius * Math.sin(0);
-        if(parseFloat(baseheight)<=parseFloat(basewidth)){
+        if(parseFloat(baseheight)<=parseFloat(basewidth)) {
             ctx.lineTo(x,y);
         } else {
             ctx.lineTo(y,x);
         }
     
-        for(var radians=increment; radians<PI2; radians+=increment){ 
+        for(var radians=increment; radians<PI2; radians+=increment) { 
             var x = width/2 + radius * Math.cos(radians);
             var y = height/2 - ratio * radius * Math.sin(radians);
-            if(parseFloat(baseheight)<=parseFloat(basewidth)){
+            if(parseFloat(baseheight)<=parseFloat(basewidth)) {
                 ctx.lineTo(x,y);
             } else {
                 ctx.lineTo(y,x);
@@ -289,13 +289,13 @@ function drawCanvas(){
  * @param url   {string} 送信先URL
  * @param param {object} fetchオプション
  */
-function sendServer(url, param){
+function sendServer(url, param) {
     fetch(url, param)
         .then((response)=>{
         return response.json();
         })
         .then((json)=>{
-        if(json.status){
+        if(json.status) {
             alert("送信に『成功』しました");
             setImage(json.result);    //json.resultにはファイル名が入っている
         }
@@ -316,7 +316,7 @@ function sendServer(url, param){
  * @param path {string} 画像のURL
  * @return void
  */
-function setImage(path){
+function setImage(path) {
   const url = `${IMAGE_URL}/${path}`;
   const result = document.querySelector("#result");
   const li = document.createElement("li");

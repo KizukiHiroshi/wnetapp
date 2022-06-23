@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-<?php $title = '>menu'; ?>
+<?php $title = '>業務メニュー'; ?>
 @section('title', $title )
 
 @section('devicename', $devicename )

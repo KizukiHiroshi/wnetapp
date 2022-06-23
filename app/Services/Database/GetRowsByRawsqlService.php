@@ -6,11 +6,11 @@ use Illuminate\Support\Facades\DB;
 
 class GetRowsByRawsqlService {
     
-    public function __construct(){
+    public function __construct() {
     }
 
     // RawsqlでListの実体を取得する
-    public function getRowsByRawsql($rawsql){
+    public function getRowsByRawsql($rawsql) {
         $rows = DB::select($rawsql);
         return $rows;
     }    

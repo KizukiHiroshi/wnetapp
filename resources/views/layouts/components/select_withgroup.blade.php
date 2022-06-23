@@ -6,13 +6,13 @@
   // 'withnoselect' => 'before',    //項目'選択しない'の表示=>'before','after' or ''
   // 'size'         => 'w-100 '     //大きさ指定
   // 'readonly'     => '' or 'readonly="readonly"' //大きさ指定
-  if (!isset($name)){$name = '';}
-  if (!isset($selects)){$selects = [];}
-  if (!isset($selected)){$selected = '';}
-  if (!isset($selectmark)){$selectmark = '';}
-  if (!isset($withnoselect)){$withnoselect = '';}
-  if (!isset($size)){$size = '';}
-  if (!isset($readonly)){$readonly = '';}
+  if (!isset($name)) {$name = '';}
+  if (!isset($selects)) {$selects = [];}
+  if (!isset($selected)) {$selected = '';}
+  if (!isset($selectmark)) {$selectmark = '';}
+  if (!isset($withnoselect)) {$withnoselect = '';}
+  if (!isset($size)) {$size = '';}
+  if (!isset($readonly)) {$readonly = '';}
   $disabled = $readonly !== '' ? 'disabled' : '';
 ?>
 

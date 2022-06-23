@@ -9,11 +9,11 @@ use App\Services\Database\FindValueService;
 
 class ConfirmCase
 {
-    public function __construct(){
+    public function __construct() {
     }
 
     // ログインidに複数の従業員がいるかチェック
-    public function checkMemberId(){
+    public function checkMemberId() {
         $memberid = 0;
         $userid = Auth::id();
         $tablename = 'members';
@@ -25,7 +25,7 @@ class ConfirmCase
     }
 
     // accountを確認する ★★未実装
-    public function getAccountValue($memberid){
+    public function getAccountValue($memberid) {
         $accountvalue = [];
         // アカウント名
         // アカウントとして持ってる機能
@@ -44,13 +44,13 @@ class ConfirmCase
     }
 
     // $accountvalueをSessionに保存する
-    public function putAccountValueToSession($accountvalue){
+    public function putAccountValueToSession($accountvalue) {
         $sessionservice = new SessionService;
         $sessionservice->putSession('accountvalue', $accountvalue);
     }
 
     // jobmenuを表示するパラメーターを得る
-    public function getParams($accountvalue){
+    public function getParams($accountvalue) {
         $params = [];
         $sessionservice = new SessionService;
         $devicename = $sessionservice->getSession('devicename');

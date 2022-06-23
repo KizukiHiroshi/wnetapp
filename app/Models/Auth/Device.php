@@ -14,7 +14,7 @@ class Device extends Model
     use SoftDeletes;
     use ValidateTrait;
     
-    public function users(){
+    public function users() {
         return $this->belongsTo(User::class)->withDefault();
     }
     

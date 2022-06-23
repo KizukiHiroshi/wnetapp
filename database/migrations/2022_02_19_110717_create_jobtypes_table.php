@@ -14,7 +14,7 @@ class CreateJobtypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('jobtypes', function (Blueprint $table){
+        Schema::create('jobtypes', function (Blueprint $table) {
             $table->id()->comment('id');
             $table->string('code', 3)->unique()->comment('code');
             $table->string('name', 20)->default('')->comment('業務種類');

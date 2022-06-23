@@ -7,17 +7,17 @@ use App\Services\Table\GetFormFromRequestService;
 
 class ExcuteCase  {
 
-    public function __construct(){
+    public function __construct() {
     }
 
-    public function Excute($request, $sqlmode){
+    public function Excute($request, $sqlmode) {
         $getformfromrequestservice = new GetFormFromRequestService;
         $form = $getformfromrequestservice->getFormFromRequest($request, $sqlmode);
         // 登録実行
         $tablename = $request->tablename;
-        if ($sqlmode == 'store'){
+        if ($sqlmode == 'store') {
             $id = 0;
-        } elseif ($sqlmode == 'update'){
+        } elseif ($sqlmode == 'update') {
             $id = $request->id;
         }
         // 汎用の登録・更新プロセス

@@ -6,11 +6,11 @@ use App\Services\Database\FindValueService;
 
 class GetDeviceIdService 
 {
-    public function __construct(){
+    public function __construct() {
     }
 
     // 登録済のデバイスかチェックする
-    public function getDeviceId($devicecookie){
+    public function getDeviceId($devicecookie) {
         // $findvalueset =  参照テーブル名?参照カラム名=値&参照カラム名=値
         $tablename = 'devices';
         $findvalueset = $tablename.'?name='.$devicecookie['name'].'&key='.$devicecookie['key'];

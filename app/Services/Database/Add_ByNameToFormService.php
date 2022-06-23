@@ -7,13 +7,20 @@ namespace App\Services\Database;
 
 class Add_ByNameToFormService {
     // Formに_byを加える
-    public function add_ByNameToForm($byname, $form, $columnnames, $mode){
-        if (in_array('created_by', $columnnames) && $mode == 'store'){
-            $form['created_by'] = $byname;
-        }        
-        if (in_array('updated_by', $columnnames)){
+    public function Add_ByNameToForm($byname, $form, $mode, $columnnames = null) {
+        if (!$columnnames) {
+            if ($mode == 'store') {
+                $form['created_by'] = $byname;
+            }        
             $form['updated_by'] = $byname;
-        }        
+        } else {
+            if (in_array('created_by', $columnnames) && $mode == 'store') {
+                $form['created_by'] = $byname;
+            }        
+            if (in_array('updated_by', $columnnames)) {
+                $form['updated_by'] = $byname;
+            }                        
+        }
         return $form;
     }
 }

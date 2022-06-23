@@ -12,7 +12,7 @@ class DatabaseService
     private $sessionservice;
     public function __construct(
         SessionService $sessionservice, 
-        QueryService $queryservice){
+        QueryService $queryservice) {
         $this->modelindex = $sessionservice->getSession('modelindex');
         $this->queryservice = $queryservice;
         $this->sessionservice = $sessionservice;
@@ -21,7 +21,7 @@ class DatabaseService
     // ★★ このファイルはもう要らない…はず
 
     // 既存のDownload用のSqlで表示するListの実体を取得する
-    // public function getRowsWithDownloadSql($request, $paginatecnt){
+    // public function getRowsWithDownloadSql($request, $paginatecnt) {
     //     $displaymode = 'list';
     //     $tablename = $request->tablename;
     //     $modelname = $this->modelindex[$tablename]['modelname'];
@@ -35,13 +35,13 @@ class DatabaseService
 
     
     // card表示用にforeignkey用のセレクトリストを用意する
-    // public function getForeginSelects($columnsprop){
+    // public function getForeginSelects($columnsprop) {
     //     $foreignselects = [];
     //     $concats = [];           // 合体する参照先カラムの配列
     //     // 必要なセレクトをまず決める
-    //     foreach ($columnsprop AS $columnname => $prop){
-    //         if (substr($columnname, -3) =='_id' || substr($columnname, -7) =='_id_2nd'){
-    //             if (strpos($columnname, '_id_2nd_') == false){
+    //     foreach ($columnsprop AS $columnname => $prop) {
+    //         if (substr($columnname, -3) =='_id' || substr($columnname, -7) =='_id_2nd') {
+    //             if (strpos($columnname, '_id_2nd_') == false) {
     //                 // 参照元カラム名を取得する
     //                 $forerignreferencename = substr($columnname, 0, strripos($columnname, '_id')).'_id_reference';
     //                 $foreignselects[$forerignreferencename] = [];
@@ -49,14 +49,14 @@ class DatabaseService
     //         }
     //     }
     //     // foreignkey用セレクトの実体を得る
-    //     foreach ($foreignselects AS $forerignreferencename => $blank){
-    //         foreach ($columnsprop AS $columnname => $prop){
+    //     foreach ($foreignselects AS $forerignreferencename => $blank) {
+    //         foreach ($columnsprop AS $columnname => $prop) {
     //             // referenceの対象カラムを探す
     //             if (strripos($columnname, '_id_') 
     //                 && strpos($columnname, '_id_2nd') == false 
-    //                 && substr($columnname, -3) !== '_id'){
+    //                 && substr($columnname, -3) !== '_id') {
     //                 if (substr($columnname, 0, strripos($columnname, '_id_')) 
-    //                     == substr($forerignreferencename, 0, strripos($forerignreferencename, '_id_'))){
+    //                     == substr($forerignreferencename, 0, strripos($forerignreferencename, '_id_'))) {
     //                     $referencetablename = $prop['tablename'];
     //                     $concats[] = $prop['tablename'].'.'.$prop['realcolumn'];
     //                 }
@@ -71,7 +71,7 @@ class DatabaseService
     // }
 
     // 参照用selects作成
-    // public function getIdReferenceSelects($referencename, $tablename, $concats){
+    // public function getIdReferenceSelects($referencename, $tablename, $concats) {
     //     $idreferenceselects =[];
     //     // queryのfrom,join,select句を取得する
     //     $modelname = $this->modelindex[$tablename]['modelname'];
@@ -81,7 +81,7 @@ class DatabaseService
     //     $concatclause = $this->queryservice->getConcatClause($concats, ' ', $referencename);
     //     $tablequery = $tablequery->select('id', DB::raw($concatclause));
     //     $rows = $tablequery->get();
-    //     foreach ($rows AS $row){
+    //     foreach ($rows AS $row) {
     //         $idreferenceselects[$row->id] = $row->$referencename;
     //     }
     //     return $idreferenceselects;

@@ -6,11 +6,11 @@ use App\Services\Model\GetModelIndexService;
 
 class IsRestoredService 
 {
-    public function __construct(){
+    public function __construct() {
     }
 
     // 削除実行
-    public function IsRestored($tablename, $id){
+    public function IsRestored($tablename, $id) {
         $getmodelindexservice = new GetModelIndexService;
         $modelindex = $getmodelindexservice->getModelIndex();
         $modelname = $modelindex[$tablename]['modelname'];

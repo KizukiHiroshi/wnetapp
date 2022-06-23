@@ -13,18 +13,18 @@ class TableCase  {
 
     private $sessionservice;
     public function __construct(
-        SessionService $sessionservice){
+        SessionService $sessionservice) {
              $this->sessionservice = $sessionservice;
     }
 
     // 表示Listのダウンロード用CSVを取得する
-    public function getDownloadCSV($request){
+    public function getDownloadCSV($request) {
         $modelindex = $this->sessionservice->getSession('modelindex');
         $tablename = $request->tablename;
         $columnsprop = $this->sessionservice->getSession('columnsprop', $tablename);
         // id,foreign_idを消す
-        foreach ($columnsprop as $columnname => $pops){
-            if ($columnname == 'id' or substr($columnname, -3) == '_id'){
+        foreach ($columnsprop as $columnname => $pops) {
+            if ($columnname == 'id' or substr($columnname, -3) == '_id') {
                 unset($columnsprop[$columnname]);
             }
         }
@@ -42,9 +42,9 @@ class TableCase  {
         $tempsql = $this->sessionservice->getSession('tempsql');
         $getrowsbyrawsqlService = new GetRowsByRawsqlService;
         $rows = $getrowsbyrawsqlService->getRowsByRawsql($tempsql);
-        foreach ($rows as $row){
+        foreach ($rows as $row) {
             $values = [];
-            foreach ($columnsprop as $columnname => $pops){
+            foreach ($columnsprop as $columnname => $pops) {
                 $rowvalue = str_replace(array('\r\n','\r','\n',',',chr(10)), '', $row->$columnname);
                 $rowvalue = str_replace('\n', '\\n', $rowvalue);
                 // $rowvalue = str_replace(',', '', $rowvalue);
@@ -56,13 +56,13 @@ class TableCase  {
     }
     
     // $requestの状態からSessionを適正化する
-    public function sessionOptimize($request){
+    public function sessionOptimize($request) {
         $sessionoptimizeservice = new SessionOptimizeService;
         $sessionoptimizeservice->sessionOptimize($request);
     }
 
     // 削除更新(softDelete)実行
-    public function is_Deleted($request){
+    public function is_Deleted($request) {
         $tablename = $request->tablename;
         $id = $request->id;
         $isdeletedservice = new IsDeletedService;
@@ -70,7 +70,7 @@ class TableCase  {
     }
 
     // 完全削除実行
-    public function is_forceDeleted($request){
+    public function is_forceDeleted($request) {
         $tablename = $request->tablename;
         $id = $request->id;
         $isforcedeletedservice = new IsForceDeletedService;
@@ -78,7 +78,7 @@ class TableCase  {
     }
 
     // 復活実行
-    public function is_Restored($request){
+    public function is_Restored($request) {
         $tablename = $request->tablename;
         $id = $request->id;
         $isrestoredservice = new IsRestoredService;

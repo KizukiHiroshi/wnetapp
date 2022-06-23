@@ -35,7 +35,7 @@ class Loftjanregistration extends Model
             'itemcode' => ['required','string','max:4','regex:/\d{4}/'],
             'jancode' => ['required','string','max:13','regex:/\d{13}/'],
             'shopcode' => ['required','string','max:3',
-                Rule::unique('loftjanregistrations')->ignore($this->id)->where(function($query){
+                Rule::unique('loftjanregistrations')->ignore($this->id)->where(function($query) {
                     $query->where('jancode', $this->jancode);
                 }),'regex:/\d{3}/'],
             'price' => ['required','integer','numeric',],

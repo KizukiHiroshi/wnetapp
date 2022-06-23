@@ -11,11 +11,11 @@ class ListCase {
 
     private $sessionservice;
     public function __construct(
-         SessionService $sessionservice){
+         SessionService $sessionservice) {
              $this->sessionservice = $sessionservice;
     }
     
-    public function getParams($request){
+    public function getParams($request) {
         $tablename = $request->tablename;
         // 現在のテーブル名をSessionに保存する
         $this->sessionservice->putSession('tablename', $tablename);
@@ -28,7 +28,7 @@ class ListCase {
     }
 
     // List表示用のパラメータを取得する
-    private function getListParams($request, $params = null){
+    private function getListParams($request, $params = null) {
         $tablename = $request->tablename;
         $modelindex = $this->sessionservice->getSession('modelindex');
         $tablecomment = '';
@@ -41,10 +41,10 @@ class ListCase {
         $mode = '';
         $page = $request->page ? $request->page : $this->sessionservice->getSession('page');
         $searchinput = $params['searchinput'];
-        if (array_key_exists($tablename, $modelindex)){
+        if (array_key_exists($tablename, $modelindex)) {
             // リストの行数
             $paginatecnt = $this->sessionservice->getSession('paginatecnt');
-            if (!$paginatecnt){$paginatecnt = 15;}
+            if (!$paginatecnt) {$paginatecnt = 15;}
             // 成功メッセージ
             $success = $request->success !== '' ? $request->success : '';
             // 表示リストの詳細
@@ -59,7 +59,7 @@ class ListCase {
             $tempsort = $sortservice->getTempsort($request, $modelindex, $columnsprop, $tasksort);
             // 表示するListの実体を取得する
             $is_pagerequest = $this->getIspagerequest($request);
-            if ($is_pagerequest){
+            if ($is_pagerequest) {
                 $searchinput = $this->sessionservice->getSession('searchinput');
                 $searchinput = is_null($searchinput) ? [] : $searchinput;
             }
@@ -92,12 +92,12 @@ class ListCase {
     }
 
     // pagenateのリクエストかどうか判断する
-    private function getIspagerequest($request){
+    private function getIspagerequest($request) {
         $is_pagerequest = false;
         $requestparams = $request->all();
         if (count($requestparams ) == 2 
             && array_key_exists('tablename', $requestparams )
-            && array_key_exists('page', $requestparams )){
+            && array_key_exists('page', $requestparams )) {
             $is_pagerequest = true;
         }
         return $is_pagerequest;

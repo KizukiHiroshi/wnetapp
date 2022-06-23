@@ -14,7 +14,7 @@ class CreateDevicesTable extends Migration
      */
     public function up()
     {
-        Schema::create('devices', function (Blueprint $table){
+        Schema::create('devices', function (Blueprint $table) {
             $table->id()->comment('id');
             $table->foreignId('user_id')->comment('ログイン名')->references('id')->on('users');
             $table->string('name')->comment('デバイス名', 50)->unique();

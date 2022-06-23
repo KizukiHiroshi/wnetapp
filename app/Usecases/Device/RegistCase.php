@@ -11,17 +11,17 @@ use App\Services\Database\ExcuteSaveService;
 
 class RegistCase {
 
-    public function __construct(){
+    public function __construct() {
     }
 
     // 登録済のデバイス名と重複しないかチェックする
-    public function isRegistedName($request){
+    public function isRegistedName($request) {
         $name = $request->name;
         // $findvalueset =  参照テーブル名?参照カラム名=値&参照カラム名=値
         $findvalueset = 'devices?name='.$name;
         $findvalueservice = new FindValueService;
         $devicenameid = $findvalueservice->findValue($findvalueset);
-        if ($devicenameid !== 0){
+        if ($devicenameid !== 0) {
             return true;
         } else {
             return false;
@@ -29,14 +29,14 @@ class RegistCase {
     }
 
     // devicesテーブルへ登録する
-    public function registDevice($request){
+    public function registDevice($request) {
         $form = $this->getDeviceForm($request);
         $createdid = $this->excuteSave($form);
         return $createdid;
     }
 
     // 新規のデバイスをwNetに登録するためのformを用意する
-    private function getDeviceForm($request){
+    private function getDeviceForm($request) {
         $user_id = Auth::id();
         $name = $request->name;
         $key = hash('md5', date("YmdHis"), false);
@@ -58,11 +58,11 @@ class RegistCase {
         $columnnames = ['created_by', 'updated_by'];
         $mode = 'store';
         $add_bynametoformservice = new Add_ByNameToFormService;
-        $form = $add_bynametoformservice->add_ByNameToForm($byname, $form, $columnnames, $mode);
+        $form = $add_bynametoformservice->Add_ByNameToForm($byname, $form, $mode, $columnnames);
         return $form;
     }
 
-    private function excuteSave($form){
+    private function excuteSave($form) {
         $tablename = 'devices';
         $id = 0;
         $excutesaveservice = new ExcuteSaveService;
@@ -71,15 +71,14 @@ class RegistCase {
     }
 
     // 管理者へメール送信
-    public function sendDeviceRequestMail($request){
+    public function sendDeviceRequestMail($request) {
         $user_id = Auth::id();
         $username = Auth::user();
         $name = $request->name;
-
     }
 
     // デバイスへのCookie登録
-    public function setDeviceCookie($form){
+    public function setDeviceCookie($form) {
         $name = $form['name'];
         $key = $form['key'];
         // cookieのセットと1年の使用期限設定
@@ -87,13 +86,13 @@ class RegistCase {
     }
 
     // cookieのセットと1年の使用期限設定
-    private function queueDeviceCookie($name, $key){
+    private function queueDeviceCookie($name, $key) {
         Cookie::queue('devicename', $name, 60*24*365);
         Cookie::queue('devicekey', $key, 60*24*365);
     }
 
     // screenの高さを取得する
-    private function getScreenHeight(){
+    private function getScreenHeight() {
         // ★未実装　get_screenheight.php
         $screen_height = 1080;
         return $screen_height;

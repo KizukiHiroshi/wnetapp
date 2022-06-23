@@ -14,7 +14,7 @@ class CreateBusinessunitsTable extends Migration
      */
     public function up()
     {
-        Schema::create('businessunits', function (Blueprint $table){
+        Schema::create('businessunits', function (Blueprint $table) {
             $table->id()->comment('id');
             $table->foreignId('company_id')->comment('企業')->references('id')->on('companies');
             $table->string('code')->comment('code', 4)->unique();
@@ -25,7 +25,7 @@ class CreateBusinessunitsTable extends Migration
             $table->string('address2')->comment('住所2', 40)->nullable();
             $table->string('telno')->comment('電話', 14);
             $table->string('telno2')->comment('電話2', 14)->nullable();
-            $table->string('foxno')->comment('FAX', 13)->nullable();
+            $table->string('faxno')->comment('FAX', 13)->nullable();
             $table->string('url')->comment('URL', 100)->nullable();
             $table->string('email')->comment('email', 50)->nullable();
             $table->date('start_on')->comment('開始日')->default(NULL)->nullable();

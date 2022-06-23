@@ -86,8 +86,8 @@
 </body>
 </html>
 <script>
-    function delete_alert(e){
-        if(!window.confirm('本当に削除しますか？')){
+    function delete_alert(e) {
+        if(!window.confirm('本当に削除しますか？')) {
             window.alert('キャンセルされました'); 
             return false;
         }

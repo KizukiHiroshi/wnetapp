@@ -19,17 +19,17 @@ $json = getParamJSON();
 // Validation
 //-------------------------------------------------
 // dataが渡されているか
-if( ! isset($json['data']) ){
+if( ! isset($json['data']) ) {
   sendResult(false, 'Empty query parameter: data');
   exit(1);
 }
 // データ長が30kbyte以下か
-if( strlen($json['data']) > (1024 * 30) ){
+if( strlen($json['data']) > (1024 * 30) ) {
   sendResult(false, 'Too long string: data');
   exit(1);
 }
 // 中身がDataURISchemaか
-if( ! preg_match('/^data:image\/png;base64,/', $json['data']) ){
+if( ! preg_match('/^data:image\/png;base64,/', $json['data']) ) {
   sendResult(false, 'Not Allow data type: data');
   exit(1);
 }
@@ -53,7 +53,7 @@ $result = file_put_contents(SAVE_DIR.$file, $image, LOCK_EX);
 //-------------------------------------------------
 // 結果を返却
 //-------------------------------------------------
-if( $result !== false ){
+if( $result !== false ) {
   sendResult(true, $file);  // ブラウザにファイル名を返却する
 }
 else{
@@ -67,7 +67,7 @@ else{
  *
  * @return object
  */
-function getParamJSON(){
+function getParamJSON() {
   $buff = file_get_contents('php://input');
   $json = json_decode($buff, true);
 
@@ -81,7 +81,7 @@ function getParamJSON(){
  * @param  mixed   $data   ブラウザに返却するデータ
  * @return void
  */
-function sendResult($status, $data){
+function sendResult($status, $data) {
   // CORS (必要に応じて指定)
   header('Access-Control-Allow-Origin: *');
   header('Access-Control-Allow-Headers: *');

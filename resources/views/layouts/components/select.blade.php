@@ -7,13 +7,13 @@
   // 'size'         => 'w-100 '     //大きさ指定
   // 'readonly'     => '' or 'readonly="readonly"'
    
-  if (!isset($name)){$name = '';}
-  if (!isset($selects)){$selects = [];}
-  if (!isset($selected)){$selected = '';}
-  if (!isset($selectmark)){$selectmark = '';}
-  if (!isset($withnoselect)){$withnoselect = '';}
-  if (!isset($size)){$size = '';}
-  if (!isset($readonly)){$readonly = '';}
+  if (!isset($name)) {$name = '';}
+  if (!isset($selects)) {$selects = [];}
+  if (!isset($selected)) {$selected = '';}
+  if (!isset($selectmark)) {$selectmark = '';}
+  if (!isset($withnoselect)) {$withnoselect = '';}
+  if (!isset($size)) {$size = '';}
+  if (!isset($readonly)) {$readonly = '';}
   $disabled = $readonly !== '' ? 'disabled' : '';
   $required = $withnoselect == '' ? 'required' : '';
 ?>

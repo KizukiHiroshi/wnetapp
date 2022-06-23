@@ -13,7 +13,7 @@ class Businessunit extends Model
 {
     use SoftDeletes;
     use ValidateTrait;
-    public function companies(){
+    public function companies() {
         return $this->belongsTo(Company::class)->withDefault();
     }
     protected $guarded = [];
@@ -30,7 +30,7 @@ class Businessunit extends Model
     ];
 
     // input has_many clause here
-    public function devices(){
+    public function devices() {
         return $this->hasMany(Device::class);
     }
 
@@ -46,7 +46,7 @@ class Businessunit extends Model
             'address2' => ['nullable','string','max:40',],
             'telno' => ['required','string','max:14','regex:/^[a-zA-Z0-9-]+$/'],
             'telno2' => ['nullable','string','max:14','regex:/^[a-zA-Z0-9-]+$/'],
-            'foxno' => ['nullable','string','max:14','regex:/^[a-zA-Z0-9-]+$/'],
+            'faxno' => ['nullable','string','max:14','regex:/^[a-zA-Z0-9-]+$/'],
             'url' => ['nullable','string','max:100','url'],
             'email' => ['nullable','string','max:50','email'],
             'start_on' => ['nullable','date',],

@@ -4,16 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Usecases\Jobmenu\MakeButtonListCase;
 
 class JobMenuController extends Controller {
 
-    private $sessionservice;
-    public function __construct(){
+    public function __construct() {
     }
 
-    public function index(Request $request){
+    public function index(Request $request) {
         // accountから、使用できるボタンリストを作る
         // 未実装
-        return view('common/menu');
+        $makebuttonlistcase = new MakeButtonListCase;
+        $buttonlist = $makebuttonlistcase->makeButtonList();
+        return view('common/jobmenu')->with($buttonlist);
     }
 }

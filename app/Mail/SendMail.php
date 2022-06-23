@@ -25,7 +25,7 @@ class SendMail extends Mailable
         // $subject,
         // $body
         // $files
-        ){
+        ) {
             // $this->from = $from;
             // $this->subject = $subject;
             // $this->body = $body;
@@ -37,7 +37,7 @@ class SendMail extends Mailable
      *
      * @return $this
      */
-    public function build(){
+    public function build() {
         // $this->from = 'wnet@wisecorp.net';
         // $this->subject = 'subject2';
         // $this->body = 'body2';
@@ -48,7 +48,7 @@ class SendMail extends Mailable
         // ->from($this->from)
         // ->subject($this->subject)
         // ->with(['body' => $this->body]);
-// foreach($this->files as $file){
+// foreach($this->files as $file) {
         //     $mail->attach($file);
         // }
         return $mail;

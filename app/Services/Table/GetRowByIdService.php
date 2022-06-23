@@ -6,11 +6,11 @@ use App\Services\Database\QueryService;
 
 class GetRowByIdService {
 
-    public function __construct(){
+    public function __construct() {
     }
 
     // 表示する行の実体を取得する
-    public function getRowById($request, $modelindex, $columnsprop, $id){
+    public function getRowById($request, $modelindex, $columnsprop, $id) {
         // queryのfrom,join,select句を取得する
         $searchinput  = null;
         $displaymode = 'card';

@@ -8,11 +8,11 @@ use App\Services\Database\SaveTempsqlService;
 
 class GetTableRowsService 
 {
-    public function __construct(){
+    public function __construct() {
     }
 
     // 表示するListの実体を取得する
-    public function getTableRows($request, $columnsprop, $searchinput, $paginatecnt, $tempsort){
+    public function getTableRows($request, $columnsprop, $searchinput, $paginatecnt, $tempsort) {
         $sessionservice = new SessionService;
         $modelindex = $sessionservice->getSession('modelindex');
         $displaymode = 'list';

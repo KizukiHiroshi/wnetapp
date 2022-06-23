@@ -8,13 +8,13 @@ namespace App\Services\Table;
 
 class GetEmptyRowService {
 
-    public function __construct(){
+    public function __construct() {
     }
 
     // 表示する行の空データを作る
-    public function getEmptyRow($columnsprop){
+    public function getEmptyRow($columnsprop) {
         $rawrow =[];
-        foreach ($columnsprop AS $columnname => $value){
+        foreach ($columnsprop AS $columnname => $value) {
             $rawrow[$columnname] = 'old('.$columnname.')';
         }
         $row = (object) $rawrow;

@@ -13,7 +13,7 @@ class Concern extends Model
     use SoftDeletes;
     use ValidateTrait;
 
-    public function jobtypes(){
+    public function jobtypes() {
         return $this->belongsTo(Jobtype::class)->withDefault();
     }
     protected $guarded = [];
@@ -33,7 +33,7 @@ class Concern extends Model
     static $uniquekeys = [
         ['name'], 
     ]; 
-    protected function rules(){
+    protected function rules() {
         return [
             'jobtype_id' => ['required','integer','numeric',],
             'name' => ['required','string','max:40',

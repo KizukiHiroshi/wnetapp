@@ -6,11 +6,11 @@ use App\Services\SessionService;
 
 class GetRowByIdService 
 {
-    public function __construct(){
+    public function __construct() {
     }
 
     // テーブルの値を配列で返す
-    public function getRowById($tablename, $id){
+    public function getRowById($tablename, $id) {
         $sessionservice = new SessionService;
         $modelindex = $sessionservice->getSession('modelindex');
         $modelname = $modelindex[$tablename]['modelname'];

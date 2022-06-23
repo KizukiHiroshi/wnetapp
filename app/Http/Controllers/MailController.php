@@ -11,10 +11,10 @@ use App\Mail\SendMail;
 class MailController extends Controller
 {
     // ★★　何でワカラン…時間がかかり過ぎなので一旦飛ばす
-    public function send(Request $request){
+    public function send(Request $request) {
     	// $data = [];
 
-    	// Mail::send('mail', $data, function($message){
+    	// Mail::send('mail', $data, function($message) {
     	//     $message->to('altoids@wisecorp.net', 'Test')
         //         ->from('wnet@wisecorp.net','Reffect')
         //         ->subject('This is a test mail');

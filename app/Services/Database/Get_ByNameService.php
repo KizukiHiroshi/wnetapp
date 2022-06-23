@@ -7,14 +7,14 @@ use App\Services\SessionService;
 
 class Get_ByNameService {
     private $byname;
-    public function __construct(){
+    public function __construct() {
     }
 
     // Formで〇〇_byに使用する名前を取得する
-    public function Get_ByName(){
+    public function Get_ByName() {
         $sessionservice = new SessionService;
         $accountvalue = $sessionservice->getSession('accountvalue');
-        if (!$accountvalue){
+        if (!$accountvalue) {
             $this->byname = ''; 
         } else {
             $this->byname = array_key_exists('name', $accountvalue) ? $accountvalue['name'] : '';            

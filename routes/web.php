@@ -8,6 +8,7 @@ use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\MailController;
 use App\Http\Controllers\JobMenuController;
 use App\Http\Controllers\TableController;
+use Illuminate\Support\Facades\Log;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -20,13 +21,13 @@ use App\Http\Controllers\TableController;
 */
 
 
-Route::get('/', function (){
+Route::get('/', function () {
     return view('auth.login');
 });
 
 Auth::routes();
 
-Route::middleware('auth')->group(function (){
+Route::middleware('auth')->group(function () {
 
     Route::get('/device', [DeviceController::class, 'index']);
     Route::post('/device/regist', [DeviceController::class, 'regist']);

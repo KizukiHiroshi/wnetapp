@@ -25,18 +25,18 @@ class User extends Authenticatable
     static $uniquekeys = [
         ['email'],
     ];
-    protected function rules(){
+    protected function rules() {
         return [
         ];
     }
 
-    public function accounts(){
+    public function accounts() {
         return $this->hasMany(Account::class);
     }
-    public function members(){
+    public function members() {
         return $this->hasMany(Member::class);
     }
-    public function devices(){
+    public function devices() {
         return $this->hasMany(Device::class);
     }
 

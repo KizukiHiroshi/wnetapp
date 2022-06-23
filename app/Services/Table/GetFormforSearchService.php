@@ -8,15 +8,15 @@ namespace App\Services\Table;
 
 class GetFormforSearchService {
 
-    public function __construct(){
+    public function __construct() {
     }
 
     // searchで入力されたbigin_,end_ヘッダー付検索条件を、
     // validationの対象にするために元のカラム名に戻す
-    public function getFormforSearch($withhearder, $columnsprop, $searchinput){
+    public function getFormforSearch($withhearder, $columnsprop, $searchinput) {
         $form = [];
-        foreach ($columnsprop as $columnname => $value){
-            if (array_key_exists($withhearder.$columnname, $searchinput)){
+        foreach ($columnsprop as $columnname => $value) {
+            if (array_key_exists($withhearder.$columnname, $searchinput)) {
                 $form[$columnname] = $searchinput[$withhearder.$columnname];
             }
         }
