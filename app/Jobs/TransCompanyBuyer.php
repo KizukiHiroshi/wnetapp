@@ -13,7 +13,7 @@ use App\Services\Database\ExcuteProcessService;
 use App\Services\Database\FindValueService;
 use App\Services\Transwnet\TranswnetService;
 
-class TransCompanyVendor implements ShouldQueue
+class TransCompanyBuyer implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -34,9 +34,9 @@ class TransCompanyVendor implements ShouldQueue
     {
         // 旧テーブルの登録履歴をチェックする
         // 管理済の日付を取得する
-        $systemname = 'TransCompanyVendor';
+        $systemname = 'TransCompanyBuyer';
         $oldtablename = '１２：仕入先Ｍ';
-        $newtablename = 'vendor_in_companies';
+        $newtablename = 'buyer_in_companies';
         // 未管理の旧レコードを得る
         $untreatedrows = $this->getUntreatedRows($systemname, $oldtablename);
         // 新テーブルに反映する
@@ -64,7 +64,7 @@ class TransCompanyVendor implements ShouldQueue
 
     private function updateNewTable($untreatedrows, $newtablename) {
         foreach ($untreatedrows as $untreatedrow) {
-            if (intval($untreatedrow->発注曜日) == 0) {
+            if (intval($untreatedrow->発注曜日) !== 0) {
                 continue;
             }
             // 個別の転記実体
@@ -80,13 +80,6 @@ class TransCompanyVendor implements ShouldQueue
             $form['telno'] = trim($untreatedrow->電話番号);
             $form['faxno'] = trim($untreatedrow->FAX番号);
             $form['emails'] = trim($untreatedrow->MailAdd);
-            $form['orderdayofweek'] = trim($untreatedrow->発注曜日);
-            $form['arrivaldayofweek'] = trim($untreatedrow->入荷曜日);
-            $form['freeshippingquantity'] = trim($untreatedrow->無料入荷数量);
-            $form['freeshippingamount'] = trim($untreatedrow->無料入荷下代);
-            $form['price_rounding_opt'] = trim($untreatedrow->下代端数処理);
-            $form['is_cansenddirect'] = trim($untreatedrow->直送可);
-            $form['shippinggremarks'] = trim($untreatedrow->出荷条件);
             $form['closingdate_opt'] = trim($untreatedrow->締日);
             $form['tax_rounding_opt'] = trim($untreatedrow->消費税処理);
             // 定型部分

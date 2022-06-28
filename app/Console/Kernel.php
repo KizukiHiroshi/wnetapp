@@ -2,13 +2,19 @@
 
 namespace App\Console;
 
+use App\Jobs\TransCompany;
+use App\Jobs\TransCompanyVendor;
+use App\Jobs\TransCompanyBuyer;
+use App\Jobs\TransBusinessunit;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use App\Jobs\transCompany;
-use App\Jobs\TransCompanyVendor;
 
 class Kernel extends ConsoleKernel
 {
+    protected $commands = [
+        //
+    ];
+
     /**
      * Define the application's command schedule.
      *
@@ -19,6 +25,8 @@ class Kernel extends ConsoleKernel
     {
         $schedule->job(new TransCompany());
         $schedule->job(new TransCompanyVendor());
+        $schedule->job(new TransCompanyBuyer());
+        $schedule->job(new TransBusinessunit());
     }
 
     /**

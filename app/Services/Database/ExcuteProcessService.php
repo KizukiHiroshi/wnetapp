@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace App\Services\Database;
 
 use App\Services\SessionService;
+use Illuminate\Support\Facades\Log;
 
 class ExcuteProcessService 
 {
@@ -23,7 +24,14 @@ class ExcuteProcessService
         } else {
             $targetrow = $modelname::findOrFail($id);
         }
-        $targetrow->fill($form)->save();
+        try {
+            $targetrow->fill($form)->save();
+        } catch (\Throwable $e) {
+            // 全てのエラー・例外をキャッチしてログに残す
+            Log::error($e);
+            // フロントに異常を通知するため例外はそのまま投げる
+            throw $e;
+        }
         return $targetrow->id;
     }
 

@@ -4,28 +4,33 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Usecases\Table\TableCase;
-use App\Usecases\Table\ListCase;
 use App\Usecases\Table\CardCase;
+use App\Usecases\Table\CsvUploadCase;
 use App\Usecases\Table\ExcuteCase;
+use App\Usecases\Table\ListCase;
+use App\Usecases\Table\TableCase;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TableController extends Controller
 {
 
-    private $tablecase;
-    private $listcase;
     private $cardcase;
+    private $csvuploadcase;
     private $excutecase;
+    private $listcase;
+    private $tablecase;
     public function __construct(
-        TableCase $tablecase,
-        ListCase $listcase,
         CardCase $cardcase,
-        ExcuteCase $excutecase) {
-            $this->tablecase = $tablecase;
-            $this->listcase = $listcase;
+        CsvUploadCase $csvuploadcase,
+        ExcuteCase $excutecase,
+        ListCase $listcase,
+        TableCase $tablecase
+        ) {
             $this->cardcase = $cardcase;
+            $this->csvuploadcase = $csvuploadcase;
             $this->excutecase = $excutecase;
+            $this->listcase = $listcase;
+            $this->tablecase = $tablecase;
     }
 
     // (GET) http://wnet2020.com/table/{tablename}　・・・　一覧表示。index()    

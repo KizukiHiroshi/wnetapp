@@ -13,7 +13,7 @@ class Businessunit extends Model
 {
     use SoftDeletes;
     use ValidateTrait;
-    public function companies() {
+    public function companies(){
         return $this->belongsTo(Company::class)->withDefault();
     }
     protected $guarded = [];
@@ -23,13 +23,15 @@ class Businessunit extends Model
         'code' => 'asc',
     ];
     static $referencedcolumns = [
-        'company_id', 'code', 'name', 
+        'code', 
+        'name', 
     ];
     static $uniquekeys = [
-       ['code'] 
+       ['company_id', 'code', ]
     ];
 
     // input has_many clause here
+
     public function devices() {
         return $this->hasMany(Device::class);
     }
@@ -38,17 +40,19 @@ class Businessunit extends Model
     {
         return [
             'company_id' => ['required','integer','numeric',],
-            'code' => ['required','string','max:4',Rule::unique('businessunits')->ignore($this->id),'regex:/[0-9]{4}/'],
+            'code' => ['required','string','max:5',
+                Rule::unique('businessunits')->ignore($this->id)->where(function($query){
+                    $query->where('company_id', $this->company_id);
+                }),'regex:/[0-9]{5}/'],
             'name' => ['required','string','max:30','regex:/[^\x01-\x7E\uFF61-\uFF9Fa-zA-Z0-9-]/'],
-            'name_short' => ['required','string','max:10','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
+            'name_short' => ['required','string','max:20','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
             'postalcode' => ['required','string','max:8','regex:/[0-9]{3}-?[0-9]{4}/'],
-            'address1' => ['required','string','max:40',],
+            'address1' => ['required','string','max:60',],
             'address2' => ['nullable','string','max:40',],
-            'telno' => ['required','string','max:14','regex:/^[a-zA-Z0-9-]+$/'],
-            'telno2' => ['nullable','string','max:14','regex:/^[a-zA-Z0-9-]+$/'],
-            'faxno' => ['nullable','string','max:14','regex:/^[a-zA-Z0-9-]+$/'],
+            'telno' => ['required','string','max:13'],
+            'faxno' => ['nullable','string','max:13','regex:/^[a-zA-Z0-9-]+$/'],
             'url' => ['nullable','string','max:100','url'],
-            'email' => ['nullable','string','max:50','email'],
+            'email' => ['nullable','string','max:255'],
             'start_on' => ['nullable','date',],
             'end_on' => ['nullable','date',],
         ];

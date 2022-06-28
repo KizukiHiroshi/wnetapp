@@ -17,7 +17,6 @@ use App\Services\Transwnet\TranswnetService;
 class TransCompany implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    use TranswnetService;
 
     /**
      * Create a new job instance.
@@ -44,7 +43,8 @@ class TransCompany implements ShouldQueue
         // 新テーブルに反映する        // 新テーブルに反映する
         $this->updateNewTable($untreatedrows, $newtablename );
         // 管理済履歴を更新する
-        TranswnetService::updateTablereplacement($systemname, $oldtablename);
+        $transwnetservice = new TranswnetService;
+        $transwnetservice->updateTablereplacement($systemname, $oldtablename);
     }
 
     private function updateNewTable($untreatedrows, $newtablename ) {
@@ -81,7 +81,8 @@ class TransCompany implements ShouldQueue
             $findvalueservice = new FindValueService;
             $id = $findvalueservice->findValue($findvalueset, 'id');
             if ($id == 0) {
-                $form += TranswnetService::addCreatedToForm($untreatedrow->created_at);
+                $transwnetservice = new TranswnetService;
+                $form += $transwnetservice->addCreatedToForm($untreatedrow->created_at);
             }
             $excuteprocessservice = new ExcuteProcessService;
             $ret_id = $excuteprocessservice->excuteProcess($newtablename , $form, $id); 
@@ -90,8 +91,9 @@ class TransCompany implements ShouldQueue
 
     private function getUntreatedRows($systemname, $oldtablename) {
         // 転記の終わっている日付を取得する
-        $latest_created = TranswnetService::getLatest('created', $systemname);
-        $latest_updated = TranswnetService::getLatest('updated', $systemname);
+        $transwnetservice = new TranswnetService;
+        $latest_created = $transwnetservice->getLatest('created', $systemname);
+        $latest_updated = $transwnetservice->getLatest('updated', $systemname);
         // 転記の条件を考慮しながら旧テーブルから情報取得する
         $untreatedrows= DB::connection('sqlsrv')
             ->table('wise_login.'.$oldtablename)

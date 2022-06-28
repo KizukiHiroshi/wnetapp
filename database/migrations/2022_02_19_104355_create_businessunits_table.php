@@ -14,17 +14,16 @@ class CreateBusinessunitsTable extends Migration
      */
     public function up()
     {
-        Schema::create('businessunits', function (Blueprint $table) {
+        Schema::create('businessunits', function (Blueprint $table){
             $table->id()->comment('id');
             $table->foreignId('company_id')->comment('企業')->references('id')->on('companies');
-            $table->string('code')->comment('code', 4)->unique();
-            $table->string('name')->comment('事業所名', 30)->unique();
-            $table->string('name_short')->comment('事業所略称', 10);
+            $table->string('code')->comment('code', 5);
+            $table->string('name')->comment('事業所名', 30);
+            $table->string('name_short')->comment('略称', 10);
             $table->string('postalcode')->comment('郵便番号', 8);
             $table->string('address1')->comment('住所1', 40);
             $table->string('address2')->comment('住所2', 40)->nullable();
-            $table->string('telno')->comment('電話', 14);
-            $table->string('telno2')->comment('電話2', 14)->nullable();
+            $table->string('telno')->comment('電話', 13);
             $table->string('faxno')->comment('FAX', 13)->nullable();
             $table->string('url')->comment('URL', 100)->nullable();
             $table->string('email')->comment('email', 50)->nullable();
@@ -35,6 +34,7 @@ class CreateBusinessunitsTable extends Migration
             $table->string('created_by')->comment('作成者', 12);
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'))->comment('更新日時');
             $table->string('updated_by')->comment('更新者', 12);
+            $table->unique(['company_id','code',]);
         });
         DB::statement("alter table wnetdb_test.businessunits comment '事業所';");
     }

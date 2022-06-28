@@ -8,6 +8,8 @@ use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\MailController;
 use App\Http\Controllers\JobMenuController;
 use App\Http\Controllers\TableController;
+use App\Http\Controllers\ScheduleJobController;
+
 use Illuminate\Support\Facades\Log;
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +30,8 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::middleware('auth')->group(function () {
+
+    Route::get('/schedulejob', [ScheduleJobController::class, 'index']);
 
     Route::get('/device', [DeviceController::class, 'index']);
     Route::post('/device/regist', [DeviceController::class, 'regist']);

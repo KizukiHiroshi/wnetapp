@@ -70,8 +70,16 @@ class GetModelIndexService {
     }    
     private function ModelnameToTablename($modelname) {
         // table名に余分な文字を削除する
-        $tablename = Str::afterLast($modelname, '\\');
-        $tablename = Str::plural(Str::lower($tablename));
+        $rawtablename = Str::afterLast($modelname, '\\');
+        // 途中の大文字の前に'_'を入れる
+        $hyphendtabalename = substr($rawtablename, 0, 1);
+        for ($charcnt = 1; $charcnt < strlen($rawtablename); $charcnt++) {
+            if (ctype_upper(substr($rawtablename, $charcnt, 1))) {
+                $hyphendtabalename .= '_';
+            }
+            $hyphendtabalename .= substr($rawtablename, $charcnt, 1);
+        }
+        $tablename = Str::plural(Str::lower($hyphendtabalename));
         return $tablename;
     }
 }

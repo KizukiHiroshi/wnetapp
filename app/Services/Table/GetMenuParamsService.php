@@ -26,7 +26,7 @@ class GetMenuParamsService {
         $searchinput = [];
         $searcherrors = null;
         $foreignselects = null;
-        if ($tablename) {            
+        if ($tablename) {
             $columnsprop = $sessionservice->getSession('columnsprop', $tablename);
             $arangecolumnsproptocardservice = new ArangeColumnspropToCardService;
             $cardcolumnsprop = $arangecolumnsproptocardservice->arangeColumnspropToCard($columnsprop);
