@@ -10,8 +10,8 @@ use App\Jobs\TransBusinessunit;
 class ScheduleJobController extends Controller
 {
     public function index(Request $request) {
-        // $job = new TransBrand();
-        $job = new TransBusinessunit();
+        $job = new TransBrand();
+        // $job = new TransBusinessunit();
         $job->handle();
     }
 }

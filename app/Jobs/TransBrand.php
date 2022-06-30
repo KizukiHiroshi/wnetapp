@@ -85,9 +85,7 @@ class TransBrand implements ShouldQueue
             ->where('仮本区分', '1')
             ->where(function($query) use($latest_created, $latest_updated) {
                 $query->where('created_at', '>', $latest_created)
-                // ->orWhere('created_at', 'NULL')
                 ->orWhere('updated_at', '>', $latest_updated);
-                // ->orWhere('updated_at', 'NULL');
             })
             ->groupBy('メーカー名')
             ->get();

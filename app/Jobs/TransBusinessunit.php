@@ -147,9 +147,7 @@ class TransBusinessunit implements ShouldQueue
             ->where('dele_flg', '1')
             ->where(function($query) use($latest_created, $latest_updated) {
                 $query->where('created_at', '>', $latest_created)
-                ->orWhere('created_at', 'NULL')
-                ->orWhere('updated_at', '>', $latest_updated)
-                ->orWhere('updated_at', 'NULL');
+                ->orWhere('updated_at', '>', $latest_updated);
             })
             ->orderby('updated_at', 'asc')
             ->get();
