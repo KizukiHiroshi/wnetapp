@@ -28,7 +28,7 @@ class Kernel extends ConsoleKernel
         $schedule->job(new TransCompanyVendor());
         $schedule->job(new TransCompanyBuyer());
         $schedule->job(new TransBusinessunit());
-        // $schedule->job(new TransBrand());
+        $schedule->job(new TransBrand());
     }
 
     /**
