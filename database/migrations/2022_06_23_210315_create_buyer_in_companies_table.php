@@ -49,7 +49,7 @@ class CreateBuyerincompaniesTable extends Migration
             $table->integer('getorderpriority')->comment('受注優先順位')->default(9999)->nullable();
             $table->tinyInteger('getordermethod_opt')->comment('受注方法')->nullable();
             $table->string('remarks')->comment('備考', 200)->nullable();
-            $table->date('start_on')->comment('開始日')->default(NULL)->nullable();
+            $table->date('start_on')->comment('開始日')->default('2000/01/01')->nullable();
             $table->date('end_on')->comment('終了日')->default('2049/12/31')->nullable();
             $table->softDeletes()->comment('削除日時');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');

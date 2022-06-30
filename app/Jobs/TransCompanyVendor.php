@@ -56,7 +56,9 @@ class TransCompanyVendor implements ShouldQueue
             ->table('wise_login.'.$oldtablename)
             ->where(function($query) use($latest_created, $latest_updated) {
                 $query->where('created_at', '>', $latest_created)
-                    ->orWhere('updated_at', '>', $latest_updated);
+                ->orWhere('created_at', 'NULL')
+                ->orWhere('updated_at', '>', $latest_updated)
+                ->orWhere('updated_at', 'NULL');
             })
             ->get();
         return $untreatedrows;

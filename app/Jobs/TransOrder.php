@@ -53,6 +53,10 @@ class TransOrder implements ShouldQueue
             $this->updateLatest('updated', $maxupdatedat);
         }
     }
+    // $query->where('created_at', '>', $latest_created)
+    // ->orWhere('created_at', 'NULL')
+    // ->orWhere('updated_at', '>', $latest_updated)
+    // ->orWhere('updated_at', 'NULL');
 
     private function transCreated($latest_created) {
         // 未管理の旧レコードを得る

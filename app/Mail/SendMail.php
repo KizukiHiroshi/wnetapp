@@ -48,7 +48,7 @@ class SendMail extends Mailable
         // ->from($this->from)
         // ->subject($this->subject)
         // ->with(['body' => $this->body]);
-// foreach($this->files as $file) {
+        // foreach($this->files as $file) {
         //     $mail->attach($file);
         // }
         return $mail;

@@ -24,7 +24,7 @@ class CreateTablereplacementsTable extends Migration
             $table->dateTime('latest_created')->comment('直近登録');
             $table->dateTime('latest_updated')->comment('直近更新');
             $table->string('remarks')->comment('備考', 200)->nullable();
-            $table->date('start_on')->comment('開始日')->default(NULL)->nullable();
+            $table->date('start_on')->comment('開始日')->default('2000/01/01')->nullable();
             $table->softDeletes()->comment('削除日時');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
             $table->string('created_by')->comment('作成者', 12);

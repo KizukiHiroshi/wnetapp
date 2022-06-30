@@ -27,10 +27,10 @@ class TranswnetService {
         $this->updateLatest($maxcreatedat, $maxupdatedat, $systemname);
     } 
 
-    private function getMaxAt($mode, $oldtablename) {
+    private function getMaxAt($targetcolumn, $oldtablename) {
         $maxat = DB::connection('sqlsrv')
             ->table('wise_login.'.$oldtablename)
-            ->max($mode);
+            ->max($targetcolumn);
         return $maxat;
     }
 

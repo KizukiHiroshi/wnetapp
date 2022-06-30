@@ -13,7 +13,7 @@ class FindValueService
     // $findvalueset =  参照テーブル名?参照カラム名=値&参照カラム名=値
     public function findValue($findvalueset, $targetcolumn = NULL) {
         if ($targetcolumn == NULL) { $targetcolumn = 'id'; }
-        $findvalue = '';
+        $findvalue = 0;
         $tablename = Str::plural(Str::before($findvalueset,'?'));
         $is_joinedunique = strpos(Str::after($findvalueset,'?'),'&&',) !== false ? true : false;
         if ($is_joinedunique) {

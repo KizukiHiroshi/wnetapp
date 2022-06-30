@@ -521,5 +521,11 @@ class CsvUploadCase {
         ];
         return $params;
     }
+
+    public function killMyfile()
+    {
+        $killmyfileservice = new KillMyFileService;
+        $killmyfileservice->killMyFile();
+    }
 }
 

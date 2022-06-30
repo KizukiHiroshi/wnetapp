@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Zero;
+namespace App\Models\Base;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,7 +14,7 @@ class Jobtype extends Model
     use ValidateTrait;
     protected $guarded = [];
     static $tablecomment = '業務種類';
-    static $modelzone = 'システム開発';
+    static $modelzone = '共通基礎';
     static $defaultsort = [
         'code' => 'asc',
     ];
@@ -25,11 +25,15 @@ class Jobtype extends Model
        ['code'], ['name_system'], 
     ];
 
+    // input has_many clause here
     public function concerns() {
         return $this->hasMany(Concern::class);
     }
     public function accountauthorities() {
         return $this->hasMany(Accountauthority::class);
+    }
+    public function option_choices(){
+        return $this->hasMany(OptionChoice::class);
     }
 
     protected function rules()

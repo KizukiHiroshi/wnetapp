@@ -23,7 +23,7 @@ class CreateConcernsTable extends Migration
             $table->integer('priority')->default(100)->comment('優先順位');
             $table->string('solution', 255)->default('未')->comment('解決案');
             $table->boolean('is_solved')->default(0)->comment('処理済');
-            $table->date('start_on')->default(NULL)->nullable()->comment('開始日');
+            $table->date('start_on')->default('2000/01/01')->nullable()->comment('開始日');
             $table->date('end_on')->default('2049/12/31')->nullable()->comment('終了日');
             $table->softDeletes()->comment('削除日時');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');

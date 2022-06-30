@@ -11,10 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use App\Services\Database\ExcuteProcessService;
 use App\Services\Database\FindValueService;
-use App\Services\Database\GetRowByIdService;
 use App\Services\Transwnet\TranswnetService;
-
-
 
 class TransBusinessunit implements ShouldQueue
 {
@@ -150,7 +147,9 @@ class TransBusinessunit implements ShouldQueue
             ->where('dele_flg', '1')
             ->where(function($query) use($latest_created, $latest_updated) {
                 $query->where('created_at', '>', $latest_created)
-                    ->orWhere('updated_at', '>', $latest_updated);
+                ->orWhere('created_at', 'NULL')
+                ->orWhere('updated_at', '>', $latest_updated)
+                ->orWhere('updated_at', 'NULL');
             })
             ->orderby('updated_at', 'asc')
             ->get();

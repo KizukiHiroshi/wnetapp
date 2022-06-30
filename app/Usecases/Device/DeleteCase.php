@@ -31,7 +31,7 @@ class DeleteCase {
     // テーブルに登録済のデバイスを削除する
     private function deleteRegistedDevice($devicecookie) {
         // devicesテーブルへの登録確認
-        $deviceid = $this->getdeviceidserveise->getDeviceId($devicecookie);
+        $deviceid = $this->getdeviceidservice->getDeviceId($devicecookie);
         if ($deviceid) {
             $tablename = 'devices';
             $this->isforcedeletedservice->isForceDeleted($tablename, $deviceid);

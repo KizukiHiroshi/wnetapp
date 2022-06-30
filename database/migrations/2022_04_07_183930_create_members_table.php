@@ -32,7 +32,7 @@ class CreateMembersTable extends Migration
             $table->foreignId('businessunit_id_2nd')->comment('新事業所');
             $table->foreignId('employtype_id_2nd')->comment('新雇用形態');
             $table->smallInteger('hourlywage_2nd')->comment('新時給')->nullable();
-            $table->date('start_on')->comment('開始日')->default(NULL)->nullable();
+            $table->date('start_on')->comment('開始日')->default('2000/01/01')->nullable();
             $table->date('end_on')->comment('終了日')->default('2049/12/31')->nullable();
             $table->softDeletes()->comment('削除日時');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');

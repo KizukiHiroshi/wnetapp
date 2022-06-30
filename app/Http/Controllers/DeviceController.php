@@ -64,7 +64,7 @@ class DeviceController extends Controller {
                 // 管理者へメール送信 ★未実装
                 $this->registcase->sendDeviceRequestMail($request);
                 $sucsess = 'アクセス機器を登録しました。';
-                return view('common/alert', compact('sucsess'));
+                return view('common/alert')->with($sucsess);
            } else {
                 // 失敗メッセージ
                 $danger = 'アクセス機器の登録に失敗しました。';
