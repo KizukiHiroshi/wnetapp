@@ -52,11 +52,9 @@ class TransBrand implements ShouldQueue
         $getfuriganaservice = new GetFuriganaService;
         foreach ($untreatedrows as $untreatedrow) {
             $form = [];
-            $rawbrand = mb_convert_kana(trim($untreatedrow->メーカー名), "A");
+            $rawbrand = mb_convert_kana(trim($untreatedrow->メーカー名), "KVa");
             $form['name'] = $rawbrand;
-            $brand = $getfuriganaservice->GetFurigana($rawbrand.'を');
-            $brand = mb_substr($brand, 0, -1);
-            $form['name_kana'] = $brand;
+            $form['name_kana'] = $getfuriganaservice->GetFurigana($rawbrand);
             $form['url'] = '';
             $form['image'] = '';
             $form['updated_at'] = $untreatedrow->updated_at;

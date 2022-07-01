@@ -394,46 +394,46 @@ class CsvUploadCase {
         return $upload;
     }
 
-        // $foreginkeys = [参照テーブル名?参照カラム名=値&参照カラム名=値,]
-        private function getForeginkeysForUpload($rawform) {
-            $foreginkeys =[];
-            $findidset = $this->getForeginFindidsetForUpload($rawform);
-            $modelindex = $this->sessionservice->getSession('modelindex');
-            foreach ($findidset as $foregintablename => $colandvalue) {
-                $foreginkey = $this->getFindkeyForUpload($modelindex, $foregintablename, $colandvalue);
-                $foreginkeys[] = $foreginkey;
-            }
-            return $foreginkeys;
+    // $foreginkeys = [参照テーブル名?参照カラム名=値&参照カラム名=値,]
+    private function getForeginkeysForUpload($rawform) {
+        $foreginkeys =[];
+        $findidset = $this->getForeginFindidsetForUpload($rawform);
+        $modelindex = $this->sessionservice->getSession('modelindex');
+        foreach ($findidset as $foregintablename => $colandvalue) {
+            $foreginkey = $this->getFindkeyForUpload($modelindex, $foregintablename, $colandvalue);
+            $foreginkeys[] = $foreginkey;
         }
-    
-        // $findidset = [参照テーブル名 => [参照カラム名 => 値, 参照カラム名 => 値,],]
-        private function getForeginFindidsetForUpload($rawform) {
-            $findidset = [];
-            foreach ($rawform as $columnname => $value) {
-                if (strripos($columnname, '_id_') && substr($columnname, -7) !== '_id_2nd' && $value !== '') {
-                    // 一番後ろのテーブル名とカラム名
-                    $foregintablename = substr($columnname, 0, strripos($columnname, '_id_'));
-                    $foregincolname = substr($columnname, strripos($columnname, '_id_') + 4);
-                    if (strripos($foregintablename, '_id_')) {
-                        $foregintablename = substr($foregintablename, strripos($foregintablename, '_id_') + 4);
-                    }
-                    if (substr($foregintablename, 0, 4) == '2nd_') {
-                        $foregintablename = substr($foregintablename, 4);
-                    }
-                    if (substr($foregincolname, 0, 4) == '2nd_') {
-                        $foregincolname = substr($foregincolname, 4);
-                    }
-                    $foregintablename = Str::plural($foregintablename);
-                    if (array_key_exists($foregintablename, $findidset)) {
-                        $findidset[$foregintablename] = 
-                            array_merge($findidset[$foregintablename],[ $foregincolname => $value ]);
-                    } else {
-                        $findidset[$foregintablename] = [ $foregincolname => $value ];
-                    }        
+        return $foreginkeys;
+    }
+
+    // $findidset = [参照テーブル名 => [参照カラム名 => 値, 参照カラム名 => 値,],]
+    private function getForeginFindidsetForUpload($rawform) {
+        $findidset = [];
+        foreach ($rawform as $columnname => $value) {
+            if (strripos($columnname, '_id_') && substr($columnname, -7) !== '_id_2nd' && $value !== '') {
+                // 一番後ろのテーブル名とカラム名
+                $foregintablename = substr($columnname, 0, strripos($columnname, '_id_'));
+                $foregincolname = substr($columnname, strripos($columnname, '_id_') + 4);
+                if (strripos($foregintablename, '_id_')) {
+                    $foregintablename = substr($foregintablename, strripos($foregintablename, '_id_') + 4);
                 }
+                if (substr($foregintablename, 0, 4) == '2nd_') {
+                    $foregintablename = substr($foregintablename, 4);
+                }
+                if (substr($foregincolname, 0, 4) == '2nd_') {
+                    $foregincolname = substr($foregincolname, 4);
+                }
+                $foregintablename = Str::plural($foregintablename);
+                if (array_key_exists($foregintablename, $findidset)) {
+                    $findidset[$foregintablename] = 
+                        array_merge($findidset[$foregintablename],[ $foregincolname => $value ]);
+                } else {
+                    $findidset[$foregintablename] = [ $foregincolname => $value ];
+                }        
             }
-            return $findidset;
         }
+        return $findidset;
+    }
      
 
     // ★ここがちゃんと動くかチェックだ！！！！！！！！！！！

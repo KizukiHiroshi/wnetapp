@@ -53,17 +53,29 @@ class TransProduct implements ShouldQueue
         $getfuriganaservice = new GetFuriganaService;
         foreach ($untreatedrows as $untreatedrow) {
             $form = [];
-            $rawbrand = mb_convert_kana(trim($untreatedrow->メーカー名), "A");
-            $form['name'] = $rawbrand;
-            $brand = $getfuriganaservice->GetFurigana($rawbrand.'を');
-            $brand = mb_substr($brand, 0, -1);
-            $form['name_kana'] = $brand;
+            $brand = mb_convert_kana(trim($untreatedrow->メーカー名), "KVa");
+            // $foreginkey = [参照テーブル名?参照カラム名=値&参照カラム名=値,]
+            $foreginkey = 'brands?name='.$brand;
+            if (array_key_exists($foreginkey, $iddictionary)) {
+                $brand_id = $iddictionary[$foreginkey];
+            } else {
+                // 未登録の参照を$iddictionaryに追加する
+                $findvalueservice = new FindValueService;
+                $brand_id = $findvalueservice->findValue($foreginkey, 'id');
+                if ($brand_id == 0) {
+                    continue;
+                }
+                $iddictionary[$foreginkey] = $brand_id;
+            }
+            $form['brand_id'] = $brand_id;
+            $rawproduct = mb_convert_kana(trim($untreatedrow->商品名), "KVa");
+            $form['name'] = $rawproduct;
+            $form['name_kana'] = $getfuriganaservice->GetFurigana($rawproduct);
             $form['url'] = '';
             $form['image'] = '';
             $form['updated_at'] = $untreatedrow->updated_at;
             $form['updated_by'] = 'transwnet';
             $findvalueset = $newtablename.'?name='.$form['name'];
-            $findvalueservice = new FindValueService;
             $id = $findvalueservice->findValue($findvalueset, 'id');
             if ($id == 0) {
                 $transwnetservice = new TranswnetService;
