@@ -42,10 +42,14 @@ class TransProduct implements ShouldQueue
         // memory対策
         while (true) {
             // 「$newtablenameのnameの最大値=$knownmaxname」を取得
-            $knownmaxname= DB::table($newtablename)->max('name');
-            $knownmaxname = mb_convert_kana($knownmaxname, "AS");
+            $maxid = DB::table('products')->max('id');
+            $knownmaxbrandid= DB::table('products')->where('id', $maxid)->first()->brand_id;
+            $rawknownmaxname= DB::table('products')->where('id', $maxid)->first()->name;
+            $rawknownmaxbrand = DB::table('brands')->where('id', $knownmaxbrandid)->first()->name;
+            $knownmaxbrand = mb_convert_kana($rawknownmaxbrand, "AS");
+            $knownmaxname = mb_convert_kana($rawknownmaxname, "AS");
             //  $oldtablenameから$knownmaxnameより大きい1000レコードを取得
-            $transrow = $this->getTransRows($systemname, $oldtablename, $knownmaxname);
+            $transrow = $this->getTransRows($systemname, $oldtablename, $knownmaxbrand, $knownmaxname);
             //  レコードが無ければexit
             if ($transrow->count() == 0) { break; }
             //  $newtablenameを更新する
@@ -65,7 +69,7 @@ class TransProduct implements ShouldQueue
         $transwnetservice->updateTablereplacement($systemname, $oldtablename);
     }
 
-    private function getTransRows($systemname, $oldtablename, $knownmaxname) {
+    private function getTransRows($systemname, $oldtablename, $knownmaxbrand, $knownmaxname) {
         // 転記の終わっている日付を取得する
         $transwnetservice = new TranswnetService;
         $latest_created = $transwnetservice->getLatest('created', $systemname);
@@ -75,10 +79,14 @@ class TransProduct implements ShouldQueue
             ->table('wise_login.'.$oldtablename)
             ->select('メーカー名', '商品名', DB::raw('max(created_at) as created_at'), DB::raw('max(updated_at) as updated_at'))
             ->where('仮本区分', '1')
-            ->where('商品名', '>', $knownmaxname)
-            ->where(function($query) use($latest_created, $latest_updated) {
-                $query->where('created_at', '>', $latest_created)
-                ->orWhere('updated_at', '>', $latest_updated);
+            ->where(function($query) use($knownmaxbrand, $knownmaxname, $latest_created, $latest_updated) {
+                $query->where(function($query) use($knownmaxbrand, $knownmaxname) {
+                    $query->where('メーカー名', '>=', $knownmaxbrand)
+                    ->where('商品名', '>=', $knownmaxname);
+                // })->orWhere(function($query) use($latest_created, $latest_updated) {
+                //     $query->where('created_at', '>', $latest_created)
+                //     ->orWhere('updated_at', '>', $latest_updated);
+                });
             })
             ->orderByRaw("メーカー名 ASC, 商品名 ASC")
             ->groupBy('メーカー名', '商品名')
