@@ -51,7 +51,7 @@ class TransProduct implements ShouldQueue
             //  $oldtablenameから$knownmaxnameより大きい1000レコードを取得
             $transrow = $this->getTransRows($systemname, $oldtablename, $knownmaxbrand, $knownmaxname);
             //  レコードが無ければexit
-            if ($transrow->count() == 0) { break; }
+            if ($transrow->count() <= 1) { break; }
             //  $newtablenameを更新する
             $this->updateNewTable($transrow, $newtablename);
         }
@@ -81,8 +81,7 @@ class TransProduct implements ShouldQueue
             ->where('仮本区分', '1')
             ->where(function($query) use($knownmaxbrand, $knownmaxname, $latest_created, $latest_updated) {
                 $query->where(function($query) use($knownmaxbrand, $knownmaxname) {
-                    $query->where('メーカー名', '>=', $knownmaxbrand)
-                    ->where('商品名', '>=', $knownmaxname);
+                    $query->whereRaw("RTRIM(メーカー名)+RTRIM(商品名) >= '".$knownmaxbrand.$knownmaxname."'");
                 // })->orWhere(function($query) use($latest_created, $latest_updated) {
                 //     $query->where('created_at', '>', $latest_created)
                 //     ->orWhere('updated_at', '>', $latest_updated);
