@@ -43,11 +43,15 @@ class TransProduct implements ShouldQueue
         while (true) {
             // 「$newtablenameのnameの最大値=$knownmaxname」を取得
             $maxid = DB::table('products')->max('id');
-            $knownmaxbrandid= DB::table('products')->where('id', $maxid)->first()->brand_id;
-            $rawknownmaxname= DB::table('products')->where('id', $maxid)->first()->name;
-            $rawknownmaxbrand = DB::table('brands')->where('id', $knownmaxbrandid)->first()->name;
-            $knownmaxbrand = mb_convert_kana($rawknownmaxbrand, "AS");
-            $knownmaxname = mb_convert_kana($rawknownmaxname, "AS");
+            $knownmaxbrand = '';
+            $knownmaxname = '';    
+            if ($maxid) {
+                $knownmaxbrandid= DB::table('products')->where('id', $maxid)->first()->brand_id;
+                $rawknownmaxname= DB::table('products')->where('id', $maxid)->first()->name;
+                $rawknownmaxbrand = DB::table('brands')->where('id', $knownmaxbrandid)->first()->name;
+                $knownmaxbrand = mb_convert_kana($rawknownmaxbrand, "AS");
+                $knownmaxname = mb_convert_kana($rawknownmaxname, "AS");    
+            }
             //  $oldtablenameから$knownmaxnameより大きい1000レコードを取得
             $transrow = $this->getTransRows($systemname, $oldtablename, $knownmaxbrand, $knownmaxname);
             //  レコードが無ければexit
@@ -81,13 +85,13 @@ class TransProduct implements ShouldQueue
             ->where('仮本区分', '1')
             ->where(function($query) use($knownmaxbrand, $knownmaxname, $latest_created, $latest_updated) {
                 $query->where(function($query) use($knownmaxbrand, $knownmaxname) {
-                    $query->whereRaw("RTRIM(メーカー名)+RTRIM(商品名) >= '".$knownmaxbrand.$knownmaxname."'");
+                    $query->whereRaw("RTRIM(メーカー名)+RTRIM(商品名) > '".$knownmaxbrand.$knownmaxname."'");
                 // })->orWhere(function($query) use($latest_created, $latest_updated) {
                 //     $query->where('created_at', '>', $latest_created)
                 //     ->orWhere('updated_at', '>', $latest_updated);
                 });
             })
-            ->orderByRaw("メーカー名 ASC, 商品名 ASC")
+            ->orderByRaw("RTRIM(メーカー名)+RTRIM(商品名)")
             ->groupBy('メーカー名', '商品名')
             ->limit(1000)
             ->get();
