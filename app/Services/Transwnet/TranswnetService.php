@@ -35,8 +35,8 @@ class TranswnetService {
     }
 
     private function updateLatest($maxcreatedat, $maxupdatedat, $systemname) {
-        // $findvalueset =  参照テーブル名?参照カラム名=値&参照カラム名=値
-        $findvalueset = 'tablereplacements?systemname='.$systemname;
+        // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+        $findvalueset = 'tablereplacements?systemname='.urlencode($systemname);
         $findvalueservice = new FindValueService;
         $id = $findvalueservice->findValue($findvalueset, 'id');
         $form['latest_created'] = $maxcreatedat;

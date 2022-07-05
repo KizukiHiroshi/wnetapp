@@ -71,7 +71,7 @@ class TransCompanyVendor implements ShouldQueue
             $code = substr('0000'.$untreatedrow->仕入先コード, -4);
             $findvalueservice = new FindValueService;
             // 参照idを確定するためのユニークキーをセットする
-            $findvalueset = 'companies?code='.$code;
+            $findvalueset = 'companies?code='.urlencode($code);
             $company_id = $findvalueservice->findValue($findvalueset, 'id');
             $form = [];
             $form['company_id'] = $company_id;
@@ -93,7 +93,7 @@ class TransCompanyVendor implements ShouldQueue
             $form['updated_at'] = $untreatedrow->updated_at;
             $form['updated_by'] = 'transwnet';
             // 新テーブルのidを確定するためのユニークキーをセットする
-            $findvalueset = $newtablename.'?company_id='.$form['company_id'];
+            $findvalueset = $newtablename.'?company_id='.urlencode($form['company_id']);
             $id = $findvalueservice->findValue($findvalueset, 'id');
             // 新規の場合は'created_'も設定する
             if ($id == 0) {

@@ -52,14 +52,14 @@ class TransBrand implements ShouldQueue
         $getfuriganaservice = new GetFuriganaService;
         foreach ($untreatedrows as $untreatedrow) {
             $form = [];
-            $rawbrand = mb_convert_kana(trim($untreatedrow->メーカー名), "KVa");
+            $rawbrand = mb_convert_kana(trim($untreatedrow->メーカー名), "a");
             $form['name'] = $rawbrand;
             $form['name_kana'] = $getfuriganaservice->GetFurigana($rawbrand);
             $form['url'] = '';
             $form['image'] = '';
             $form['updated_at'] = $untreatedrow->updated_at;
             $form['updated_by'] = 'transwnet';
-            $findvalueset = $newtablename.'?name='.$form['name'];
+            $findvalueset = $newtablename.'?name='.urlencode($form['name']);
             $findvalueservice = new FindValueService;
             $id = $findvalueservice->findValue($findvalueset, 'id');
             if ($id == 0) {

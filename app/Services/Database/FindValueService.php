@@ -10,7 +10,7 @@ class FindValueService
     public function __construct() {
     }
 
-    // $findvalueset =  参照テーブル名?参照カラム名=値&参照カラム名=値
+    // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
     public function findValue($findvalueset, $targetcolumn = NULL) {
         if ($targetcolumn == NULL) { $targetcolumn = 'id'; }
         $findvalue = 0;
@@ -33,9 +33,9 @@ class FindValueService
         $wherecnt = 1;
         foreach ($colset as $columnnama => $value) {
             if ($wherecnt == 1 || $is_joinedunique) {
-                $tablequery = $tablequery->where($tablename.'.'.$columnnama, '=', ''.$value.'');
+                $tablequery = $tablequery->where($tablename.'.'.$columnnama, '=', ''.urldecode($value).'');
             } else {
-                $tablequery = $tablequery->orWhere($tablename.'.'.$columnnama, '=', ''.$value.'');
+                $tablequery = $tablequery->orWhere($tablename.'.'.$columnnama, '=', ''.urldecode($value).'');
             }
             $wherecnt += 1;
         }

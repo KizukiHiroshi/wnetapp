@@ -54,7 +54,7 @@ class TransBusinessunit implements ShouldQueue
             $code = substr('0000'.$untreatedrow->店コード, -5);
             $findvalueservice = new FindValueService;
             // 参照idを確定するためのユニークキーをセットする
-            $findvalueset = 'companies?code='.$companycode;
+            $findvalueset = 'companies?code='.urlencode($companycode);
             $company_id = $findvalueservice->findValue($findvalueset, 'id');
             $form = [];
             $form['company_id'] = $company_id;
@@ -71,7 +71,7 @@ class TransBusinessunit implements ShouldQueue
             $form['email'] = trim($untreatedrow->MailAdd);
             $form['updated_at'] = date("Y-m-d H:i:s");
             $form['updated_by'] = 'transwnet';
-            $findvalueset = 'businessunits?company_id='.$company_id.'&&code='.$code;
+            $findvalueset = 'businessunits?company_id='.urlencode($company_id).'&&code='.urlencode($code);
             $id = $findvalueservice->findValue($findvalueset, 'id');
             if ($id == 0) {
                 $transwnetservice = new TranswnetService;
@@ -89,7 +89,7 @@ class TransBusinessunit implements ShouldQueue
             // vendor_in_companiesの締め日
             if (trim($untreatedrow->請求締日) <> '31') {
                 // 参照idを確定するためのユニークキーをセットする
-                $findvalueset = 'vendor_in_companies?company_id='.$company_id;
+                $findvalueset = 'vendor_in_companies?company_id='.urlencode($company_id);
                 $vendor_in_company_id = $findvalueservice->findValue($findvalueset, 'id');
                 if ($vendor_in_company_id == 0) {
                     // 顧客として未登録の企業を登録する

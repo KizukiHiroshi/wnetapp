@@ -11,9 +11,9 @@ class GetDeviceIdService
 
     // 登録済のデバイスかチェックする
     public function getDeviceId($devicecookie) {
-        // $findvalueset =  参照テーブル名?参照カラム名=値&参照カラム名=値
+        // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
         $tablename = 'devices';
-        $findvalueset = $tablename.'?name='.$devicecookie['name'].'&key='.$devicecookie['key'];
+        $findvalueset = $tablename.'?name='.urlencode($devicecookie['name']).'&key='.urlencode($devicecookie['key']);
         $findvalueservice = new FindValueService;
         $deviceid = $findvalueservice->findValue($findvalueset, 'id');
         return $deviceid;

@@ -17,8 +17,8 @@ class CreateProductsTable extends Migration
         Schema::create('products', function (Blueprint $table){
             $table->id()->comment('id');
             $table->foreignId('brand_id')->comment('ブランド')->references('id')->on('brands');
-            $table->string('name')->comment('商品', 30);
-            $table->string('name_kana')->comment('カナ', 30)->nullable();
+            $table->string('name')->comment('商品', 40);
+            $table->string('name_kana')->comment('カナ', 70)->nullable();
             $table->string('url')->comment('URL', 100)->nullable();
             $table->string('image')->comment('画像', 100)->nullable();
             $table->date('start_on')->comment('開始日')->default('2000/01/01')->nullable();

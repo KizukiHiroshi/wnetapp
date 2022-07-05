@@ -17,8 +17,8 @@ class RegistCase {
     // 登録済のデバイス名と重複しないかチェックする
     public function isRegistedName($request) {
         $name = $request->name;
-        // $findvalueset =  参照テーブル名?参照カラム名=値&参照カラム名=値
-        $findvalueset = 'devices?name='.$name;
+        // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+        $findvalueset = 'devices?name='.urlencode($name);
         $findvalueservice = new FindValueService;
         $devicenameid = $findvalueservice->findValue($findvalueset);
         if ($devicenameid !== 0) {

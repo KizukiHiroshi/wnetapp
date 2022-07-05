@@ -32,7 +32,7 @@ class Brand extends Model
     protected function rules()
     {
         return [
-            'name' => ['required','string','max:30','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
+            'name' => ['required','string','max:30',],
             'name_kana' => ['nullable','string','max:30',],
             'url' => ['nullable','string','max:100','url'],
             'image' => ['nullable','string','max:100',],

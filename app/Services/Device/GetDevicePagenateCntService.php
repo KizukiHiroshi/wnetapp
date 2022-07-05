@@ -16,9 +16,9 @@ class GetDevicePagenateCntService
         $devicename = $sessionservice->getSession('devicename');
         $devicepagenatecnt = 18;
         if (!$devicename) {
-            // $findvalueset =  参照テーブル名?参照カラム名=値&参照カラム名=値
+            // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
             $tablename = 'devices';
-            $findvalueset = $tablename.'?name='.$devicename;
+            $findvalueset = $tablename.'?name='.urlencode($devicename);
             $findvalueservice = new FindValueService;
             $devicepagenatecnt = $findvalueservice->findValue($findvalueset, 'pagenatecnt');
         }

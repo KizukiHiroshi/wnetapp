@@ -394,7 +394,7 @@ class CsvUploadCase {
         return $upload;
     }
 
-    // $foreginkeys = [参照テーブル名?参照カラム名=値&参照カラム名=値,]
+    // $foreginkeys = [参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値),]
     private function getForeginkeysForUpload($rawform) {
         $foreginkeys =[];
         $findidset = $this->getForeginFindidsetForUpload($rawform);
@@ -406,7 +406,7 @@ class CsvUploadCase {
         return $foreginkeys;
     }
 
-    // $findidset = [参照テーブル名 => [参照カラム名 => 値, 参照カラム名 => 値,],]
+    // $findidset = [参照テーブル名 => [参照カラム名 => urlencode(値), 参照カラム名 => urlencode(値),],]
     private function getForeginFindidsetForUpload($rawform) {
         $findidset = [];
         foreach ($rawform as $columnname => $value) {
@@ -426,9 +426,9 @@ class CsvUploadCase {
                 $foregintablename = Str::plural($foregintablename);
                 if (array_key_exists($foregintablename, $findidset)) {
                     $findidset[$foregintablename] = 
-                        array_merge($findidset[$foregintablename],[ $foregincolname => $value ]);
+                        array_merge($findidset[$foregintablename],[ $foregincolname => urlencode($value) ]);
                 } else {
-                    $findidset[$foregintablename] = [ $foregincolname => $value ];
+                    $findidset[$foregintablename] = [ $foregincolname => urlencode($value) ];
                 }        
             }
         }
@@ -445,7 +445,7 @@ class CsvUploadCase {
         $rawcombinations = explode('&&', Str::after('?', $foreginkey));
         $rawcombinations += explode('&', Str::after('?', $foreginkey));
         foreach ($rawcombinations as $rawcombination) {
-            $form[Str::before('=', $rawcombination)] = Str::after('=', $rawcombination);
+            $form[Str::before('=', $rawcombination)] = Str::after('=', urldecode($rawcombination));
         }
         $id = null;
         $mode = 'save';

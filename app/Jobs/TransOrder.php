@@ -95,8 +95,8 @@ class TransOrder implements ShouldQueue
     }
 
     private function updateLatest($mode, $value) {
-        // $findvalueset =  参照テーブル名?参照カラム名=値&参照カラム名=値
-        $findvalueset = 'tablereplacements?systemname=TransCompany';
+        // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+        $findvalueset = 'tablereplacements?systemname='.urlencode('TransCompany');
         $findvalueservice = new FindValueService;
         $id = $findvalueservice->findValue($findvalueset, 'id');
         $form['latest_'.$mode] = $value;

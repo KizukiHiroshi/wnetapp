@@ -2,13 +2,15 @@
 
 namespace App\Console;
 
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+
 use App\Jobs\TransCompany;
 use App\Jobs\TransCompanyVendor;
 use App\Jobs\TransCompanyBuyer;
 use App\Jobs\TransBusinessunit;
 use App\Jobs\TransBrand;
-use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Jobs\TransProduct;
 
 class Kernel extends ConsoleKernel
 {
@@ -29,6 +31,7 @@ class Kernel extends ConsoleKernel
         $schedule->job(new TransCompanyBuyer());
         $schedule->job(new TransBusinessunit());
         $schedule->job(new TransBrand());
+        $schedule->job(new TransProduct());
     }
 
     /**
