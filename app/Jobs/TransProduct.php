@@ -42,29 +42,50 @@ class TransProduct implements ShouldQueue
         // memory対策
         while (true) {
             // 「$newtablenameのnameの最大値=$knownmaxname」を取得
-            $knownmaxbrand = '';
-            $knownmaxname = '';    
-            $maxid = DB::table('products')->max('id');
-            if ($maxid) {
-                $knownmaxbrandid= DB::table('products')->where('id', $maxid)->first()->brand_id;
-                $rawknownmaxname= DB::table('products')->where('id', $maxid)->first()->name;
-                $rawknownmaxbrand = DB::table('brands')->where('id', $knownmaxbrandid)->first()->name;
-                $knownmaxbrand = mb_convert_kana($rawknownmaxbrand, "AS");
-                $knownmaxname = mb_convert_kana($rawknownmaxname, "AS");    
-            }
+            // $knownmaxbrand = '';
+            // $knownmaxname = '';    
+            // $maxid = DB::table('products')->max('id');
+            // if ($maxid) {
+            //     $knownmaxbrandid= DB::table('products')->where('id', $maxid)->first()->brand_id;
+            //     $rawknownmaxname= DB::table('products')->where('id', $maxid)->first()->name;
+            //     $rawknownmaxbrand = DB::table('brands')->where('id', $knownmaxbrandid)->first()->name;
+            //     $knownmaxbrand = mb_convert_kana($rawknownmaxbrand, "AS");
+            //     $knownmaxname = mb_convert_kana($rawknownmaxname, "AS");    
+            // }
             //  $oldtablenameから$knownmaxnameより大きい1000レコードを取得
-            $transrow = $this->getTransRows($systemname, $oldtablename, $knownmaxbrand, $knownmaxname);
+            // $transrow = $this->getTransRowsOld($systemname, $oldtablename, $knownmaxbrand, $knownmaxname);
+            $transrows = $this->getTransRows($systemname, $oldtablename);
             //  レコードが無ければexit
-            if ($transrow->count() <= 1) { break; }
+            if ($transrows->count() <= 1) { break; }
             //  $newtablenameを更新する
-            $this->updateNewTable($transrow, $newtablename);
+            $this->updateNewTable($transrows, $newtablename);
+            // 管理済履歴を更新する
+            $transwnetservice = new TranswnetService;
+            $transwnetservice->updateTablereplacement($systemname, $oldtablename);
         }
-        // 管理済履歴を更新する
-        $transwnetservice = new TranswnetService;
-        $transwnetservice->updateTablereplacement($systemname, $oldtablename);
     }
 
-    private function getTransRows($systemname, $oldtablename, $knownmaxbrand, $knownmaxname) {
+    private function getTransRows($systemname, $oldtablename) {
+        // 転記の終わっている日付を取得する
+        $transwnetservice = new TranswnetService;
+        $latest_created = $transwnetservice->getLatest('created', $systemname);
+        $latest_updated = $transwnetservice->getLatest('updated', $systemname);
+        // 転記の条件を考慮しながら旧テーブルから情報取得する
+        $transrows= DB::connection('sqlsrv')
+            ->table('wise_login.'.$oldtablename)
+            ->select('メーカー名', '商品名', DB::raw('max(created_at) as created_at'), DB::raw('max(updated_at) as updated_at'))
+            ->where('仮本区分', '1')
+            ->where(function($query) use($latest_created, $latest_updated) {
+                $query->where('created_at', '>', $latest_created)
+                ->orWhere('updated_at', '>', $latest_updated);
+            })
+            ->groupBy('メーカー名', '商品名')
+            // ->limit(1000)
+            ->get();
+        return $transrows;
+    }
+
+    private function getTransRowsOld($systemname, $oldtablename, $knownmaxbrand, $knownmaxname) {
         // 転記の終わっている日付を取得する
         $transwnetservice = new TranswnetService;
         $latest_created = $transwnetservice->getLatest('created', $systemname);
@@ -89,13 +110,13 @@ class TransProduct implements ShouldQueue
         return $transrows;
     }
 
-    private function updateNewTable($untreatedrows, $newtablename) {
+    private function updateNewTable($transrows, $newtablename) {
         $iddictionary = [];   // テーブル参照idリスト
         $getfuriganaservice = new GetFuriganaService;
-        foreach ($untreatedrows as $untreatedrow) {
+        foreach ($transrows as $transrow) {
             $form = [];
-            $brand = mb_convert_kana(trim($untreatedrow->メーカー名), "a");
-            $rawproduct = mb_convert_kana(trim($untreatedrow->商品名), "as");
+            $brand = mb_convert_kana(trim($transrow->メーカー名), "a");
+            $rawproduct = mb_convert_kana(trim($transrow->商品名), "as");
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
             $foreginkey = 'brands?name='.urlencode($brand);
             if (array_key_exists($foreginkey, $iddictionary)) {
@@ -120,7 +141,7 @@ class TransProduct implements ShouldQueue
             $id = $findvalueservice->findValue($findvalueset, 'id');
             if ($id == 0) {
                 $transwnetservice = new TranswnetService;
-                $form += $transwnetservice->addCreatedToForm($untreatedrow->created_at);
+                $form += $transwnetservice->addCreatedToForm($transrow->created_at);
             }
             $excuteprocessservice = new ExcuteProcessService;
             $ret_id = $excuteprocessservice->excuteProcess($newtablename , $form, $id); 

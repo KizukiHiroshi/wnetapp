@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Jobs\TransProductItem;
+use App\Jobs\TransProduct;
 
 class ScheduleJobController extends Controller
 {
     public function index(Request $request) {
-        $job = new TransProductItem();
+        $job = new TransProduct();
         $job->handle();
     }
 }
