@@ -122,7 +122,7 @@ class TransProductItem implements ShouldQueue
             $form['code'] = trim($transrow->ＪＡＮコード);
             $form['jancode'] = $this->judgeJancode($transrow);
             $form['prdcode'] = trim($transrow->商品コード);
-            $form['name'] = $rawitem;
+            $form['name'] = ($rawitem == '' ? '-' : $rawitem);
             $form['name_kana'] = $getfuriganaservice->GetFurigana($rawitem);
             $form['color'] = '';
             $form['size'] = '';
