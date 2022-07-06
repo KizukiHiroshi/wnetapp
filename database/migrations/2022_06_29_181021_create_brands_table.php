@@ -20,6 +20,7 @@ class CreateBrandsTable extends Migration
             $table->string('name_kana')->comment('カナ', 30)->nullable();
             $table->string('url')->comment('URL', 100)->nullable();
             $table->string('image')->comment('画像', 100)->nullable();
+            $table->string('remark')->comment('備考', 255)->nullable();
             $table->date('start_on')->comment('開始日')->default('2000/01/01')->nullable();
             $table->date('end_on')->comment('終了日')->default('2049/12/31')->nullable();
             $table->softDeletes()->comment('削除日時');

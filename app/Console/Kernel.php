@@ -11,6 +11,7 @@ use App\Jobs\TransCompanyBuyer;
 use App\Jobs\TransBusinessunit;
 use App\Jobs\TransBrand;
 use App\Jobs\TransProduct;
+use App\Jobs\TransProductItem;
 
 class Kernel extends ConsoleKernel
 {
@@ -32,6 +33,7 @@ class Kernel extends ConsoleKernel
         $schedule->job(new TransBusinessunit());
         $schedule->job(new TransBrand());
         $schedule->job(new TransProduct());
+        $schedule->job(new TransProductItem());
     }
 
     /**

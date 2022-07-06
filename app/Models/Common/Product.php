@@ -32,6 +32,9 @@ class Product extends Model
     ];
 
     // input has_many clause here
+    public function productitems() {
+        return $this->hasMany(Productitem::class);
+    }
 
     protected function rules()
     {
@@ -45,6 +48,7 @@ class Product extends Model
             'name_kana' => ['nullable','string','max:70',],
             'url' => ['nullable','string','max:100','url'],
             'image' => ['nullable','string','max:100',],
+            'remark' => ['nullable','string','max:255',],
             'start_on' => ['nullable','date',],
             'end_on' => ['nullable','date',],
         ];

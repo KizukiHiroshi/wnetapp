@@ -16,7 +16,6 @@ class CreateOptionchoicesTable extends Migration
     {
         Schema::create('option_choices', function (Blueprint $table){
             $table->id()->comment('id');
-            $table->foreignId('jobtype_id')->comment('業務種類')->references('id')->on('jobtypes');
             $table->string('variablename')->comment('変数名', 30);
             $table->string('variablename_systrem')->comment('システム変数名', 30);
             $table->integer('no')->comment('No');

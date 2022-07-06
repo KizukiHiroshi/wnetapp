@@ -33,7 +33,7 @@ trait ValidateTrait
             $subject   = $this->attributes;
             $validator = Validator::make($subject, $rules);
             if ($validator->fails()) {
-                Log::debug(implode(",",json_decode(json_encode($validator->fails()), true)));
+                Log::debug($validator->errors()->messages());
                 throw new ValidationException($validator);
             }
         }

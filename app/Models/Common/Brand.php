@@ -36,6 +36,7 @@ class Brand extends Model
             'name_kana' => ['nullable','string','max:30',],
             'url' => ['nullable','string','max:100','url'],
             'image' => ['nullable','string','max:100',],
+            'remark' => ['nullable','string','max:255',],
             'start_on' => ['nullable','date',],
             'end_on' => ['nullable','date',],
         ];

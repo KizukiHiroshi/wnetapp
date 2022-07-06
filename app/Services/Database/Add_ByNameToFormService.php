@@ -1,7 +1,4 @@
 <?php
-// ServiceではIlluminate\Http\Requestにアクセスしない
-// 汎用性のある関数を登録する
-
 declare(strict_types=1);
 namespace App\Services\Database;
 
@@ -16,7 +13,9 @@ class Add_ByNameToFormService {
         } else {
             if (in_array('created_by', $columnnames) && $mode == 'store') {
                 $form['created_by'] = $byname;
-            }        
+            } elseif (in_array('created_by', $columnnames) && $mode == 'update') {
+                unset($form['created_by']);
+            }
             if (in_array('updated_by', $columnnames)) {
                 $form['updated_by'] = $byname;
             }                        

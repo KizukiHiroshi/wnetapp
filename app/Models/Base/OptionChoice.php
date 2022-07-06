@@ -35,7 +35,6 @@ class OptionChoice extends Model
     protected function rules()
     {
         return [
-            'jobtype_id' => ['required','integer','numeric',],
             'variablename' => ['required','string','max:30',],
             'variablename_systrem' => ['required','string','max:30',],
             'no' => ['required','integer','numeric',],

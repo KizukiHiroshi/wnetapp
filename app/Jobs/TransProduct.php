@@ -42,9 +42,9 @@ class TransProduct implements ShouldQueue
         // memory対策
         while (true) {
             // 「$newtablenameのnameの最大値=$knownmaxname」を取得
-            $maxid = DB::table('products')->max('id');
             $knownmaxbrand = '';
             $knownmaxname = '';    
+            $maxid = DB::table('products')->max('id');
             if ($maxid) {
                 $knownmaxbrandid= DB::table('products')->where('id', $maxid)->first()->brand_id;
                 $rawknownmaxname= DB::table('products')->where('id', $maxid)->first()->name;
@@ -59,15 +59,6 @@ class TransProduct implements ShouldQueue
             //  $newtablenameを更新する
             $this->updateNewTable($transrow, $newtablename);
         }
-
-
-        /* memory対策以前のコード_start
-        // // 未管理の旧レコードを得る
-        // $untreatedrows = $this->getUntreatedRows($systemname, $oldtablename);
-        // // 新テーブルに反映する
-        // $this->updateNewTable($untreatedrows, $newtablename);
-        memory対策以前のコード_end */ 
-
         // 管理済履歴を更新する
         $transwnetservice = new TranswnetService;
         $transwnetservice->updateTablereplacement($systemname, $oldtablename);
@@ -86,9 +77,9 @@ class TransProduct implements ShouldQueue
             ->where(function($query) use($knownmaxbrand, $knownmaxname, $latest_created, $latest_updated) {
                 $query->where(function($query) use($knownmaxbrand, $knownmaxname) {
                     $query->whereRaw("RTRIM(メーカー名)+RTRIM(商品名) > '".$knownmaxbrand.$knownmaxname."'");
-                // })->orWhere(function($query) use($latest_created, $latest_updated) {
-                //     $query->where('created_at', '>', $latest_created)
-                //     ->orWhere('updated_at', '>', $latest_updated);
+                })->orWhere(function($query) use($latest_created, $latest_updated) {
+                    $query->where('created_at', '>', $latest_created)
+                    ->orWhere('updated_at', '>', $latest_updated);
                 });
             })
             ->orderByRaw("RTRIM(メーカー名)+RTRIM(商品名)")
@@ -134,26 +125,6 @@ class TransProduct implements ShouldQueue
             $excuteprocessservice = new ExcuteProcessService;
             $ret_id = $excuteprocessservice->excuteProcess($newtablename , $form, $id); 
         }
-    }
-
-    private function getUntreatedRows($systemname, $oldtablename) {
-        // 転記の終わっている日付を取得する
-        $transwnetservice = new TranswnetService;
-        $latest_created = $transwnetservice->getLatest('created', $systemname);
-        $latest_updated = $transwnetservice->getLatest('updated', $systemname);
-        // 転記の条件を考慮しながら旧テーブルから情報取得する
-        $untreatedrows= DB::connection('sqlsrv')
-            ->table('wise_login.'.$oldtablename)
-            ->select('メーカー名', '商品名', DB::raw('max(created_at) as created_at'), DB::raw('max(updated_at) as updated_at'))
-            ->where('仮本区分', '1')
-            ->where(function($query) use($latest_created, $latest_updated) {
-                $query->where('created_at', '>', $latest_created)
-                ->orWhere('updated_at', '>', $latest_updated);
-            })
-            ->orderByRaw("メーカー名 ASC, 商品名 ASC")
-            ->groupBy('メーカー名', '商品名')
-            ->get();
-        return $untreatedrows;
     }
 
     private function registBrand($brand) {

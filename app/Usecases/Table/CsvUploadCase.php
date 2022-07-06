@@ -4,7 +4,6 @@ namespace App\Usecases\Table;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use App\Services\SessionService;
 use App\Services\Database\Get_ByNameService;
 use App\Services\Database\Add_ByNameToFormService;
@@ -334,7 +333,7 @@ class CsvUploadCase {
                         $findkey = $this->getFindkeyForUpload($modelindex, $tablename, $form);
                         $findvalueservice  = new FindValueService;
                         $id = $findvalueservice->findValue($findkey, 'id');
-                        if ($id == 'many') {
+                        if ($id != 0 && $id == 'many') {
                             $csverrors[] = strval($row_count-2).':▼'.$findkey.' は複数の行を変更します';
                             $can_gosave = false;
                         }
@@ -471,7 +470,7 @@ class CsvUploadCase {
     */
     private function getFindkeyForUpload($modelindex, $tablename, $form) {
         // テーブルのユニークキーを取得
-        $findkey = null;
+        $findkey = 0;
         $uniquekeys = $modelindex[$tablename]['modelname']::$uniquekeys;
         if (count($uniquekeys) > 0) {
             $separator = count($uniquekeys) == 1 ? '&&' : '&';
