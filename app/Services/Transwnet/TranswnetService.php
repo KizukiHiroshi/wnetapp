@@ -52,7 +52,7 @@ class TranswnetService {
     }
 
     public function addCreatedToForm($created_at) {
-        $form['created_at'] = $created_at == null ? date("Y-m-d H:i:s") :$created_at;
+        $form['created_at'] = $created_at == null ? time() :$created_at;
         $form['created_by'] = 'transwnet';
         return $form;
     }

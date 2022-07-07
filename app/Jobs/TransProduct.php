@@ -56,7 +56,7 @@ class TransProduct implements ShouldQueue
             // $transrow = $this->getTransRowsOld($systemname, $oldtablename, $knownmaxbrand, $knownmaxname);
             $transrows = $this->getTransRows($systemname, $oldtablename);
             //  レコードが無ければexit
-            if ($transrows->count() <= 1) { break; }
+            if ($transrows->count() == 0) { break; }
             //  $newtablenameを更新する
             $this->updateNewTable($transrows, $newtablename);
             // 管理済履歴を更新する
@@ -135,11 +135,14 @@ class TransProduct implements ShouldQueue
             $form['name_kana'] = $getfuriganaservice->GetFurigana($rawproduct);
             $form['url'] = '';
             $form['image'] = '';
-            $form['updated_at'] = date("Y-m-d H:i:s");
+            $form['updated_at'] = $transrow->updated_at;
             $form['updated_by'] = 'transwnet';
-            $findvalueset = $newtablename.'?name='.urlencode($form['name']);
+            $findvalueset = $newtablename.'?brand_id='.urlencode(strval($brand_id)).'&&name='.urlencode($form['name']);
             $id = $findvalueservice->findValue($findvalueset, 'id');
-            if ($id == 0) {
+            if ($id == 'many') {
+                $transwnetservice = new TranswnetService;
+                $form += $transwnetservice->addCreatedToForm($transrow->created_at);
+            } elseif ($id == 0) {
                 $transwnetservice = new TranswnetService;
                 $form += $transwnetservice->addCreatedToForm($transrow->created_at);
             }

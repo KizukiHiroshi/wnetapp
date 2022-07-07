@@ -220,7 +220,7 @@ class TransProductItem implements ShouldQueue
         $form['url'] = '';
         $form['image'] = '';
         $form['remark'] = '';
-        $form['updated_at'] = date("Y-m-d H:i:s");
+        $form['updated_at'] = time();
         $form['updated_by'] = 'transwnet';
         $form += $transwnetservice->addCreatedToForm(NULL);
         $excuteprocessservice = new ExcuteProcessService;
