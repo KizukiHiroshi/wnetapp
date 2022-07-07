@@ -42,9 +42,9 @@ class ListCase {
         $page = $request->page ? $request->page : $this->sessionservice->getSession('page');
         $searchinput = $params['searchinput'];
         if (array_key_exists($tablename, $modelindex)) {
-            // リストの行数
+            // リストの画面当たり行数
             $paginatecnt = $this->sessionservice->getSession('paginatecnt');
-            if (!$paginatecnt) {$paginatecnt = 15;}
+            if (!$paginatecnt) {$paginatecnt = 18;}
             // 成功メッセージ
             $success = $request->success !== '' ? $request->success : '';
             // 表示リストの詳細
@@ -63,8 +63,8 @@ class ListCase {
                 $searchinput = $this->sessionservice->getSession('searchinput');
                 $searchinput = is_null($searchinput) ? [] : $searchinput;
             }
-            $getrowsservice = new GetTableRowsService;
-            $rows = $getrowsservice->getTableRows($request, $columnsprop, $searchinput, $paginatecnt, $tempsort);
+            $gettablerowsservice = new GetTableRowsService;
+            $rows = $gettablerowsservice->getTableRows($request, $columnsprop, $searchinput, $paginatecnt, $tempsort);
             // 今回ソートの先頭部分を「行表示から戻ってきた時」のためにSessionに保存する
             $lastsort = ($tempsort ? array_key_first($tempsort).'--'.array_values($tempsort)[0] : '');
             $this->sessionservice->putSession('lastsort', $lastsort);

@@ -32,8 +32,10 @@ class QueryService
         }
         // from句
         $tablequery = $tablequery->from($tablename);
-        // join句
-        $tablequery = $this->addJoinToQuery($tablequery, $tablename, $columnsprop);
+        // ForeignId用join句
+        $tablequery = $this->addIdJoinToQuery($tablequery, $tablename, $columnsprop);
+        // _opt用join句
+        $tablequery = $this->addOptJoinToQuery($tablequery, $tablename, $columnsprop);
         // select句
         $selectclause = $this->setSelectClauseForDisplaymode($columnsprop, $displaymode);
         $tablequery = $tablequery->select(DB::raw($selectclause));
@@ -154,8 +156,8 @@ class QueryService
         return $where;
     }
 
-    // tablequeryにjoin句を足す
-    private function addJoinToQuery($tablequery, $tablename, $columnsprop) {
+    // tablequeryにForeinId用のjoin句を足す
+    private function addIdJoinToQuery($tablequery, $tablename, $columnsprop) {
         // '〇_id'と参照の深さを得る
         $foreignkeys = [];
         foreach ($columnsprop as $columnname => $poroperty) {
@@ -206,12 +208,32 @@ class QueryService
         return $tablequery;
     }
 
+    // tablequeryに_opt用のjoin句を足す
+    private function addOptJoinToQuery($tablequery, $tablename, $columnsprop) {
+        // optを探す
+        $optionkeys = [];
+        foreach ($columnsprop as $columnname => $poroperty) {
+            if (substr($columnname, -4) == '_opt') {
+                $optionkeys[] = $columnname;
+            }
+        }
+        $optiontablename = 'option_choices';
+        // join句にして追加する
+        foreach ($optionkeys as $optionkey) {
+            $tablequery = $tablequery
+                ->join($optiontablename. ' AS '.$optionkey.'ion', $tablename.'.'.$optionkey,'=', $optionkey.'ion'.".id");
+        }
+        return $tablequery;
+    }
+
     // list,card表示に合わせてselect句を作る
     private function setSelectClauseForDisplaymode($columnsprop, $displaymode) {
         $selectclausearray = [];
         if ($displaymode == 'list') {
             foreach ($columnsprop AS $columnname => $prop) {
-                if (strpos($columnname, '_id_') == false) {
+                if (substr($columnname, -4) == '_opt') {
+                    $selectclausearray[]= $columnname.'ion.valuename as '.$columnname;
+                } elseif (strpos($columnname, '_id_') == false) {
                     $selectclausearray[]= $prop['tablename'].'.'.$prop['realcolumn'];
                 } else {
                     $selectclausearray[] = $prop['tablename'].'.'.$prop['realcolumn'].' as '.$columnname;

@@ -40,7 +40,7 @@ class Productitem extends Model
             'product_id' => ['required','integer','numeric',],
             'code' => ['required','string','max:13','regex:/\d{13}/'],
             'jancode' => ['nullable','string','max:13','regex:/\d{13}/'],
-            'prdcode' => ['nullable','string','max:20','regex:/^[a-zA-Z0-9- ]+$/'],
+            'prdcode' => ['nullable','string','max:20',],
             'name' => ['required','string','max:60',],
             'name_kana' => ['nullable','string','max:60',],
             'color' => ['nullable','string','max:40',],

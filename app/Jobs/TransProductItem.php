@@ -45,14 +45,14 @@ class TransProductItem implements ShouldQueue
             $knownmaxcode = '';
             $maxid = DB::table('productitems')->max('id');
             if ($maxid) {
-                $knownmaxcode= DB::table('productitems')->where('id', $maxid)->first()->code;
+                $knownmaxcode= DB::table('productitems')->max('code');
             }
             //  $oldtablenameから$knownmaxnameより大きい1000レコードを取得
-            $transrow = $this->getTransRows($systemname, $oldtablename, $knownmaxcode);
+            $transrows = $this->getTransRows($systemname, $oldtablename, $knownmaxcode);
             //  レコードが無ければexit
-            if ($transrow->count() <= 1) { break; }
+            if ($transrows->count() <= 1) { break; }
             //  $newtablenameを更新する
-            $this->updateNewTable($transrow, $newtablename);
+            $this->updateNewTable($transrows, $newtablename);
         }
         // 管理済履歴を更新する
         $transwnetservice = new TranswnetService;

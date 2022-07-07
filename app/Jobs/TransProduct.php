@@ -140,8 +140,7 @@ class TransProduct implements ShouldQueue
             $findvalueset = $newtablename.'?brand_id='.urlencode(strval($brand_id)).'&&name='.urlencode($form['name']);
             $id = $findvalueservice->findValue($findvalueset, 'id');
             if ($id == 'many') {
-                $transwnetservice = new TranswnetService;
-                $form += $transwnetservice->addCreatedToForm($transrow->created_at);
+                continue;
             } elseif ($id == 0) {
                 $transwnetservice = new TranswnetService;
                 $form += $transwnetservice->addCreatedToForm($transrow->created_at);
