@@ -114,7 +114,7 @@ class TransProductItem implements ShouldQueue
                 $product_id = $findvalueservice->findValue($foreginkey, 'id');
                 if ($product_id == 0) {
                     // 未登録の商品名をproductに追加する
-                    $product_id = $this->registProduct($product);
+                    $product_id = $this->registProduct($product, $brand_id);
                 }
                 $iddictionary[$foreginkey] = $product_id;
             }
@@ -192,10 +192,11 @@ class TransProductItem implements ShouldQueue
     }
 
     // 未登録の商品名をproductに追加する
-    private function registProduct($product) {
+    private function registProduct($product, $brand_id) {
         $getfuriganaservice = new GetFuriganaService;
         $transwnetservice = new TranswnetService;
         $form = [];
+        $form['brand_id'] = $brand_id;
         $form['name'] = $product;
         $form['name_kana'] = $getfuriganaservice->GetFurigana($product);
         $form['url'] = '';
@@ -206,8 +207,8 @@ class TransProductItem implements ShouldQueue
         $form += $transwnetservice->addCreatedToForm(NULL);
         $excuteprocessservice = new ExcuteProcessService;
         $id = 0;
-        $brand_id = $excuteprocessservice->excuteProcess('products' , $form, $id);
-        return $brand_id;
+        $product_id = $excuteprocessservice->excuteProcess('products' , $form, $id);
+        return $product_id;
     }
 
     // 未登録のメーカー名をbrandに追加する

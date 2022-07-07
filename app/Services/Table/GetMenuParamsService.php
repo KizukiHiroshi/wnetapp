@@ -19,13 +19,20 @@ class GetMenuParamsService {
         $selectedtable = $tablename;
         $sessionservice = new SessionService;
         $modelindex = $sessionservice->getSession('modelindex');
+        // モデル選択用のセレクト
         $modelselect = $this->getModelselect($modelindex);
         $devicename = $sessionservice->getSession('devicename');;
-        // search用の変数
+        // ■search用の変数
+        // 表示する項目リスト
         $cardcolumnsprop = null;
+        // 検索入力した履歴
         $searchinput = [];
+        // 検索入力のバリデーションエラー
         $searcherrors = null;
+        // idによる参照用セレクト
         $foreignselects = null;
+        // optによつ参照用セレクト
+        $optionselects = null;
         if ($tablename) {
             $columnsprop = $sessionservice->getSession('columnsprop', $tablename);
             $arangecolumnsproptocardservice = new ArangeColumnspropToCardService;
