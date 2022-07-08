@@ -41,22 +41,9 @@ class TransProduct implements ShouldQueue
         $newtablename = 'products';
         // memory対策
         while (true) {
-            // 「$newtablenameのnameの最大値=$knownmaxname」を取得
-            // $knownmaxbrand = '';
-            // $knownmaxname = '';    
-            // $maxid = DB::table('products')->max('id');
-            // if ($maxid) {
-            //     $knownmaxbrandid= DB::table('products')->where('id', $maxid)->first()->brand_id;
-            //     $rawknownmaxname= DB::table('products')->where('id', $maxid)->first()->name;
-            //     $rawknownmaxbrand = DB::table('brands')->where('id', $knownmaxbrandid)->first()->name;
-            //     $knownmaxbrand = mb_convert_kana($rawknownmaxbrand, "AS");
-            //     $knownmaxname = mb_convert_kana($rawknownmaxname, "AS");    
-            // }
-            //  $oldtablenameから$knownmaxnameより大きい1000レコードを取得
-            // $transrow = $this->getTransRowsOld($systemname, $oldtablename, $knownmaxbrand, $knownmaxname);
             $transrows = $this->getTransRows($systemname, $oldtablename);
             //  レコードが無ければexit
-            if ($transrows->count() == 0) { break; }
+            if ($transrows->count() <= 1) { break; }
             //  $newtablenameを更新する
             $this->updateNewTable($transrows, $newtablename);
             // 管理済履歴を更新する
