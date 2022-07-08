@@ -184,7 +184,7 @@ class TransProductItem implements ShouldQueue
             return $transrow->ＪＡＮコード;
         }
         // カモ井のオリジナル
-        if ($transrow->仕入先コード == 8590 && substr($transrow->商品名, 0, 1, 'utf8') == '※') {
+        if ($transrow->仕入先コード == 8590 && substr($transrow->商品名, 0, 1) == '※') {
             return $transrow->ＪＡＮコード;
         }
         // 当てはまらないのは元の商品にJANがない、わからないから付けただけ

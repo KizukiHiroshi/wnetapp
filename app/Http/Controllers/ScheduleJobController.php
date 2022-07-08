@@ -10,8 +10,8 @@ use App\Jobs\TransProductItem;
 class ScheduleJobController extends Controller
 {
     public function index(Request $request) {
-        $job = new TransProduct();
-        // $job = new TransProductItem();
+        // $job = new TransProduct();
+        $job = new TransProductItem();
         $job->handle();
     }
 }
