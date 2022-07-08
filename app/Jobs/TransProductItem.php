@@ -89,7 +89,7 @@ class TransProductItem implements ShouldQueue
             $form = [];
             $brand = mb_convert_kana(trim($transrow->メーカー名), "a");
             $product = mb_convert_kana(trim($transrow->商品名), "as");
-            $rawitem = mb_convert_kana(trim($transrow->規格), "as");
+            $rawitem = trim(mb_convert_kana(trim($transrow->規格), "as"));
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
             $foreginkey = 'brands?name='.urlencode($brand);
             if (array_key_exists($foreginkey, $iddictionary)) {
