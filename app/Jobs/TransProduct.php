@@ -126,7 +126,7 @@ class TransProduct implements ShouldQueue
             $form['updated_by'] = 'transwnet';
             $findvalueset = $newtablename.'?brand_id='.urlencode(strval($brand_id)).'&&name='.urlencode($form['name']);
             $id = $findvalueservice->findValue($findvalueset, 'id');
-            if ($id == 'many') {
+            if (is_string($id)) {
                 continue;
             } elseif ($id == 0) {
                 $transwnetservice = new TranswnetService;
