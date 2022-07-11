@@ -63,18 +63,16 @@ class TransProductItem implements ShouldQueue
         // 転記の終わっている日付を取得する
         $transwnetservice = new TranswnetService;
         $latest_created = $transwnetservice->getLatest('created', $systemname);
+        $latest_created = date('Y/m/d H:i:s', strtotime($latest_created . '+1 second'));
         $latest_updated = $transwnetservice->getLatest('updated', $systemname);
-        // 転記の条件を考慮しながら旧テーブルから情報取得する
+        $latest_updated = date('Y/m/d H:i:s', strtotime($latest_updated . '+1 second'));
+         // 転記の条件を考慮しながら旧テーブルから情報取得する
         $transrows= DB::connection('sqlsrv')
             ->table('wise_login.'.$oldtablename)
             ->where('仮本区分', '1')
-            ->where(function($query) use($knownmaxcode, $latest_created, $latest_updated) {
-                $query->where(function($query) use($knownmaxcode) {
-                    $query->where('ＪＡＮコード', '>', $knownmaxcode);
-                // })->orWhere(function($query) use($latest_created, $latest_updated) {
-                //     $query->where('created_at', '>', $latest_created)
-                //     ->orWhere('updated_at', '>', $latest_updated);
-                });
+            ->where(function($query) use($latest_created, $latest_updated) {
+                $query->where('created_at', '>', $latest_created)
+                        ->orWhere('updated_at', '>', $latest_updated);
             })
             ->orderBy('ＪＡＮコード')
             ->limit(1000)

@@ -56,43 +56,16 @@ class TransProduct implements ShouldQueue
         // 転記の終わっている日付を取得する
         $transwnetservice = new TranswnetService;
         $latest_created = $transwnetservice->getLatest('created', $systemname);
+        $latest_created = date('Y/m/d H:i:s', strtotime($latest_created . '+1 second'));
         $latest_updated = $transwnetservice->getLatest('updated', $systemname);
+        $latest_updated = date('Y/m/d H:i:s', strtotime($latest_updated . '+1 second'));
         // 転記の条件を考慮しながら旧テーブルから情報取得する
         $transrows= DB::connection('sqlsrv')
             ->table('wise_login.'.$oldtablename)
             ->select('メーカー名', '商品名', DB::raw('max(created_at) as created_at'), DB::raw('max(updated_at) as updated_at'))
             ->where('仮本区分', '1')
-            ->where(function($query) use($latest_created, $latest_updated) {
-                $query->where('created_at', '>', $latest_created)
-                ->orWhere('updated_at', '>', $latest_updated);
-            })
+            ->whereRaw("created_at > CONVERT(DATETIME, '".$latest_created."') or updated_at > CONVERT(DATETIME, '".$latest_updated."')")
             ->groupBy('メーカー名', '商品名')
-            // ->limit(1000)
-            ->get();
-        return $transrows;
-    }
-
-    private function getTransRowsOld($systemname, $oldtablename, $knownmaxbrand, $knownmaxname) {
-        // 転記の終わっている日付を取得する
-        $transwnetservice = new TranswnetService;
-        $latest_created = $transwnetservice->getLatest('created', $systemname);
-        $latest_updated = $transwnetservice->getLatest('updated', $systemname);
-        // 転記の条件を考慮しながら旧テーブルから情報取得する
-        $transrows= DB::connection('sqlsrv')
-            ->table('wise_login.'.$oldtablename)
-            ->select('メーカー名', '商品名', DB::raw('max(created_at) as created_at'), DB::raw('max(updated_at) as updated_at'))
-            ->where('仮本区分', '1')
-            ->where(function($query) use($knownmaxbrand, $knownmaxname, $latest_created, $latest_updated) {
-                $query->where(function($query) use($knownmaxbrand, $knownmaxname) {
-                    $query->whereRaw("RTRIM(メーカー名)+RTRIM(商品名) > '".$knownmaxbrand.$knownmaxname."'");
-                })->orWhere(function($query) use($latest_created, $latest_updated) {
-                    $query->where('created_at', '>', $latest_created)
-                    ->orWhere('updated_at', '>', $latest_updated);
-                });
-            })
-            ->orderByRaw("RTRIM(メーカー名)+RTRIM(商品名)")
-            ->groupBy('メーカー名', '商品名')
-            ->limit(1000)
             ->get();
         return $transrows;
     }
