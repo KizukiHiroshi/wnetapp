@@ -42,13 +42,15 @@ class TransProduct implements ShouldQueue
         // memory対策
         while (true) {
             $transrows = $this->getTransRows($systemname, $oldtablename);
-            //  レコードが無ければexit
-            if ($transrows->count() <= 1) { break; }
             //  $newtablenameを更新する
             $this->updateNewTable($transrows, $newtablename);
-            // 管理済履歴を更新する
-            $transwnetservice = new TranswnetService;
-            $transwnetservice->updateTablereplacement($systemname, $oldtablename);
+            //  レコードが無ければexit
+            if ($transrows->count() == 0) {
+                // 管理済履歴を更新する
+                $transwnetservice = new TranswnetService;
+                $transwnetservice->updateTablereplacement($systemname, $oldtablename);
+                break; 
+            }
         }
     }
 

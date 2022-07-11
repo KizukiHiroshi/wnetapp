@@ -41,25 +41,21 @@ class TransProductItem implements ShouldQueue
         $newtablename = 'productitems';
         // memory対策
         while (true) {
-            // 「$newtablenameのnameの最大値=$knownmaxname」を取得
-            $knownmaxcode = '';
-            $maxid = DB::table('productitems')->max('id');
-            if ($maxid) {
-                $knownmaxcode= DB::table('productitems')->max('code');
-            }
             //  $oldtablenameから$knownmaxnameより大きい1000レコードを取得
-            $transrows = $this->getTransRows($systemname, $oldtablename, $knownmaxcode);
-            //  レコードが無ければexit
-            if ($transrows->count() <= 1) { break; }
-            //  $newtablenameを更新する
+            $transrows = $this->getTransRows($systemname, $oldtablename);
+           //  $newtablenameを更新する
             $this->updateNewTable($transrows, $newtablename);
-        }
-        // 管理済履歴を更新する
-        $transwnetservice = new TranswnetService;
-        $transwnetservice->updateTablereplacement($systemname, $oldtablename);
-    }
+            //  レコードが無ければexit
+            if ($transrows->count() == 0) {
+                // 管理済履歴を更新する
+                $transwnetservice = new TranswnetService;
+                $transwnetservice->updateTablereplacement($systemname, $oldtablename);
+                break; 
+            }
+         }
+   }
 
-    private function getTransRows($systemname, $oldtablename, $knownmaxcode) {
+    private function getTransRows($systemname, $oldtablename) {
         // 転記の終わっている日付を取得する
         $transwnetservice = new TranswnetService;
         $latest_created = $transwnetservice->getLatest('created', $systemname);
