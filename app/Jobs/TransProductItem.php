@@ -11,6 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use App\Services\Database\ExcuteProcessService;
 use App\Services\Database\FindValueService;
+use App\Services\Database\AddIddictionarService;
 use App\Services\Transwnet\TranswnetService;
 use App\Services\Api\GetFuriganaService;
 
@@ -39,17 +40,15 @@ class TransProductItem implements ShouldQueue
         $systemname = 'TransProductItem';
         $oldtablename = '０８：センター商品Ｍ';
         $newtablename = 'productitems';
-        // memory対策
         while (true) {
-            //  $oldtablenameから$knownmaxnameより大きい1000レコードを取得
             $transrows = $this->getTransRows($systemname, $oldtablename);
             //  レコードが無ければexit
             if ($transrows->count() == 0) { break; }
+            //  $newtablenameを更新する
+            $this->updateNewTable($transrows, $newtablename);
             // 管理済履歴を更新する
             $transwnetservice = new TranswnetService;
             $transwnetservice->updateTablereplacement($systemname, $oldtablename);
-            //  $newtablenameを更新する
-            $this->updateNewTable($transrows, $newtablename);
          }
    }
 
@@ -77,6 +76,9 @@ class TransProductItem implements ShouldQueue
     private function updateNewTable($transrows, $newtablename) {
         $iddictionary = [];   // テーブル参照idリスト
         $getfuriganaservice = new GetFuriganaService;
+        $addiddictionarservice = new AddIddictionarService;
+        $findvalueservice = new FindValueService;
+        $excuteprocessservice = new ExcuteProcessService;
         foreach ($transrows as $transrow) {
             $form = [];
             $brand = mb_convert_kana(trim($transrow->メーカー名), "a");
@@ -84,33 +86,12 @@ class TransProductItem implements ShouldQueue
             $rawitem = trim(mb_convert_kana(trim($transrow->規格), "as"));
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
             $foreginkey = 'brands?name='.urlencode($brand);
-            if (array_key_exists($foreginkey, $iddictionary)) {
-                $brand_id = $iddictionary[$foreginkey];
-            } else {
-                // 未登録の参照を$iddictionaryに追加する
-                $findvalueservice = new FindValueService;
-                $brand_id = $findvalueservice->findValue($foreginkey, 'id');
-                if ($brand_id == 0) {
-                    // 未登録のメーカー名をbrandに追加する
-                    $brand_id = $this->registBrand($brand);
-                }
-                $iddictionary[$foreginkey] = $brand_id;
-            }
+            $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
+            $brand_id= $iddictionary[$foreginkey];
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
             $foreginkey = 'products?brand_id='.urlencode(strval($brand_id)).'&&name='.urlencode($product);
-            if (array_key_exists($foreginkey, $iddictionary)) {
-                $product_id = $iddictionary[$foreginkey];
-            } else {
-                // 未登録の参照を$iddictionaryに追加する
-                $findvalueservice = new FindValueService;
-                $product_id = $findvalueservice->findValue($foreginkey, 'id');
-                if ($product_id == 0) {
-                    // 未登録の商品名をproductに追加する
-                    $product_id = $this->registProduct($product, $brand_id);
-                }
-                $iddictionary[$foreginkey] = $product_id;
-            }
-            $form['product_id'] = $product_id;
+            $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
+            $form['product_id'] = $iddictionary[$foreginkey];
             $form['code'] = trim($transrow->ＪＡＮコード);
             $form['jancode'] = $this->judgeJancode($transrow);
             $form['prdcode'] = trim($transrow->商品コード);
@@ -120,11 +101,11 @@ class TransProductItem implements ShouldQueue
             $form['size'] = '';
             $form['is_janprinted'] = ($transrow->ＪＡＮ区分 == 1 ? 1 : 0);
             $foreginkey = 'option_choices?variablename_systrem='.urlencode(strval('pricelabel_opt')).'&&no='.urlencode(strval($transrow->値札区分));
-            $iddictionary = $this->checkIddictionar($iddictionary, $foreginkey);
+            $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
             $form['pricelabel_opt'] = $iddictionary[$foreginkey];
             $form['unit'] = $transrow->ケース入り数;
             $foreginkey = 'option_choices?variablename_systrem='.urlencode(strval('unitname_opt')).'&&valuename='.urlencode(strval(trim($transrow->単位名称)));
-            $iddictionary = $this->checkIddictionar($iddictionary, $foreginkey);
+            $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
             $form['unitname_opt'] = $iddictionary[$foreginkey];
             $form['regularprice'] = $transrow->販売単価1;
             $form['regularprice_2nd'] = $transrow->販売単価2;
@@ -138,25 +119,8 @@ class TransProductItem implements ShouldQueue
             $form['updated_by'] = trim($transrow->最終メンテＩＤ);
             $findvalueset = $newtablename.'?code='.urlencode($form['code']);
             $id = $findvalueservice->findValue($findvalueset, 'id');
-            $excuteprocessservice = new ExcuteProcessService;
             $ret_id = $excuteprocessservice->excuteProcess($newtablename , $form, $id); 
         }
-    }
-
-    // iddictionaryの準備
-    private function checkIddictionar($iddictionary, $foreginkey) {
-        if (array_key_exists($foreginkey, $iddictionary)) {
-            // 登録済なら何もしない
-        } else {
-            // 未登録の参照を$iddictionaryに追加する
-            $findvalueservice = new FindValueService;
-            $product_id = $findvalueservice->findValue($foreginkey, 'id');
-            if ($product_id == 0) {
-                $product_id = NULL;
-            }
-            $iddictionary[$foreginkey] = $product_id;
-        }
-        return $iddictionary;
     }
 
     // メーカー発行のJANコードかどうか判断する

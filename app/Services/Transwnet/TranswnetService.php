@@ -11,6 +11,45 @@ class TranswnetService {
     public function __construct() {
     }
 
+    public function separateRawShopcode($shopcode) {
+        $rawcompany = intval(intval($shopcode) / 100000);
+        $companycode = substr('0000'.strval($rawcompany),-4);
+        if ($companycode == '0000') { $companycode = '0001'; }
+        $businessunitcode = substr('00000'.$shopcode, -5);
+        $separatedshopcode = [
+            'companycode' => $companycode,
+            'businessunitcode' => $businessunitcode,
+        ];
+        return $separatedshopcode;
+    }
+
+    public function getFindvaluesetByRawShopcode($shopcode) {
+        $findvalueservice = new FindValueService;
+        $rawcompany = intval(intval($shopcode) / 100000);
+        $companycode = substr('0000'.strval($rawcompany),-4);
+        // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+        $findvalueset = 'companies?code='.urlencode($companycode);
+        $company_id = strval($findvalueservice->findValue($findvalueset, 'id'));
+        $businessunitcode = substr('00000'.$shopcode, -5);
+        // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+        $findvalueset = 'businessunits?company_id='.urlencode($company_id).'&&code='.urlencode($businessunitcode);
+        return $findvalueset;
+    }
+
+    public function getBusinessunitIdByRawShopcode($shopcode) {
+        $findvalueservice = new FindValueService;
+        $rawcompany = intval(intval($shopcode) / 100000);
+        $companycode = substr('0000'.strval($rawcompany),-4);
+        // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+        $findvalueset = 'companies?code='.urlencode($companycode);
+        $company_id = strval($findvalueservice->findValue($findvalueset, 'id'));
+        $businessunitcode = substr('00000'.$shopcode, -5);
+        // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+        $findvalueset = 'businessunits?company_id='.urlencode($company_id).'&&code='.urlencode($businessunitcode);
+        $businessunit_id = $findvalueservice->findValue($findvalueset, 'id');
+        return $businessunit_id;
+    }
+
     public function getLatest($mode, $systemname) {
         $targetcolumn = 'latest_'.$mode;
         $row = DB::table('tablereplacements')

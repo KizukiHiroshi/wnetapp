@@ -35,6 +35,9 @@ class Businessunit extends Model
     public function devices() {
         return $this->hasMany(Device::class);
     }
+    public function stockshells(){
+        return $this->hasMany(Stockshell::class);
+    }
 
     protected function rules()
     {
