@@ -43,15 +43,13 @@ class TransProductItem implements ShouldQueue
         while (true) {
             //  $oldtablenameから$knownmaxnameより大きい1000レコードを取得
             $transrows = $this->getTransRows($systemname, $oldtablename);
-           //  $newtablenameを更新する
-            $this->updateNewTable($transrows, $newtablename);
             //  レコードが無ければexit
-            if ($transrows->count() == 0) {
-                // 管理済履歴を更新する
-                $transwnetservice = new TranswnetService;
-                $transwnetservice->updateTablereplacement($systemname, $oldtablename);
-                break; 
-            }
+            if ($transrows->count() == 0) { break; }
+            // 管理済履歴を更新する
+            $transwnetservice = new TranswnetService;
+            $transwnetservice->updateTablereplacement($systemname, $oldtablename);
+            //  $newtablenameを更新する
+            $this->updateNewTable($transrows, $newtablename);
          }
    }
 
