@@ -14,7 +14,7 @@ use App\Services\Database\FindValueService;
 use App\Services\Database\AddIddictionarService;
 use App\Services\Transwnet\TranswnetService;
 
-class TransStockshell implements ShouldQueue
+class TransStock implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -35,9 +35,9 @@ class TransStockshell implements ShouldQueue
     {
         // 旧テーブルの登録履歴をチェックする
         // 管理済の日付を取得する
-        $systemname = 'TransStockshell';
+        $systemname = 'TransStock';
         $oldtablename = '１０：店舗在庫管理';
-        $newtablename = 'stockshells';
+        $newtablename = 'stocks';
         while (true) {
             $transrows = $this->getTransRows($systemname, $oldtablename);
             //  レコードが無ければexit

@@ -26,6 +26,7 @@ class Productitem extends Model
     ];
     static $referencedcolumns = [
         'product_id', 
+        'code', 
         'name', 
     ];
     static $uniquekeys = [
