@@ -34,6 +34,7 @@ trait ValidateTrait
             $validator = Validator::make($subject, $rules);
             if ($validator->fails()) {
                 Log::debug($validator->errors()->messages());
+                Log::debug($subject);
                 throw new ValidationException($validator);
             }
         }

@@ -58,14 +58,14 @@ class TransStock implements ShouldQueue
         $latest_updated = $transwnetservice->getLatest('updated', $systemname);
         $latest_updated = date('Y/m/d H:i:s', strtotime($latest_updated . '+1 second'));
         // 初期設定用：登録済みのコード取得
-        $knownshopcode  = $this->getKnownshopcode();
+        $knownshopandcode  = $this->getKnownshopandcode();
         // 転記の条件を考慮しながら旧テーブルから情報取得する
         $transrows= DB::connection('sqlsrv')
             ->table('wise_login.'.$oldtablename)
             ->where('削除ＦＬＧ', '1')
             ->whereRaw("created_at > CONVERT(DATETIME, '".$latest_created."') or updated_at > CONVERT(DATETIME, '".$latest_updated."')")
             // 初期設定用：登録済みのコード取得
-            ->whereRaw("convert(char, 店コード)+ＪＡＮコード > '".$knownshopcode."'")
+            ->whereRaw("convert(char, 店コード)+ＪＡＮコード > '".$knownshopandcode."'")
             ->orderByRaw("convert(char, 店コード)+ＪＡＮコード")
             ->limit(1000)
             ->get();
@@ -121,16 +121,20 @@ class TransStock implements ShouldQueue
         }
     }
 
-    private function getKnownshopcode() {
+    private function getKnownshopandcode() {
         $maxid = DB::table('stocks')->max('id');
         if (!$maxid) { return ''; } 
         $row = DB::table('stocks')->where('id', $maxid)->first();
         $businessunit_id = $row->businessunit_id;
+        $productitem_id = $row->productitem_id;
+        $row = DB::table('businessunits')->where('id', $businessunit_id)->first();
         $businessunitcode = $row->code;
-        $company_id = DB::table('businessunits')->where('id', $businessunit_id)->company_id;
-        $companycode = DB::table('companies')->where('id', $company_id)->code;
+        $company_id = $row->company_id;
+        $companycode = DB::table('companies')->where('id', $company_id)->first()->code;
         if ($companycode == '0001') { $companycode = '0000'; }
-        $knownshopcode = strval(intval($companycode)*100000 + intval($businessunitcode));
-        return $knownshopcode;
+        $shopcode = strval(intval($companycode)*100000 + intval($businessunitcode));
+        $code = DB::table('productitems')->where('id', $productitem_id)->first()->code;
+        $knownshopandcode = $shopcode.$code;
+        return $knownshopandcode;
     }
 }
