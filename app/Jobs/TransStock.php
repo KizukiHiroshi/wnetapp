@@ -94,6 +94,7 @@ class TransStock implements ShouldQueue
             $foreginkey = 'productitems?code='.trim($transrow->ＪＡＮコード);
             $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
             $form['productitem_id'] = $iddictionary[$foreginkey];
+            if ($form['productitem_id'] == NULL) { continue; }
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
             $foreginkey = 'stockshells?businessunit_id='.$form['businessunit_id'].'&&code='.urlencode(mb_convert_kana(trim($transrow->棚番号), "as"));
             $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
