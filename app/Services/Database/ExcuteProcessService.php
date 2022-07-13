@@ -17,8 +17,8 @@ class ExcuteProcessService
     // return:ERRORであればException又はText、正常であれば$id
     public function excuteProcess($tablename, $form, $id) {
         $sessionservice = new SessionService;
-        $tmodelindex = $sessionservice->getSession('modelindex');
-        $modelname = $tmodelindex[$tablename]['modelname'];
+        $modelindex = $sessionservice->getSession('modelindex');
+        $modelname = $modelindex[$tablename]['modelname'];
         if ($id == 0) {
             $targetrow = new $modelname;
         } else {

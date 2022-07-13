@@ -8,12 +8,16 @@ namespace App\Services\Database;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Services\SessionService;
 
 class QueryService 
 {
     // queryのfrom,join,select句を取得する
-    public function getTableQuery($request, $modelindex, $columnsprop, $searchinput, $displaymode, $tempsort = null) {
-        $tablename= $request->tablename;
+    public function getTableQuery($request, $displaymode, $tempsort = null) {
+        $tablename= $request->tablename;$sessionservice = new SessionService;
+        $searchinput = $sessionservice->getSession('searchinput');
+        $columnsprop = $sessionservice->getSession('columnsprop');
+        $modelindex = $sessionservice->getSession('modelindex');
         $where = $this->getWhere($searchinput, $columnsprop);
         $modelname = $modelindex[$tablename]['modelname'];
         // Trashの扱い
