@@ -38,6 +38,9 @@ class Businessunit extends Model
     public function stockshells(){
         return $this->hasMany(Stockshell::class);
     }
+    public function stocks(){
+        return $this->hasMany(Stock::class);
+    }
 
     protected function rules()
     {

@@ -17,9 +17,13 @@ class ArangeColumnspropToCardService {
         $foreigncolumn = '';
         // $referencecolumns = $this->getReferenceColumns($columnsprop);
         foreach ($columnsprop AS $columnname => $prop) {
-            if (strpos($columnname, '_id_') == false || substr($columnname, -3) =='_id' || substr($columnname, -7) =='_id_2nd') {
+            if (substr($columnname, -4) == '_opt') {
                 $cardcolumnsprop[$columnname] = $prop;
-                if (substr($columnname, -3) =='_id' || substr($columnname, -7) =='_id_2nd') {
+                $prop['type'] = 'string';
+                $cardcolumnsprop[$columnname.'_reference'] = $prop;
+            } elseif (strpos($columnname, '_id_') == false || substr($columnname, -3) == '_id' || substr($columnname, -7) == '_id_2nd') {
+                $cardcolumnsprop[$columnname] = $prop;
+                if (substr($columnname, -3) == '_id' || substr($columnname, -7) == '_id_2nd') {
                     $foreigncolumn = $columnname;
                     // foreign_idの後にreferenceを入れる
                     $prop['type'] = 'string';

@@ -57,15 +57,17 @@ class TransStock implements ShouldQueue
         $latest_created = date('Y/m/d H:i:s', strtotime($latest_created . '+1 second'));
         $latest_updated = $transwnetservice->getLatest('updated', $systemname);
         $latest_updated = date('Y/m/d H:i:s', strtotime($latest_updated . '+1 second'));
-         // 転記の条件を考慮しながら旧テーブルから情報取得する
+        // 初期設定用：登録済みのコード取得
+        $knownshopcode  = $this->getKnownshopcode();
+        // 転記の条件を考慮しながら旧テーブルから情報取得する
         $transrows= DB::connection('sqlsrv')
             ->table('wise_login.'.$oldtablename)
-            ->select('店コード', '棚番号', DB::raw('max(created_at) as created_at'), DB::raw('max(updated_at) as updated_at'))
             ->where('削除ＦＬＧ', '1')
             ->whereRaw("created_at > CONVERT(DATETIME, '".$latest_created."') or updated_at > CONVERT(DATETIME, '".$latest_updated."')")
-            ->groupBy('店コード', '棚番号')
-            ->orderByRaw("convert(char,店コード)+棚番号")
-            // ->limit(1000)
+            // 初期設定用：登録済みのコード取得
+            ->whereRaw("convert(char, 店コード)+ＪＡＮコード > '".$knownshopcode."'")
+            ->orderByRaw("convert(char, 店コード)+ＪＡＮコード")
+            ->limit(1000)
             ->get();
         return $transrows;
     }
@@ -88,15 +90,47 @@ class TransStock implements ShouldQueue
             $foreginkey = 'businessunit?company_id='.$company_id.'&&code='.urlencode($separatedshopcode['businessunitcode']);
             $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
             $form['businessunit_id'] = $iddictionary[$foreginkey];
-            $form['code'] = mb_convert_kana(trim($transrow->棚番号), "as");
-            $form['name'] = '-';
+            // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+            $foreginkey = 'productitems?code='.trim($transrow->ＪＡＮコード);
+            $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
+            $form['productitem_id'] = $iddictionary[$foreginkey];
+            // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+            $foreginkey = 'stockshells?businessunit_id='.$form['businessunit_id'].'&&code='.urlencode(mb_convert_kana(trim($transrow->棚番号), "as"));
+            $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
+            $form['stockshell_id'] = $iddictionary[$foreginkey];
+            $form['stockshellno'] = $transrow->棚内順;
+            $form['stockshell_id_2nd'] = $form['stockshell_id'];
+            $form['stockshellno2'] = $form['stockshellno'];
+            $form['currentstock'] = $transrow->現在庫;
+            // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+            $foreginkey = 'option_choices?variablename_systrem='.urlencode(strval('stockstatus_opt')).'&&no='.urlencode('2');
+            $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
+            $form['stockstatus_opt'] = $iddictionary[$foreginkey];
+            $form['is_autoreorder'] = $transrow->自動発注 == 1 ? 1 : 0;
+            $form['reorderpoint'] = $transrow->発注点 == NULL ? 0 : $transrow->発注点;
+            $form['maxstock'] = $transrow->上限在庫 == NULL ? 0 : $transrow->発注点;
+            $form['stockupdeted_on'] = '2000/01/01 00:00:00';
             $form['remark'] = '';
             $form['updated_at'] = $transrow->updated_at;
             $form['updated_by'] = 'transrow';
             $form += $transwnetservice->addCreatedToForm($transrow->created_at);
-            $findvalueset = $newtablename.'?businessunit_id='.$form['businessunit_id'].'&&code='.urlencode($form['code']);
+            // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+            $findvalueset = $newtablename.'?businessunit_id='.$form['businessunit_id'].'&&productitem_id='.$form['productitem_id'];
             $id = $findvalueservice->findValue($findvalueset, 'id');
             $ret_id = $excuteprocessservice->excuteProcess($newtablename , $form, $id); 
         }
+    }
+
+    private function getKnownshopcode() {
+        $maxid = DB::table('stocks')->max('id');
+        if (!$maxid) { return ''; } 
+        $row = DB::table('stocks')->where('id', $maxid)->first();
+        $businessunit_id = $row->businessunit_id;
+        $businessunitcode = $row->code;
+        $company_id = DB::table('businessunits')->where('id', $businessunit_id)->company_id;
+        $companycode = DB::table('companies')->where('id', $company_id)->code;
+        if ($companycode == '0001') { $companycode = '0000'; }
+        $knownshopcode = strval(intval($companycode)*100000 + intval($businessunitcode));
+        return $knownshopcode;
     }
 }

@@ -4,6 +4,7 @@ namespace App\Services\Table;
 
 use App\Services\Database\ExcuteCsvprocessService;
 use App\Services\Database\GetForeginSelectsService;
+use App\Services\Database\GetOptionSelectsService;
 use App\Services\SessionService;
 use App\Services\Table\GetFormforSearchService;
 
@@ -31,7 +32,7 @@ class GetMenuParamsService {
         $searcherrors = null;
         // idによる参照用セレクト
         $foreignselects = null;
-        // optによつ参照用セレクト
+        // optによる参照用セレクト
         $optionselects = null;
         if ($tablename) {
             $columnsprop = $sessionservice->getSession('columnsprop', $tablename);
@@ -41,6 +42,8 @@ class GetMenuParamsService {
             $searcherrors  =$this->validateSerch($tablename, $columnsprop, $searchinput);
             $getforeginselectsservice = new GetForeginSelectsService;
             $foreignselects = $getforeginselectsservice->getForeginSelects($columnsprop);    
+            $getoptionselectsservice = new GetOptionSelectsService;
+            $optionselects = $getoptionselectsservice->getOptionSelects($columnsprop);    
         }
         $params = [
             'devicename'        => $devicename,
@@ -50,6 +53,7 @@ class GetMenuParamsService {
             'searchinput'       => $searchinput,
             'searcherrors'      => $searcherrors,
             'foreignselects'    => $foreignselects,
+            'optionselects'     => $optionselects,
         ];
         return $params;
     }
@@ -76,7 +80,7 @@ class GetMenuParamsService {
         $searchinput =[];
         $rawparams = $request->all();
         foreach($rawparams as $rawname => $value) {
-            if (substr($rawname,0,7) == 'search_') {
+            if (substr($rawname, 0, 7) == 'search_') {
                 $searchinput[substr($rawname,7)] = $value;
             }
         }

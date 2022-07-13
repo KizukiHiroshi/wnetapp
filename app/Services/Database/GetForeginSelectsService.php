@@ -54,6 +54,9 @@ class GetForeginSelectsService
         $sessionservice = new SessionService;
         $modelindex = $sessionservice->getSession('modelindex');
         $modelname = $modelindex[$tablename]['modelname'];
+        if ($modelname::count() > 50) {
+            return $idreferenceselects;
+        }
         $tablequery = $modelname::query();
         // from句
         $tablequery = $tablequery->from($tablename);

@@ -33,7 +33,10 @@
             </td>
             </tr>
             @foreach ($cardcolumnsprop as $columnname => $prop)
-            @if ($columnname !== 'id' && substr($columnname,-3) !== '_id' && substr($columnname,-7) !== '_id_2nd')
+            @if ($columnname !== 'id' 
+                && substr($columnname,-3) !== '_id' 
+                && substr($columnname,-7) !== '_id_2nd' 
+                && substr($columnname,-4) !== '_opt')
             <?php
             $realcolumnname = substr($columnname, -10) == '_reference' ? substr($columnname,0,-10) : $columnname;
             $searchvalue = array_key_exists($realcolumnname, $searchinput) ? $searchinput[$realcolumnname] : '';
@@ -43,12 +46,22 @@
             <tr>           
                 <th>{{ $prop['comment'] }}</th>
                 <td>
-                @if (substr($columnname, -10) == '_reference')
+                @if (substr($columnname, -13) == '_id_reference')
                 <?php $foreignid = substr($columnname, 0, -10); ?>
                 <?php $selectname = str_replace('_2nd','', $columnname); ?>
                     @include('layouts/components/select', [
                         'name'      => 'search_'.$foreignid,
                         'selects'   => $foreignselects[$selectname],
+                        'selected'  => $searchvalue,
+                        'withnoselect' => 'before',
+                        'required'  => 'false'
+                        ])
+                @elseif (substr($columnname, -14) == '_opt_reference')
+                <?php $optionid = substr($columnname, 0, -10); ?>
+                <?php $selectname = $columnname; ?>
+                    @include('layouts/components/select', [
+                        'name'      => 'search_'.$optionid,
+                        'selects'   => $optionselects[$selectname],
                         'selected'  => $searchvalue,
                         'withnoselect' => 'before',
                         'required'  => 'false'
