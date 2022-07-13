@@ -65,8 +65,8 @@ class TransStock implements ShouldQueue
             ->where('削除ＦＬＧ', '1')
             ->whereRaw("created_at > CONVERT(DATETIME, '".$latest_created."') or updated_at > CONVERT(DATETIME, '".$latest_updated."')")
             // 初期設定用：登録済みのコード取得
-            ->whereRaw("convert(char, 店コード)+ＪＡＮコード > '".$knownshopandcode."'")
-            ->orderByRaw("convert(char, 店コード)+ＪＡＮコード")
+            ->whereRaw("convert(float,rtrim(convert(char, 店コード))+'.'+ＪＡＮコード) > convert(float,'".$knownshopandcode."')")
+            ->orderByRaw("店コード, ＪＡＮコード")
             ->limit(1000)
             ->get();
         return $transrows;
@@ -134,7 +134,7 @@ class TransStock implements ShouldQueue
         if ($companycode == '0001') { $companycode = '0000'; }
         $shopcode = strval(intval($companycode)*100000 + intval($businessunitcode));
         $code = DB::table('productitems')->where('id', $productitem_id)->first()->code;
-        $knownshopandcode = $shopcode.$code;
+        $knownshopandcode = $shopcode.'.'.$code;
         return $knownshopandcode;
     }
 }

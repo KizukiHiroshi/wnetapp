@@ -42,15 +42,15 @@ class TransProductItem implements ShouldQueue
         $newtablename = 'productitems';
         while (true) {
             $transrows = $this->getTransRows($systemname, $oldtablename);
-            //  レコードが無ければexit
+            //  $newtablenameを更新する
             $this->updateNewTable($transrows, $newtablename);
             // 管理済履歴を更新する
             $transwnetservice = new TranswnetService;
             $transwnetservice->updateTablereplacement($systemname, $oldtablename);
+            //  レコードが無ければexit
             if ($transrows->count() == 0) { break; }
-            //  $newtablenameを更新する
-         }
-   }
+        }
+    }
 
     private function getTransRows($systemname, $oldtablename) {
         // 転記の終わっている日付を取得する
@@ -113,6 +113,7 @@ class TransProductItem implements ShouldQueue
             $form['url'] = '';
             $form['image'] = '';
             $form['remark'] = '';
+            $form['end_on'] = '2020/12/31';
             $form['created_at'] = $transrow->本登録日;
             $form['created_by'] = trim($transrow->本登録者ＩＤ);
             $form['updated_at'] = $transrow->最終メンテ日;
