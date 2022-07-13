@@ -38,13 +38,13 @@ class TransStock implements ShouldQueue
         $systemname = 'TransStock';
         $oldtablename = '１０：店舗在庫管理';
         $newtablename = 'stocks';
-        while (true) {
+        // while (true) {
             $transrows = $this->getTransRows($systemname, $oldtablename);
             //  レコードが無ければexit
             if ($transrows->count() == 0) { break; }
             //  $newtablenameを更新する
             $this->updateNewTable($transrows, $newtablename);
-        }
+        // }
         // 管理済履歴を更新する
         $transwnetservice = new TranswnetService;
         $transwnetservice->updateTablereplacement($systemname, $oldtablename);
@@ -63,7 +63,7 @@ class TransStock implements ShouldQueue
         $transrows= DB::connection('sqlsrv')
             ->table('wise_login.'.$oldtablename)
             ->where('削除ＦＬＧ', '1')
-            ->whereRaw("created_at > CONVERT(DATETIME, '".$latest_created."') or updated_at > CONVERT(DATETIME, '".$latest_updated."')")
+            // ->whereRaw("created_at > CONVERT(DATETIME, '".$latest_created."') or updated_at > CONVERT(DATETIME, '".$latest_updated."')")
             // 初期設定用：登録済みのコード取得
             ->whereRaw("convert(float,rtrim(convert(char, 店コード))+'.'+ＪＡＮコード) > convert(float,'".$knownshopandcode."')")
             ->orderByRaw("店コード, ＪＡＮコード")
