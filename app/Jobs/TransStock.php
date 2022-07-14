@@ -100,17 +100,17 @@ class TransStock implements ShouldQueue
             $foreginkey = 'stockshells?businessunit_id='.$form['businessunit_id'].'&&code='.urlencode(mb_convert_kana(trim($transrow->棚番号), "as"));
             $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
             $form['stockshell_id'] = $iddictionary[$foreginkey];
-            $form['stockshellno'] = $transrow->棚内順;
+            $form['stockshellno'] = $transrow->棚内順 == NULL ? 0 : $transrow->棚内順;
             $form['stockshell_id_2nd'] = $form['stockshell_id'];
             $form['stockshellno2'] = $form['stockshellno'];
-            $form['currentstock'] = $transrow->現在庫;
+            $form['currentstock'] = $transrow->現在庫 == NULL ? 0 : $transrow->現在庫;
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
             $foreginkey = 'option_choices?variablename_systrem='.urlencode(strval('stockstatus_opt')).'&&no='.urlencode('2');
             $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
             $form['stockstatus_opt'] = $iddictionary[$foreginkey];
             $form['is_autoreorder'] = $transrow->自動発注 == 1 ? 1 : 0;
             $form['reorderpoint'] = $transrow->発注点 == NULL ? 0 : $transrow->発注点;
-            $form['maxstock'] = $transrow->上限在庫 == NULL ? 0 : $transrow->発注点;
+            $form['maxstock'] = $transrow->上限在庫 == NULL ? 0 : $transrow->上限在庫;
             $form['stockupdeted_on'] = '2000/01/01 00:00:00';
             $form['remark'] = '';
             $form['updated_at'] = $transrow->updated_at;
