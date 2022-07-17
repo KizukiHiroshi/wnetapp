@@ -41,8 +41,7 @@ class TransStockRyutu implements ShouldQueue
         while (true) {
             $transrows = $this->getTransRows($systemname, $oldtablename);
             //  レコードが無ければexit
-            // if ($transrows->count() == 0) { break; }
-            if ($transrows->count() == 0) { return; }
+            if ($transrows->count() == 0) { break; }
             //  $newtablenameを更新する
             $this->updateNewTable($transrows, $newtablename);
             // 管理済履歴を更新する
@@ -64,9 +63,9 @@ class TransStockRyutu implements ShouldQueue
         $transrows= DB::connection('sqlsrv')
             ->table('wise_login.'.$oldtablename)
             ->where('削除ＦＬＧ', '1')
-            ->whereRaw("created_at > CONVERT(DATETIME, '".$latest_created."') or updated_at > CONVERT(DATETIME, '".$latest_updated."')")
+            // ->whereRaw("created_at > CONVERT(DATETIME, '".$latest_created."') or updated_at > CONVERT(DATETIME, '".$latest_updated."')")
             // 初期設定用：登録済みのコード取得
-            // ->whereRaw("convert(float,rtrim(convert(char, 店コード))+'.'+ＪＡＮコード) > convert(float,'".$knownshopandcode."')")
+            ->whereRaw("convert(float,rtrim(convert(char, 店コード))+'.'+ＪＡＮコード) > convert(float,'".$knownshopandcode."')")
             ->orderByRaw("店コード, ＪＡＮコード")
             ->limit(1000)
             ->get();
@@ -81,8 +80,8 @@ class TransStockRyutu implements ShouldQueue
         $excuteprocessservice = new ExcuteProcessService;
         foreach ($transrows as $transrow) {
             $form = [];
-            $shopcode = $transrow->店コード;
-            $separatedshopcode = $transwnetservice->separateRawShopcode($shopcode);
+            $shopcode = $transrow->在庫主体コード;
+            $separatedshopcode = $transwnetservice->separateRawShopcode($shopcode.'99999');
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
             $foreginkey = 'companies?code='.urlencode($separatedshopcode['companycode']);
             $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
@@ -104,7 +103,7 @@ class TransStockRyutu implements ShouldQueue
             $form['stockshell_id_2nd'] = $form['stockshell_id'];
             $form['stockshellno2'] = $form['stockshellno'];
             $form['currentstock'] = $transrow->現在庫 == NULL ? 0 : $transrow->現在庫;
-            // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+            // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値) ※2=通常品
             $foreginkey = 'option_choices?variablename_systrem='.urlencode(strval('stockstatus_opt')).'&&no='.urlencode('2');
             $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
             $form['stockstatus_opt'] = $iddictionary[$foreginkey];
@@ -113,7 +112,7 @@ class TransStockRyutu implements ShouldQueue
             $form['maxstock'] = $transrow->上限在庫 == NULL ? 0 : $transrow->上限在庫;
             $form['stockupdeted_on'] = '2000/01/01 00:00:00';
             $form['remark'] = '';
-            $form['updated_at'] = $transrow->updated_at;
+            $form['updated_at'] = $transrow->updated_at == NULL ?  time() : $transrow->updated_at;
             $form['updated_by'] = 'transrow';
             $form += $transwnetservice->addCreatedToForm($transrow->created_at);
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
