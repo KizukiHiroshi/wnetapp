@@ -15,7 +15,7 @@ class GetRowByIdService {
         $searchinput  = null;
         $displaymode = 'card';
         $queryservice = new QueryService;
-        $tablequery = $queryservice->getTableQuery($request, $modelindex, $columnsprop, $searchinput, $displaymode, $tempsort = null);
+        $tablequery = $queryservice->getTableQuery($request, $displaymode, $tempsort = null);
         // where句
         $tablename = $request->tablename;
         $tablequery = $tablequery->where($tablename.'.id', '=', $id);

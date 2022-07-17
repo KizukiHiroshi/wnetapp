@@ -18,6 +18,7 @@ class SessionOptimizeService {
         if ($lasttablename !== $tablename) {
             $sessionservice->putSession('tablename', $tablename);
             $sessionservice->forgetSession('columnsprop');
+            $sessionservice->forgetSession('cardcolumnsprop');
             $sessionservice->forgetSession('searchinput');
             $sessionservice->forgetSession('lastsort');
             $sessionservice->forgetSession('page');

@@ -64,7 +64,7 @@ class ListCase {
                 $searchinput = is_null($searchinput) ? [] : $searchinput;
             }
             $gettablerowsservice = new GetTableRowsService;
-            $rows = $gettablerowsservice->getTableRows($request, $columnsprop, $searchinput, $paginatecnt, $tempsort);
+            $rows = $gettablerowsservice->getTableRows($request, $tempsort);
             // 今回ソートの先頭部分を「行表示から戻ってきた時」のためにSessionに保存する
             $lastsort = ($tempsort ? array_key_first($tempsort).'--'.array_values($tempsort)[0] : '');
             $this->sessionservice->putSession('lastsort', $lastsort);

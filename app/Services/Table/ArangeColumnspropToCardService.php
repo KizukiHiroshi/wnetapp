@@ -1,8 +1,4 @@
 <?php
-
-// ServiceではIlluminate\Http\Requestにアクセスしない
-// Modelから取得したデータを整理する
-
 declare(strict_types=1);
 namespace App\Services\Table;
 

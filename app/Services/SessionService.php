@@ -9,18 +9,19 @@ class SessionService
     
     // Session使用が許された変数
     private $wnetsessions = [
-        'modelindex'    => ['service' => 'Model\GetModelIndexService', 'function' => 'getModelIndex'],
-        'columnsprop'   => ['service' => 'Table\GetColumnsPropService', 'function' => 'getColumnsProp'],
-        'paginatecnt'   => ['service' => 'Device\GetDevicePagenateCntService', 'function' => 'getDevicePagenateCnt'],
-        'tablename'     => ['service' => '', 'redirect' => ''],
-        'lastsort'      => ['service' => '', 'redirect' => ''],
-        'page'          => ['service' => '', 'redirect' => ''],
-        'tempsql'       => ['service' => '', 'redirect' => ''],
-        'iddictionary'  => ['service' => '', 'redirect' => ''],
-        'searchinput'   => ['service' => '', 'redirect' => ''],
-        'screen_height' => ['service' => '', 'redirect' => ''],
-        'accountvalue'  => ['service' => '', 'redirect' => ''],
-        'devicename'    => ['service' => '', 'redirect' => ''],
+        'modelindex'        => ['service' => 'Model\GetModelIndexService', 'function' => 'getModelIndex'],
+        'columnsprop'       => ['service' => 'Table\GetColumnsPropService', 'function' => 'getColumnsProp'],
+        'cardcolumnsprop'   => ['service' => 'Table\ArangeColumnspropToCardService', 'function' => 'arangeColumnspropToCard'],
+        'paginatecnt'       => ['service' => 'Device\GetDevicePagenateCntService', 'function' => 'getDevicePagenateCnt'],
+        'tablename'         => ['service' => '', 'redirect' => ''],
+        'lastsort'          => ['service' => '', 'redirect' => ''],
+        'page'              => ['service' => '', 'redirect' => ''],
+        'tempsql'           => ['service' => '', 'redirect' => ''],
+        'iddictionary'      => ['service' => '', 'redirect' => ''],
+        'searchinput'       => ['service' => '', 'redirect' => ''],
+        'screen_height'     => ['service' => '', 'redirect' => ''],
+        'accountvalue'      => ['service' => '', 'redirect' => ''],
+        'devicename'        => ['service' => '', 'redirect' => ''],
     ];
 
     // 外部からのSession呼び出しに答える

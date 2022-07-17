@@ -92,6 +92,9 @@ class TransStockshell implements ShouldQueue
             $form['code'] = $form['code'] == '' ? '0' : $form['code'];
             $form['name'] = '-';
             $form['remark'] = '';
+            if ($form['code'] == '0') {
+                $form['deleted_at'] = $transrow->updated_at;
+            }
             $form['updated_at'] = $transrow->updated_at;
             $form['updated_by'] = 'transrow';
             $form += $transwnetservice->addCreatedToForm($transrow->created_at);

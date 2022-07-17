@@ -6,7 +6,7 @@ use App\Services\Database\ExcuteCsvprocessService;
 use App\Services\Database\GetForeginSelectsService;
 use App\Services\Database\GetOptionSelectsService;
 use App\Services\SessionService;
-use App\Services\Table\GetFormforSearchService;
+use App\Services\Table\AddSearchSelectsService;
 
 class GetMenuParamsService {
 
@@ -36,14 +36,23 @@ class GetMenuParamsService {
         $optionselects = null;
         if ($tablename) {
             $columnsprop = $sessionservice->getSession('columnsprop', $tablename);
-            $arangecolumnsproptocardservice = new ArangeColumnspropToCardService;
-            $cardcolumnsprop = $arangecolumnsproptocardservice->arangeColumnspropToCard($columnsprop);
-            $searchinput = $this->setSerachinput($request);
-            $searcherrors  =$this->validateSerch($tablename, $columnsprop, $searchinput);
+            $cardcolumnsprop = $sessionservice->getSession('cardcolumnsprop', $columnsprop);
+            if ($this->has_Serachinput($request)) { // 検索メニューからのリクエスト
+                $searchinput = $this->setSerachinput($request);
+                $searcherrors  =$this->validateSerch($tablename, $columnsprop, $searchinput);
+            } else {    // リスト表示からのリクエスト
+                $searchinput = $sessionservice->getSession('searchinput');
+            }
+            $searchinput = $searchinput == NULL ? [] : $searchinput;
             $getforeginselectsservice = new GetForeginSelectsService;
-            $foreignselects = $getforeginselectsservice->getForeginSelects($columnsprop);    
+            $foreignselects = $getforeginselectsservice->getForeginSelects($columnsprop, $searchinput);
+            // 参照セレクトが100行以上の時にNULLで返ってくるので、検索セレクトに変更する
+            $addsearchselectsservice = new AddSearchSelectsService;
+            $cardcolumnsprop = $addsearchselectsservice
+                ->AddSearchSelects($cardcolumnsprop, $foreignselects, $columnsprop);
             $getoptionselectsservice = new GetOptionSelectsService;
-            $optionselects = $getoptionselectsservice->getOptionSelects($columnsprop);    
+            $optionselects = $getoptionselectsservice->getOptionSelects($columnsprop);
+            $sessionservice->putSession('cardcolumnsprop', $cardcolumnsprop);
         }
         $params = [
             'devicename'        => $devicename,
@@ -61,7 +70,7 @@ class GetMenuParamsService {
     /* getModelselect:モデル選択用のmodelzone,tablecommentのグループセレクト配列
     tablename => [         // テーブルの物理名
         'group'     => modelzone        // テーブルの属するゾーン
-        'value'     => tablecomment,    // テーブル和名        
+        'value'     => tablecomment,    // テーブル和名
     ] 
     */
     private function getModelselect($modelindex) {
@@ -89,6 +98,19 @@ class GetMenuParamsService {
             $sessionservice->putSession('searchinput', $searchinput);
         }
         return $searchinput;
+    }
+
+    // $request中にtable_searchの情報を抽出してSessionに保存する
+    private function has_Serachinput($request) {
+        $has_serachinput = false;
+        $rawparams = $request->all();
+        foreach($rawparams as $rawname => $value) {
+            if (substr($rawname, 0, 7) == 'search_') {
+                $has_serachinput = true;
+                break;
+            }
+        }
+        return $has_serachinput;
     }
 
     // 検索条件のValidation

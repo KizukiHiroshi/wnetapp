@@ -12,7 +12,7 @@ class GetForeginSelectsService
     }
 
     // card表示用にforeignkey用のセレクトリストを用意する
-    public function getForeginSelects($columnsprop) {
+    public function getForeginSelects($columnsprop, $searchinput) {
         $foreignselects = [];
         $concats = [];           // 合体する参照先カラムの配列
         // 必要なセレクトをまず決める
@@ -39,7 +39,10 @@ class GetForeginSelectsService
                     }
                 }
             }
-            $foreignselectrows = $this->getIdReferenceSelects($forerignreferencename, $referencetablename, $concats);
+            // searchinputに該当条件があれば、where句として追加する
+            $getwhereservice = new GetWhereService;
+            $where = $getwhereservice->getWhere($searchinput, $columnsprop);    
+            $foreignselectrows = $this->getIdReferenceSelects($forerignreferencename, $referencetablename, $concats, $where);
             $foreignselects[$forerignreferencename] = $foreignselectrows;
             // 参照内容を初期化
             $concats = [];
@@ -48,18 +51,20 @@ class GetForeginSelectsService
     }
 
     // 参照用selects作成
-    private function getIdReferenceSelects($referencename, $tablename, $concats) {
+    private function getIdReferenceSelects($referencename, $tablename, $concats, $where) {
         $idreferenceselects =[];
         // queryのfrom,join,select句を取得する
         $sessionservice = new SessionService;
         $modelindex = $sessionservice->getSession('modelindex');
         $modelname = $modelindex[$tablename]['modelname'];
-        if ($modelname::count() > 50) {
+        if ($modelname::count() > 100) {
             return $idreferenceselects;
         }
         $tablequery = $modelname::query();
         // from句
         $tablequery = $tablequery->from($tablename);
+        $setwhereclausetoqueryservice = new SetWhereclauseToQueryService;
+        $tablequery = $$setwhereclausetoqueryservice->setWhereclauseToQuery($tablequery, $where);
         $queryservice = new QueryService;
         $concatclause = $queryservice->getConcatClause($concats, ' ', $referencename);
         $tablequery = $tablequery->select('id', DB::raw($concatclause));
