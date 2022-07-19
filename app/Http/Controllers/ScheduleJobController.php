@@ -13,8 +13,8 @@ class ScheduleJobController extends Controller
 {
     public function index(Request $request) {
         $job = new TransStockshell();
-        $job = new TransStockshellRyutu();
-        $job = new TransStockRyutu();
+        // $job = new TransStockshellRyutu();
+        // $job = new TransStockRyutu();
         $job->handle();
     }
 }
