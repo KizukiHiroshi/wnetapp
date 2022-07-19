@@ -5,6 +5,8 @@ namespace App\Services\Database;
 use Illuminate\Support\Facades\DB;
 use App\Services\SessionService;
 use App\Services\Database\QueryService;
+use App\Services\Database\GetWhereService;
+use App\Services\Database\SetWhereclauseToQueryService;
 
 class GetForeginSelectsService 
 {
@@ -12,7 +14,7 @@ class GetForeginSelectsService
     }
 
     // card表示用にforeignkey用のセレクトリストを用意する
-    public function getForeginSelects($columnsprop, $searchinput) {
+    public function getForeginSelects($columnsprop, $searchinput = NULL) {
         $foreignselects = [];
         $concats = [];           // 合体する参照先カラムの配列
         // 必要なセレクトをまず決める

@@ -62,12 +62,13 @@ class TransStockRyutu implements ShouldQueue
         // 転記の条件を考慮しながら旧テーブルから情報取得する
         $transrows= DB::connection('sqlsrv')
             ->table('wise_login.'.$oldtablename)
-            ->where('削除ＦＬＧ', '1')
-            // ->whereRaw("created_at > CONVERT(DATETIME, '".$latest_created."') or updated_at > CONVERT(DATETIME, '".$latest_updated."')")
+            ->where('無効ＦＬＧ', '0')
+            ->whereRaw("created_at > CONVERT(DATETIME, '".$latest_created."') or updated_at > CONVERT(DATETIME, '".$latest_updated."')")
             // 初期設定用：登録済みのコード取得
-            ->whereRaw("convert(float,rtrim(convert(char, 店コード))+'.'+ＪＡＮコード) > convert(float,'".$knownshopandcode."')")
-            ->orderByRaw("店コード, ＪＡＮコード")
-            ->limit(1000)
+            // ->whereRaw("convert(float,rtrim(convert(char, 在庫主体コード))+'.'+ＪＡＮコード) > convert(float,'".$knownshopandcode."')")
+            // ->whereRaw("convert(float,rtrim(convert(char, 在庫主体コード))+'.'+ＪＡＮコード) > convert(float,'5700.4005401159995')")
+            ->orderByRaw("在庫主体コード, ＪＡＮコード")
+            // ->limit(1000)
             ->get();
         return $transrows;
     }
@@ -107,10 +108,10 @@ class TransStockRyutu implements ShouldQueue
             $foreginkey = 'option_choices?variablename_systrem='.urlencode(strval('stockstatus_opt')).'&&no='.urlencode('2');
             $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
             $form['stockstatus_opt'] = $iddictionary[$foreginkey];
-            $form['is_autoreorder'] = $transrow->自動発注 == 1 ? 1 : 0;
+            $form['is_autoreorder'] = $transrow->発注条件 == 1 ? 1 : 0;
             $form['reorderpoint'] = $transrow->発注点 == NULL ? 0 : $transrow->発注点;
             $form['maxstock'] = $transrow->上限在庫 == NULL ? 0 : $transrow->上限在庫;
-            $form['stockupdeted_on'] = '2000/01/01 00:00:00';
+            $form['stockupdeted_on'] = $transrow->在庫数更新日 == NULL ? '2000/01/01 00:00:00' : $transrow->在庫数更新日;;
             $form['remark'] = '';
             $form['updated_at'] = $transrow->updated_at == NULL ?  time() : $transrow->updated_at;
             $form['updated_by'] = 'transrow';
