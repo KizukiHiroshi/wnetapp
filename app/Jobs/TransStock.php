@@ -41,12 +41,15 @@ class TransStock implements ShouldQueue
         while (true) {
             $transrows = $this->getTransRows($systemname, $oldtablename);
             //  レコードが無ければexit
-            if ($transrows->count() == 0) { break; }
+            //  レコードが無ければexit
+            if ($transrows->count() == 0) {
+                // 管理済履歴を更新する
+                $transwnetservice = new TranswnetService;
+                $transwnetservice->updateTablereplacement($systemname, $oldtablename);
+                break;
+            }
             //  $newtablenameを更新する
             $this->updateNewTable($transrows, $newtablename);
-            // 管理済履歴を更新する
-            $transwnetservice = new TranswnetService;
-            $transwnetservice->updateTablereplacement($systemname, $oldtablename);
         }
    }
 
