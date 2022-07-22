@@ -80,6 +80,7 @@ class TranswnetService {
         $id = $findvalueservice->findValue($findvalueset, 'id');
         $form['latest_created'] = $maxcreatedat;
         $form['latest_updated'] = $maxupdatedat;
+        $form['updated_at'] = time();
         $form['updated_by'] = 'transwnet';
         $excuteprocessservice = new ExcuteProcessService;
         $ret_id = $excuteprocessservice->excuteProcess('tablereplacements', $form, $id);

@@ -240,8 +240,9 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
         /*
-         * wNet aliases ...
+         * wNet aliases ...ｐ
          */
+        'Sequence' => App\Facades\Sequence::class, // 20220722 杵築追加
 
     ],
 

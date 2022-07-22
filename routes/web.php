@@ -8,8 +8,10 @@ use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\MailController;
 use App\Http\Controllers\JobMenuController;
 use App\Http\Controllers\TableController;
-use App\Http\Controllers\ScheduleJobController;
+
 use App\Http\Controllers\ApitestController;
+use App\Http\Controllers\ScheduleJobController;
+use App\Http\Controllers\SequenceController;
 
 use Illuminate\Support\Facades\Log;
 /*
@@ -34,6 +36,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/apitest', [ApitestController::class, 'index']);
     Route::get('/schedulejob', [ScheduleJobController::class, 'index']);
+    Route::get('/sequence', [SequenceController::class, 'index']);
 
     Route::get('/device', [DeviceController::class, 'index']);
     Route::post('/device/regist', [DeviceController::class, 'regist']);
