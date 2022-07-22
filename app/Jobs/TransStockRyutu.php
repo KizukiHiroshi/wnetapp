@@ -35,7 +35,7 @@ class TransStockRyutu implements ShouldQueue
     {
         // 旧テーブルの登録履歴をチェックする
         // 管理済の日付を取得する
-        $systemname = 'TransStock';
+        $systemname = 'TransStockRyutu';
         $oldtablename = '２２：流通在庫管理';
         $newtablename = 'stocks';
         while (true) {
