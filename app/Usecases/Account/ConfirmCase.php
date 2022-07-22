@@ -18,7 +18,7 @@ class ConfirmCase
         $userid = Auth::id();
         $tablename = 'members';
         // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
-        $findvalueset = $tablename.'?user_id='.urlencode(strval($userid));
+        $findvalueset = $tablename.'?user_id='.$userid;
         $findvalueservice = new FindValueService;
         $memberid = $findvalueservice->findValue($findvalueset, 'id');
         return $memberid;

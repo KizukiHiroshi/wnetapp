@@ -4,7 +4,7 @@ namespace App\Models\Common;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Validation\Rule;
+use App\Rules\Jancode;
 use App\ValidateTrait;
 
 use App\Models\Common\Product;
@@ -43,7 +43,7 @@ class Productitem extends Model
         return [
             'product_id' => ['required','integer','numeric',],
             'code' => ['required','string','max:13','regex:/\d{13}/'],
-            'jancode' => ['nullable','string','max:13','regex:/\d{13}/'],
+            'jancode' => ['nullable','string', new Jancode],
             'prdcode' => ['nullable','string','max:20',],
             'name' => ['required','string','max:60',],
             'name_kana' => ['nullable','string','max:60',],
