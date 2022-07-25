@@ -34,30 +34,30 @@ class TransCompanyVendor implements ShouldQueue
     {
         // 旧テーブルの登録履歴をチェックする
         // 管理済の日付を取得する
-        $systemname = 'TransCompanyVendor';
+        $variablename_system = 'TransCompanyVendor';
         $oldtablename = '１２：仕入先Ｍ';
         $newtablename = 'vendor_in_companies';
         // 未管理の旧レコードを得る
-        $untreatedrows = $this->getUntreatedRows($systemname, $oldtablename);
+        $untreatedrows = $this->getUntreatedRows($variablename_system, $oldtablename);
         // 新テーブルに反映する
         $this->updateNewTable($untreatedrows, $newtablename);
         // 管理済履歴を更新する
         $transwnetservice = new TranswnetService;
-        $transwnetservice->updateTablereplacement($systemname, $oldtablename);
+        $transwnetservice->updateTablereplacement($variablename_system, $oldtablename);
     }
 
-    private function getUntreatedRows($systemname, $oldtablename) {
+    private function getUntreatedRows($variablename_system, $oldtablename) {
         // 転記の終わっている日付を取得する
         $transwnetservice = new TranswnetService;
-        $latest_created = $transwnetservice->getLatest('created', $systemname);
-        $latest_updated = $transwnetservice->getLatest('updated', $systemname);
+        $latest_created = $transwnetservice->getLatest('created', $variablename_system);
+        $latest_updated = $transwnetservice->getLatest('updated', $variablename_system);
         // 転記の条件を考慮しながら旧テーブルから情報取得する
         $vendorcompanies = DB::connection('sqlsrv')
-            ->table('wise_login.'.$oldtablename)
+            ->table('wise_login.１３：店舗発注明細')
             ->select('仕入先コード as code')->groupBy('仕入先コード');
         $untreatedrows= DB::connection('sqlsrv')
             ->table('wise_login.'.$oldtablename.' as rawcompany')
-            ->leftJoinSub($vendorcompanies, 'vendor', 'rawcompany.仕入先コード', 'vendor.code')
+            ->JoinSub($vendorcompanies, 'vendor', 'rawcompany.仕入先コード', 'vendor.code')
             ->where(function($query) use($latest_created, $latest_updated) {
                 $query->where('created_at', '>', $latest_created)
                 ->orWhere('updated_at', '>', $latest_updated);
@@ -68,9 +68,6 @@ class TransCompanyVendor implements ShouldQueue
 
     private function updateNewTable($untreatedrows, $newtablename) {
         foreach ($untreatedrows as $untreatedrow) {
-            if (intval($untreatedrow->発注曜日) == 0) {
-                continue;
-            }
             // 個別の転記実体
             $code = substr('0000'.$untreatedrow->仕入先コード, -4);
             if ($code == '0000') { $code = '0001'; }
@@ -92,23 +89,23 @@ class TransCompanyVendor implements ShouldQueue
             $form['arrivaldayofweek'] = trim($untreatedrow->入荷曜日);
             $form['freeshippingquantity'] = trim($untreatedrow->無料入荷数量);
             $form['freeshippingamount'] = trim($untreatedrow->無料入荷下代);
-            $findvalueset = 'option_choices?systemname=price_rounding_opt&no=2';
+            $findvalueset = 'option_choices?variablename_system=price_rounding_opt&&no=2';
             $price_rounding_opt_id = $findvalueservice->findValue($findvalueset, 'id');
             $form['price_rounding_opt'] = $price_rounding_opt_id;
             $form['is_cansenddirect'] = trim($untreatedrow->直送可);
             $form['shippinggremarks'] = trim($untreatedrow->出荷条件);
             $closingdate = trim($untreatedrow->締日);
             if ($closingdate == '0') { $closingdate = '31'; }
-            $findvalueset = 'option_choices?systemname=closingdate_opt&no='.$closingdate;
+            $findvalueset = 'option_choices?variablename_system=closingdate_opt&&valuename_system='.$closingdate;
             $closingdate_opt_id = $findvalueservice->findValue($findvalueset, 'id');
             $form['closingdate_opt'] = $closingdate_opt_id;
-            $findvalueset = 'option_choices?systemname=tax_rounding_opt&no=1';
+            $findvalueset = 'option_choices?variablename_system=tax_rounding_opt&&no=1';
             $tax_rounding_opt_id = $findvalueservice->findValue($findvalueset, 'id');
             $form['tax_rounding_opt'] = $tax_rounding_opt_id;
-            $findvalueset = 'option_choices?systemname=shiftoftax_opt&no=2';
+            $findvalueset = 'option_choices?variablename_system=shiftoftax_opt&&no=2';
             $shiftoftax_opt_id = $findvalueservice->findValue($findvalueset, 'id');
             $form['shiftoftax_opt'] = $shiftoftax_opt_id;
-            $findvalueset = 'option_choices?systemname=paymentmethod_opt&no=1';
+            $findvalueset = 'option_choices?variablename_system=paymentmethod_opt&&no=1';
             $paymentmethod_opt_id = $findvalueservice->findValue($findvalueset, 'id');
             $form['paymentmethod_opt'] = $paymentmethod_opt_id;
             // accountspayable
@@ -118,7 +115,7 @@ class TransCompanyVendor implements ShouldQueue
             // bankbranchname
             // bankbranchname_kana
             // bankdeposittype_opt
-            $findvalueset = 'option_choices?systemname=bankdeposittype_opt&no=1';
+            $findvalueset = 'option_choices?variablename_system=bankdeposittype_opt&&no=1';
             $bankdeposittype_opt_id = $findvalueservice->findValue($findvalueset, 'id');
             $form['bankdeposittype_opt'] = $bankdeposittype_opt_id;
             // bankaccountnumber
@@ -126,7 +123,7 @@ class TransCompanyVendor implements ShouldQueue
             // bankaccountname_kana
             $form['is_vendorpaysfee'] = '1';
             $form['orderpriority'] = trim($untreatedrow->発注優先順位);;
-            $findvalueset = 'option_choices?systemname=ordermethod_opt&no='.trim($untreatedrow->発注方法);
+            $findvalueset = 'option_choices?variablename_system=ordermethod_opt&&no='.trim($untreatedrow->発注方法);
             $ordermethod_opt_id = $findvalueservice->findValue($findvalueset, 'id');
             $form['ordermethod_opt'] = $ordermethod_opt_id;
             // remarks

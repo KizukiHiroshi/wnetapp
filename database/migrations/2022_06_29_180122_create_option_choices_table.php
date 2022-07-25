@@ -17,10 +17,10 @@ class CreateOptionchoicesTable extends Migration
         Schema::create('option_choices', function (Blueprint $table){
             $table->id()->comment('id');
             $table->string('variablename')->comment('変数名', 30);
-            $table->string('variablename_systrem')->comment('システム変数名', 30);
+            $table->string('variablename_system')->comment('システム変数名', 30);
             $table->integer('no')->comment('No');
             $table->string('valuename')->comment('値名', 30);
-            $table->string('valuename_systrem')->comment('システム値名', 30);
+            $table->string('valuename_system')->comment('システム値名', 30);
             $table->string('remarks')->comment('備考', 255)->nullable();
             $table->date('start_on')->comment('開始日')->default('2000/01/01')->nullable();
             $table->date('end_on')->comment('終了日')->default('2049/12/31')->nullable();
@@ -29,7 +29,7 @@ class CreateOptionchoicesTable extends Migration
             $table->string('created_by')->comment('作成者', 12);
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'))->comment('更新日時');
             $table->string('updated_by')->comment('更新者', 12);
-            $table->unique(['variablename_systrem','valuename_systrem',]);
+            $table->unique(['variablename_system','valuename_system',]);
         });
         DB::statement("alter table wnetdb_test.option_choices comment 'オプション選択肢';");
     }

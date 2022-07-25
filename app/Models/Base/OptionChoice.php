@@ -27,7 +27,7 @@ class OptionChoice extends Model
         'variablename', 
     ];
     static $uniquekeys = [
-       ['variablename_systrem', 'valuename_systrem', ]
+       ['variablename_system', 'valuename_system', ]
     ];
 
     // input has_many clause here
@@ -36,12 +36,12 @@ class OptionChoice extends Model
     {
         return [
             'variablename' => ['required','string','max:30',],
-            'variablename_systrem' => ['required','string','max:30',],
+            'variablename_system' => ['required','string','max:30',],
             'no' => ['required','integer','numeric',],
             'valuename' => ['required','string','max:30',],
-            'valuename_systrem' => ['required','string','max:30',
+            'valuename_system' => ['required','string','max:30',
                 Rule::unique('option_choices')->ignore($this->id)->where(function($query){
-                    $query->where('variablename_systrem', $this->variablename_systrem);
+                    $query->where('variablename_system', $this->variablename_system);
                 }),],
             'remarks' => ['nullable','string','max:255',],
             'start_on' => ['nullable','date',],

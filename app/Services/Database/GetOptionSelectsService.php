@@ -24,7 +24,7 @@ class GetOptionSelectsService
     // 参照用selects作成
     private function getOptReferenceSelects($columnname) {
         $modelname = 'App\Models\Base\OptionChoice';
-        $rows = $modelname::where('variablename_systrem', $columnname)
+        $rows = $modelname::where('variablename_system', $columnname)
             ->orderBy('no')
             ->get();
         foreach ($rows AS $row) {

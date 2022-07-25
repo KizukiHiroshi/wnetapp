@@ -109,7 +109,7 @@ class TransStock implements ShouldQueue
             $form['stockshellno2'] = $form['stockshellno'];
             $form['currentstock'] = $transrow->現在庫 == NULL ? 0 : $transrow->現在庫;
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値) ※2=通常品
-            $foreginkey = 'option_choices?variablename_systrem='.urlencode(strval('stockstatus_opt')).'&&no='.urlencode('2');
+            $foreginkey = 'option_choices?variablename_system='.urlencode(strval('stockstatus_opt')).'&&no='.urlencode('2');
             $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
             $form['stockstatus_opt'] = $iddictionary[$foreginkey];
             $form['is_autoreorder'] = $transrow->自動発注 == 1 ? 1 : 0;

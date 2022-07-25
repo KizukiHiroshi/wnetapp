@@ -100,11 +100,11 @@ class TransProductItem implements ShouldQueue
             $form['color'] = '';
             $form['size'] = '';
             $form['is_janprinted'] = ($transrow->ＪＡＮ区分 == 1 ? 1 : 0);
-            $foreginkey = 'option_choices?variablename_systrem='.urlencode(strval('pricelabel_opt')).'&&no='.urlencode(strval($transrow->値札区分));
+            $foreginkey = 'option_choices?variablename_system='.urlencode(strval('pricelabel_opt')).'&&no='.urlencode(strval($transrow->値札区分));
             $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
             $form['pricelabel_opt'] = $iddictionary[$foreginkey];
             $form['unit'] = $transrow->ケース入り数;
-            $foreginkey = 'option_choices?variablename_systrem='.urlencode(strval('unitname_opt')).'&&valuename='.urlencode(strval(trim($transrow->単位名称)));
+            $foreginkey = 'option_choices?variablename_system='.urlencode(strval('unitname_opt')).'&&valuename='.urlencode(strval(trim($transrow->単位名称)));
             $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
             $form['unitname_opt'] = $iddictionary[$foreginkey];
             $form['regularprice'] = $transrow->販売単価1;
