@@ -52,8 +52,12 @@ class TransCompanyVendor implements ShouldQueue
         $latest_created = $transwnetservice->getLatest('created', $systemname);
         $latest_updated = $transwnetservice->getLatest('updated', $systemname);
         // 転記の条件を考慮しながら旧テーブルから情報取得する
-        $untreatedrows= DB::connection('sqlsrv')
+        $vendorcompanies = DB::connection('sqlsrv')
             ->table('wise_login.'.$oldtablename)
+            ->select('仕入先コード as code')->groupBy('仕入先コード');
+        $untreatedrows= DB::connection('sqlsrv')
+            ->table('wise_login.'.$oldtablename.' as rawcompany')
+            ->leftJoinSub($vendorcompanies, 'vendor', 'rawcompany.仕入先コード', 'vendor.code')
             ->where(function($query) use($latest_created, $latest_updated) {
                 $query->where('created_at', '>', $latest_created)
                 ->orWhere('updated_at', '>', $latest_updated);
@@ -69,6 +73,7 @@ class TransCompanyVendor implements ShouldQueue
             }
             // 個別の転記実体
             $code = substr('0000'.$untreatedrow->仕入先コード, -4);
+            if ($code == '0000') { $code = '0001'; }
             $findvalueservice = new FindValueService;
             // 参照idを確定するためのユニークキーをセットする
             $findvalueset = 'companies?code='.urlencode($code);
@@ -76,19 +81,55 @@ class TransCompanyVendor implements ShouldQueue
             $form = [];
             $form['company_id'] = $company_id;
             // 値をそのまま
+            $form['department'] = '';
+            $form['position'] = '';
             $form['pic'] = trim($untreatedrow->先方担当者名);
             $form['telno'] = trim($untreatedrow->電話番号);
             $form['faxno'] = trim($untreatedrow->FAX番号);
             $form['emails'] = trim($untreatedrow->MailAdd);
             $form['orderdayofweek'] = trim($untreatedrow->発注曜日);
+            $form['ordertimeonday'] = null;           
             $form['arrivaldayofweek'] = trim($untreatedrow->入荷曜日);
             $form['freeshippingquantity'] = trim($untreatedrow->無料入荷数量);
             $form['freeshippingamount'] = trim($untreatedrow->無料入荷下代);
-            $form['price_rounding_opt'] = trim($untreatedrow->下代端数処理);
+            $findvalueset = 'option_choices?systemname=price_rounding_opt&no=2';
+            $price_rounding_opt_id = $findvalueservice->findValue($findvalueset, 'id');
+            $form['price_rounding_opt'] = $price_rounding_opt_id;
             $form['is_cansenddirect'] = trim($untreatedrow->直送可);
             $form['shippinggremarks'] = trim($untreatedrow->出荷条件);
-            $form['closingdate_opt'] = trim($untreatedrow->締日);
-            $form['tax_rounding_opt'] = trim($untreatedrow->消費税処理);
+            $closingdate = trim($untreatedrow->締日);
+            if ($closingdate == '0') { $closingdate = '31'; }
+            $findvalueset = 'option_choices?systemname=closingdate_opt&no='.$closingdate;
+            $closingdate_opt_id = $findvalueservice->findValue($findvalueset, 'id');
+            $form['closingdate_opt'] = $closingdate_opt_id;
+            $findvalueset = 'option_choices?systemname=tax_rounding_opt&no=1';
+            $tax_rounding_opt_id = $findvalueservice->findValue($findvalueset, 'id');
+            $form['tax_rounding_opt'] = $tax_rounding_opt_id;
+            $findvalueset = 'option_choices?systemname=shiftoftax_opt&no=2';
+            $shiftoftax_opt_id = $findvalueservice->findValue($findvalueset, 'id');
+            $form['shiftoftax_opt'] = $shiftoftax_opt_id;
+            $findvalueset = 'option_choices?systemname=paymentmethod_opt&no=1';
+            $paymentmethod_opt_id = $findvalueservice->findValue($findvalueset, 'id');
+            $form['paymentmethod_opt'] = $paymentmethod_opt_id;
+            // accountspayable
+            // bankname
+            // bankname_kana
+            // bankbranchno
+            // bankbranchname
+            // bankbranchname_kana
+            // bankdeposittype_opt
+            $findvalueset = 'option_choices?systemname=bankdeposittype_opt&no=1';
+            $bankdeposittype_opt_id = $findvalueservice->findValue($findvalueset, 'id');
+            $form['bankdeposittype_opt'] = $bankdeposittype_opt_id;
+            // bankaccountnumber
+            // bankaccountname
+            // bankaccountname_kana
+            $form['is_vendorpaysfee'] = '1';
+            $form['orderpriority'] = trim($untreatedrow->発注優先順位);;
+            $findvalueset = 'option_choices?systemname=ordermethod_opt&no='.trim($untreatedrow->発注方法);
+            $ordermethod_opt_id = $findvalueservice->findValue($findvalueset, 'id');
+            $form['ordermethod_opt'] = $ordermethod_opt_id;
+            // remarks
             // 定型部分
             $form['updated_at'] = $untreatedrow->updated_at;
             $form['updated_by'] = 'transwnet';

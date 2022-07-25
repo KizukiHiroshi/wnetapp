@@ -66,7 +66,7 @@ class GetForeginSelectsService
         // from句
         $tablequery = $tablequery->from($tablename);
         $setwhereclausetoqueryservice = new SetWhereclauseToQueryService;
-        $tablequery = $$setwhereclausetoqueryservice->setWhereclauseToQuery($tablequery, $where);
+        $tablequery = $setwhereclausetoqueryservice->setWhereclauseToQuery($tablequery, $where);
         $queryservice = new QueryService;
         $concatclause = $queryservice->getConcatClause($concats, ' ', $referencename);
         $tablequery = $tablequery->select('id', DB::raw($concatclause));
