@@ -36,6 +36,8 @@ class CreateBuyerincompaniesTable extends Migration
             $table->bigInteger('shiftoftax_opt')->comment('税転嫁')->nullable();
             $table->bigInteger('paymentmethod_opt')->comment('入金方法')->nullable();
             $table->integer('accountsreceivablebalance')->comment('売掛残高')->nullable();
+            $table->integer('creditlimit')->comment('与信限度額')->nullable();
+            $table->foreignId('company_id_2nd')->comment('請求先企業');
             $table->string('bankname')->comment('振込元銀行名', 20)->nullable();
             $table->string('bankname_kana')->comment('銀行名フリガナ', 20)->nullable();
             $table->string('bankbranchno')->comment('取引支店番号', 5)->nullable();
@@ -48,6 +50,10 @@ class CreateBuyerincompaniesTable extends Migration
             $table->boolean('is_buyerpaysfee')->comment('手数料先方負担')->default(1)->nullable();
             $table->integer('getorderpriority')->comment('受注優先順位')->default(9999)->nullable();
             $table->bigInteger('getordermethod_opt')->comment('受注方法')->nullable();
+            $table->boolean('need_specifiedslip')->comment('指定伝票出荷')->default(0)->nullable();
+            $table->boolean('need_shipbyorder')->comment('発注伝票毎出荷')->default(0)->nullable();
+            $table->boolean('is_unshipedcancel')->comment('未出荷分取消')->default(0)->nullable();
+            $table->integer('maxshipingdays')->comment('最大出荷日数')->default(0)->nullable();
             $table->string('remarks')->comment('備考', 200)->nullable();
             $table->date('start_on')->comment('開始日')->default('2000/01/01')->nullable();
             $table->date('end_on')->comment('終了日')->default('2049/12/31')->nullable();
