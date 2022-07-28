@@ -23,6 +23,7 @@ class Businessunit extends Model
         'code' => 'asc',
     ];
     static $referencedcolumns = [
+        'company_id', 
         'code', 
         'name', 
     ];
@@ -40,6 +41,12 @@ class Businessunit extends Model
     }
     public function stocks(){
         return $this->hasMany(Stock::class);
+    }
+    public function getorder_units(){
+        return $this->hasMany(GetorderUnit::class);
+    }
+    public function order_units(){
+        return $this->hasMany(OrderUnit::class);
     }
 
     protected function rules()

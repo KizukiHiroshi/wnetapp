@@ -8,20 +8,21 @@ class SessionService
     }
     
     // Session使用が許された変数
+    // 初期値があればredirectに
     private $wnetsessions = [
         'modelindex'        => ['service' => 'Model\GetModelIndexService', 'function' => 'getModelIndex'],
         'columnsprop'       => ['service' => 'Table\GetColumnsPropService', 'function' => 'getColumnsProp'],
         'cardcolumnsprop'   => ['service' => 'Table\ArangeColumnspropToCardService', 'function' => 'arangeColumnspropToCard'],
         'paginatecnt'       => ['service' => 'Device\GetDevicePagenateCntService', 'function' => 'getDevicePagenateCnt'],
-        'tablename'         => ['service' => '', 'redirect' => ''],
-        'lastsort'          => ['service' => '', 'redirect' => ''],
-        'page'              => ['service' => '', 'redirect' => ''],
-        'tempsql'           => ['service' => '', 'redirect' => ''],
-        'iddictionary'      => ['service' => '', 'redirect' => ''],
-        'searchinput'       => ['service' => '', 'redirect' => ''],
-        'screen_height'     => ['service' => '', 'redirect' => ''],
-        'accountvalue'      => ['service' => '', 'redirect' => ''],
-        'devicename'        => ['service' => '', 'redirect' => ''],
+        'tablename'         => ['is_array' => false, 'service' => '', 'redirect' => ''],
+        'page'              => ['is_array' => false, 'service' => '', 'redirect' => ''],
+        'tempsql'           => ['is_array' => false, 'service' => '', 'redirect' => ''],
+        'screen_height'     => ['is_array' => false, 'service' => '', 'redirect' => ''],
+        'devicename'        => ['is_array' => false, 'service' => '', 'redirect' => ''],
+        'lastsort'          => ['is_array' => false, 'service' => '', 'redirect' => ''],
+        'iddictionary'      => ['is_array' => true, 'service' => '', 'redirect' => ''],
+        'searchinput'       => ['is_array' => true, 'service' => '', 'redirect' => ''],
+        'accountvalue'      => ['is_array' => true, 'service' => '', 'redirect' => ''],
     ];
 
     // 外部からのSession呼び出しに答える
@@ -52,6 +53,8 @@ class SessionService
             $sessionvalue = $tempservice->$func(...$params);
         } elseif ($value['redirect'] !== '') {
             redirect($value['redirect']);
+        } elseif ($value['is_array'] == true) {
+            $sessionvalue = [];
         }
         return $sessionvalue;
     }

@@ -11,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use App\Services\Database\ExcuteProcessService;
 use App\Services\Database\FindValueService;
-use App\Services\Database\AddIddictionarService;
+use App\Services\Database\AddIddictionaryService;
 use App\Services\Transwnet\TranswnetService;
 use App\Services\Api\GetFuriganaService;
 
@@ -73,7 +73,7 @@ class TransProduct implements ShouldQueue
     private function updateNewTable($transrows, $newtablename) {
         $iddictionary = [];   // テーブル参照idリスト
         $findvalueservice = new FindValueService;
-        $addiddictionarservice = new AddIddictionarService;
+        $addiddictionaryservice = new AddIddictionaryService;
         $getfuriganaservice = new GetFuriganaService;
         $excuteprocessservice = new ExcuteProcessService;
         foreach ($transrows as $transrow) {
@@ -82,7 +82,7 @@ class TransProduct implements ShouldQueue
             $rawproduct = mb_convert_kana(trim($transrow->商品名), "as");
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
             $foreginkey = 'brands?name='.urlencode($brand);
-            $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
+            $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
             $form['brand_id'] = $iddictionary[$foreginkey];
             $form['name'] = $rawproduct;
             $form['name_kana'] = $getfuriganaservice->GetFurigana($rawproduct);
@@ -90,8 +90,8 @@ class TransProduct implements ShouldQueue
             $form['image'] = '';
             $form['updated_at'] = $transrow->updated_at;
             $form['updated_by'] = 'transwnet';
-            $findvalueset = $newtablename.'?brand_id='.urlencode(strval($form['brand_id'])).'&&name='.urlencode($form['name']);
-            $id = $findvalueservice->findValue($findvalueset, 'id');
+            $foreginkey = $newtablename.'?brand_id='.urlencode(strval($form['brand_id'])).'&&name='.urlencode($form['name']);
+            $id = $findvalueservice->findValue($foreginkey, 'id');
             if (is_string($id)) {
                 continue;
             } elseif ($id == 0) {

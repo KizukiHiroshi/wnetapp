@@ -20,12 +20,6 @@ class OpimizeRawformWithIddictionaryService {
                 $form[$key] = $value == '' ? null : $value;
             }
         }
-        foreach ($foreginkeys as $foreginkey) {
-            $foregintablename = Str::singular(Str::before($foreginkey,'?')).'_id';
-            if (in_array($foregintablename, $columnnames)) {
-                $form[$foregintablename] = $iddictionary[$foreginkey];
-            }
-        }
         return $form;
     }
 }

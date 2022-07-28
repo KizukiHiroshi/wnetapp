@@ -27,26 +27,26 @@ class TranswnetService {
         $findvalueservice = new FindValueService;
         $rawcompany = intval(intval($shopcode) / 100000);
         $companycode = substr('0000'.strval($rawcompany),-4);
-        // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
-        $findvalueset = 'companies?code='.urlencode($companycode);
-        $company_id = strval($findvalueservice->findValue($findvalueset, 'id'));
+        // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+        $foreginkey = 'companies?code='.urlencode($companycode);
+        $company_id = strval($findvalueservice->findValue($foreginkey, 'id'));
         $businessunitcode = substr('00000'.$shopcode, -5);
-        // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
-        $findvalueset = 'businessunits?company_id='.urlencode($company_id).'&&code='.urlencode($businessunitcode);
-        return $findvalueset;
+        // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+        $foreginkey = 'businessunits?company_id='.urlencode($company_id).'&&code='.urlencode($businessunitcode);
+        return $foreginkey;
     }
 
     public function getBusinessunitIdByRawShopcode($shopcode) {
         $findvalueservice = new FindValueService;
         $rawcompany = intval(intval($shopcode) / 100000);
         $companycode = substr('0000'.strval($rawcompany),-4);
-        // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
-        $findvalueset = 'companies?code='.urlencode($companycode);
-        $company_id = strval($findvalueservice->findValue($findvalueset, 'id'));
+        // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+        $foreginkey = 'companies?code='.urlencode($companycode);
+        $company_id = strval($findvalueservice->findValue($foreginkey, 'id'));
         $businessunitcode = substr('00000'.$shopcode, -5);
-        // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
-        $findvalueset = 'businessunits?company_id='.urlencode($company_id).'&&code='.urlencode($businessunitcode);
-        $businessunit_id = $findvalueservice->findValue($findvalueset, 'id');
+        // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+        $foreginkey = 'businessunits?company_id='.urlencode($company_id).'&&code='.urlencode($businessunitcode);
+        $businessunit_id = $findvalueservice->findValue($foreginkey, 'id');
         return $businessunit_id;
     }
 
@@ -74,10 +74,10 @@ class TranswnetService {
     }
 
     private function updateLatest($maxcreatedat, $maxupdatedat, $systemname) {
-        // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
-        $findvalueset = 'tablereplacements?systemname='.urlencode($systemname);
+        // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+        $foreginkey = 'tablereplacements?systemname='.urlencode($systemname);
         $findvalueservice = new FindValueService;
-        $id = $findvalueservice->findValue($findvalueset, 'id');
+        $id = $findvalueservice->findValue($foreginkey, 'id');
         $form['latest_created'] = $maxcreatedat;
         $form['latest_updated'] = $maxupdatedat;
         $form['updated_at'] = time();

@@ -39,6 +39,9 @@ class Company extends Model
     public function buyer_in_companies(){
         return $this->hasMany(BuyerInCompany::class);
     }
+    public function performer_in_companies(){
+        return $this->hasMany(PerformerInCompany::class);
+    }
 
     protected function rules()
     {

@@ -73,8 +73,8 @@ class TransCompanyVendor implements ShouldQueue
             if ($code == '0000') { $code = '0001'; }
             $findvalueservice = new FindValueService;
             // 参照idを確定するためのユニークキーをセットする
-            $findvalueset = 'companies?code='.urlencode($code);
-            $company_id = $findvalueservice->findValue($findvalueset, 'id');
+            $foreginkey = 'companies?code='.urlencode($code);
+            $company_id = $findvalueservice->findValue($foreginkey, 'id');
             $form = [];
             $form['company_id'] = $company_id;
             // 値をそのまま
@@ -89,24 +89,24 @@ class TransCompanyVendor implements ShouldQueue
             $form['arrivaldayofweek'] = trim($untreatedrow->入荷曜日);
             $form['freeshippingquantity'] = trim($untreatedrow->無料入荷数量);
             $form['freeshippingamount'] = trim($untreatedrow->無料入荷下代);
-            $findvalueset = 'option_choices?variablename_system=price_rounding_opt&&no=2';
-            $price_rounding_opt_id = $findvalueservice->findValue($findvalueset, 'id');
+            $foreginkey = 'option_choices?variablename_system=price_rounding_opt&&no=2';
+            $price_rounding_opt_id = $findvalueservice->findValue($foreginkey, 'id');
             $form['price_rounding_opt'] = $price_rounding_opt_id;
             $form['is_cansenddirect'] = trim($untreatedrow->直送可);
             $form['shippinggremarks'] = trim($untreatedrow->出荷条件);
             $closingdate = trim($untreatedrow->締日);
             if ($closingdate == '0') { $closingdate = '31'; }
-            $findvalueset = 'option_choices?variablename_system=closingdate_opt&&valuename_system='.$closingdate;
-            $closingdate_opt_id = $findvalueservice->findValue($findvalueset, 'id');
+            $foreginkey = 'option_choices?variablename_system=closingdate_opt&&valuename_system='.$closingdate;
+            $closingdate_opt_id = $findvalueservice->findValue($foreginkey, 'id');
             $form['closingdate_opt'] = $closingdate_opt_id;
-            $findvalueset = 'option_choices?variablename_system=tax_rounding_opt&&no=1';
-            $tax_rounding_opt_id = $findvalueservice->findValue($findvalueset, 'id');
+            $foreginkey = 'option_choices?variablename_system=tax_rounding_opt&&no=1';
+            $tax_rounding_opt_id = $findvalueservice->findValue($foreginkey, 'id');
             $form['tax_rounding_opt'] = $tax_rounding_opt_id;
-            $findvalueset = 'option_choices?variablename_system=shiftoftax_opt&&no=2';
-            $shiftoftax_opt_id = $findvalueservice->findValue($findvalueset, 'id');
+            $foreginkey = 'option_choices?variablename_system=shiftoftax_opt&&no=2';
+            $shiftoftax_opt_id = $findvalueservice->findValue($foreginkey, 'id');
             $form['shiftoftax_opt'] = $shiftoftax_opt_id;
-            $findvalueset = 'option_choices?variablename_system=paymentmethod_opt&&no=1';
-            $paymentmethod_opt_id = $findvalueservice->findValue($findvalueset, 'id');
+            $foreginkey = 'option_choices?variablename_system=paymentmethod_opt&&no=1';
+            $paymentmethod_opt_id = $findvalueservice->findValue($foreginkey, 'id');
             $form['paymentmethod_opt'] = $paymentmethod_opt_id;
             // accountspayable
             // bankname
@@ -115,24 +115,24 @@ class TransCompanyVendor implements ShouldQueue
             // bankbranchname
             // bankbranchname_kana
             // bankdeposittype_opt
-            $findvalueset = 'option_choices?variablename_system=bankdeposittype_opt&&no=1';
-            $bankdeposittype_opt_id = $findvalueservice->findValue($findvalueset, 'id');
+            $foreginkey = 'option_choices?variablename_system=bankdeposittype_opt&&no=1';
+            $bankdeposittype_opt_id = $findvalueservice->findValue($foreginkey, 'id');
             $form['bankdeposittype_opt'] = $bankdeposittype_opt_id;
             // bankaccountnumber
             // bankaccountname
             // bankaccountname_kana
             $form['is_vendorpaysfee'] = '1';
             $form['orderpriority'] = trim($untreatedrow->発注優先順位);;
-            $findvalueset = 'option_choices?variablename_system=ordermethod_opt&&no='.trim($untreatedrow->発注方法);
-            $ordermethod_opt_id = $findvalueservice->findValue($findvalueset, 'id');
+            $foreginkey = 'option_choices?variablename_system=ordermethod_opt&&no='.trim($untreatedrow->発注方法);
+            $ordermethod_opt_id = $findvalueservice->findValue($foreginkey, 'id');
             $form['ordermethod_opt'] = $ordermethod_opt_id;
             // remarks
             // 定型部分
             $form['updated_at'] = $untreatedrow->updated_at;
             $form['updated_by'] = 'transwnet';
             // 新テーブルのidを確定するためのユニークキーをセットする
-            $findvalueset = $newtablename.'?company_id='.urlencode($form['company_id']);
-            $id = $findvalueservice->findValue($findvalueset, 'id');
+            $foreginkey = $newtablename.'?company_id='.urlencode($form['company_id']);
+            $id = $findvalueservice->findValue($foreginkey, 'id');
             // 新規の場合は'created_'も設定する
             if ($id == 0) {
                 $transwnetservice = new TranswnetService;

@@ -4,8 +4,7 @@ namespace App\Services\Database;
 
 use App\Services\Database\FindValueService;
 
-class AddIddictionarService {
-    // Formに_byを加える
+class AddIddictionaryService {
     public function addIddictionary($iddictionary, $foreginkey) {
         if (array_key_exists($foreginkey, $iddictionary)) {
             // 登録済なら何もしない

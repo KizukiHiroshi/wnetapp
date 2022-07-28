@@ -16,11 +16,11 @@ class GetDevicePagenateCntService
         $devicename = $sessionservice->getSession('devicename');
         $devicepagenatecnt = 18;
         if (isset($devicename) && $devicename <> '') {
-            // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+            // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
             $tablename = 'devices';
-            $findvalueset = $tablename.'?name='.urlencode($devicename);
+            $foreginkey = $tablename.'?name='.urlencode($devicename);
             $findvalueservice = new FindValueService;
-            $devicepagenatecnt = $findvalueservice->findValue($findvalueset, 'pagenatecnt');
+            $devicepagenatecnt = $findvalueservice->findValue($foreginkey, 'pagenatecnt');
         }
         return $devicepagenatecnt;
     }

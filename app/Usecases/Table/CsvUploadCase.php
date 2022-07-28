@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Services\SessionService;
 use App\Services\Database\Get_ByNameService;
 use App\Services\Database\Add_ByNameToFormService;
+use App\Services\Database\AddIddictionaryService;
 use App\Services\Database\ExcuteCsvprocessService;
 use App\Services\Database\FindValueService;
 use App\Services\File\KillMyFileService;
@@ -40,175 +41,6 @@ class CsvUploadCase {
         $params += $this->getUploadParams($request, $upload);
         return $params;
     }
-
-    // upload実行処理
-    public function doUpload_next($request, $csvmode) {
-        $upload['csvmode'] = $csvmode;
-        // ファイル選択を確認する
-        if ($request->file('upload_file') == null) {
-            $upload['danger'] = 'ファイルが選択されていません';
-            return $upload; 
-        }
-        // 保存名を取得する
-        $savefilename = $this->getSaveFilename($request);
-        // アップロードファイルを保存する
-        $request->file('upload_file')->storeAs('public/csv/', $savefilename);
-        $errortips = null;
-        // チェックモードでバリデーションする
-        $csvmode == 'csvcheck';
-        $errortips = $this->excuteCsvFile($request, $savefilename, $csvmode);
-        // エラーがあればエラー内容を戻す
-        if ($errortips !== null) {
-        // $処理
-        }
-        // エラーが無ければテーブルに登録する
-        $csvmode == 'csvsave';
-        // $処理
-        // 表示用の情報を取得する
-        // $処理
-        return $upload;
-    }
-
-    // csvファイルをCheckSaveする
-    private function excuteCsvFile($request, $savefilename, $csvmode) {
-        $errortips = null;
-        $tablename = $request->tablename;
-        setlocale(LC_ALL, 'ja_JP.UTF-8');
-        // アップロードしたファイルの絶対パスを取得
-        $file_path = storage_path().'\\app\\public\\csv\\'.$savefilename;
-        //SplFileObjectを生成
-        $file = new SplFileObject($file_path);
-        //SplFileObject::READ_CSV が最速らしい
-        $file->setFlags(SplFileObject::READ_CSV);
-        $row_count = 1;     // uploadfile用カウンター
-        $csverrors = [];    // errorメッセージ
-        $rawcolumns = [];   // uploadファイルのカラムリスト
-        $iddictionary = $this->sessionservice->getSession('iddictionary');   // テーブル参照idリスト
-        if (empty($iddictionary)) {$iddictionary = [];}
-        $rawform = [];      // uploadされたままの値リスト
-        $form =[];          // 更新用に加工済の値リスト
-        foreach ($file as $row) {
-            // // 最終行の処理(最終行が空っぽの場合の対策
-            // if ($row == [null]) continue; 
-            // if ($row_count == 1) {          // 1行目はテーブル名
-            //     if ($row[0] !== $tablename) {   // $requestと一致しなければ処理を終了する
-            //         $upload['danger'] = 'ファイルの内容が不正です';
-            //         return $upload;
-            //     }
-            // } elseif ($row_count == 2) {    // 2行目はカラム名リスト
-            //     $rawcolumns = $row;
-            // } else {                        // 3行目以後がデータ
-            //     // uplaodされたままの値を$rawformに入れる
-            //     $colcnt = 0;
-            //     foreach ($row AS $columnvalue) {
-            //         // CSVの文字コードがSJISなのでUTF-8に変更
-            //         $rawform[$rawcolumns[$colcnt]] = mb_convert_encoding($columnvalue, 'UTF-8', 'SJIS');
-            //         $colcnt += 1;
-            //     }
-            //     // 行内のテーブル参照情報取得
-            //     $foreginkeys = $this->getForeginkeysForUpload($rawform);
-            //     if ($foreginkeys) {
-            //         // 参照先の実体を確認する
-            //         $foreginid = null;
-            //         foreach ($foreginkeys as $foreginkey) {
-            //             // テーブル参照値から参照テーブルidを取得
-            //             // $iddictionary内にあるか確認
-            //             if (array_key_exists($foreginkey, $iddictionary)) {
-            //                 $foreginid = $iddictionary[$foreginkey];
-            //             } else {
-            //                 // 未登録の参照を$iddictionaryに追加する
-            //                 $findvalueservice = new FindValueService;
-            //                 $foreginid = $findvalueservice->findValue($foreginkey, 'id');
-            //                 $iddictionary[$foreginkey] = $foreginid;
-            //             }
-            //             if (!$foreginid) {
-            //                 if ($is_allowforeigninsert) {
-            //                     if ($csvmode == 'csvcheck') {       // 2.チェックモード
-            //                         $csverrors[] = strval($row_count-2).':△'.$foreginkey.' の登録を試みます';
-            //                     } elseif ($csvmode == 'csvsave') {  // 3.登録実行モード
-            //                         // ★未実装：参照元更新が許可されていれば処理
-            //                         $errortips = $this->foreignkeyInsert($foreginkey);                                        
-            //                         if ($errortips !== null && $errortips !== true) {
-            //                             $csverrors[] = strval($row_count-2).':▼'.$this->errortipsTotext($errortips);
-            //                             $upload += [
-            //                                 'tablename' => $tablename,
-            //                                 'row_count' => $row_count,
-            //                             ];
-            //                             return $upload;                                            
-            //                         }                                      
-            //                     }
-            //                 } else {
-            //                     $csverrors[] = strval($row_count-2).':▼'.$foreginkey.' は未登録の参照です';
-            //                     $can_gosave = false;
-            //                 }
-            //             }
-            //         }
-            //     }           
-            //     // テーブルに登録できる値リストに更新
-            //     $modelindex = $this->sessionservice->getSession('modelindex');
-            //     $opimizerawformwithiddictionaryservice = new OpimizeRawformWithIddictionaryService;
-            //     $form = $opimizerawformwithiddictionaryservice
-            //     ->opimizeRawformWithIddictionary($tablename, $rawform, $foreginkeys, $iddictionary);
-            //     $get_bynameservice = new Get_ByNameService;
-            //     $add_bynametoformservice = new Add_ByNameToFormService;
-            //     // validation
-            //     if ($is_insertonly) {     // 全て新規なので$idはnull
-            //         $id = 0;
-            //     } else {                            // $formの$idを探しに行く
-            //         // $form内のuniqueKeyの値を取得
-            //         $findkey = $this->getFindkeyForUpload($modelindex, $tablename, $form);
-            //         $findvalueservice  = new FindValueService;
-            //         $id = $findvalueservice->findValue($findkey, 'id');
-            //         if ($id == 'many') {
-            //             $csverrors[] = strval($row_count-2).':▼'.$findkey.' は複数の行を変更します';
-            //             $can_gosave = false;
-            //         }
-            //     }
-            //     // '登録者・更新者'の値を入れる
-            //     $mode = $id == 0 ? 'store' : 'update';
-            //     $byname = $get_bynameservice->Get_ByName();
-            //     $form = $add_bynametoformservice->Add_ByNameToForm($byname, $form, $mode, $rawcolumns);
-            //     if ($csvmode == 'csvcheck') {       // 2.チェックモード
-            //         $mode = 'check';
-            //         $form = $add_bynametoformservice->Add_ByNameToForm($byname, $form, $mode, $rawcolumns);
-            //         $errortips = $this->excutecsvprocessservice->excuteCsvprocess($tablename, $form, $id, $mode);
-            //         if ($errortips !== null) {
-            //             $csverrors[] = strval($row_count-2).':▼'.$this->errortipsTotext($errortips);
-            //             $can_gosave = false;
-            //         }
-            //     } elseif ($csvmode == 'csvsave') {  // 3.登録実行モード
-            //         // 登録実行
-            //         $mode = 'save';
-            //         $errortips = $this->excutecsvprocessservice->excuteCsvprocess($tablename, $form, $id, $mode);
-            //         if ($errortips !== null && $errortips !== true) {
-            //             $csverrors[] = strval($row_count-2).':▼'.$this->errortipsTotext($errortips);
-            //             $upload += [
-            //                 'tablename' => $tablename,
-            //                 'row_count' => $row_count,
-            //             ];
-            //             return $upload;                                            
-            //         }
-            //     }
-            // }
-            $row_count++;
-        }
-        return $errortips;
-    }
-
-    // file名を取得する
-    private function getSaveFilename($request) {
-        $tablename = $request->tablename;    
-        $accountvalue = $this->sessionservice->getSession('accountvalue');
-        if (!$accountvalue) {
-            $accountid = 0; 
-        } else {
-            $accountid = array_key_exists('id', $accountvalue) ? $accountvalue['id'] : 0;            
-        }
-        $accountid = $accountid == 0 ? Auth::id() : $accountid;  
-        $savefilename = $tablename.'_upload_'.strval($accountid).'.csv';
-        return $savefilename;
-    }
-
 
     // upload実行処理 ★★ 整理するのに時間がかかりすぎるので、全体が出来てから再着手のこと
         /*
@@ -258,9 +90,10 @@ class CsvUploadCase {
             $csverrors = [];    // errorメッセージ
             $rawcolumns = [];   // uploadファイルのカラムリスト
             $iddictionary = $this->sessionservice->getSession('iddictionary');   // テーブル参照idリスト
-            if (empty($iddictionary)) {$iddictionary = [];}
             $rawform = [];      // uploadされたままの値リスト
-            $form =[];          // 更新用に加工済の値リスト
+            $form = [];         // 更新用に加工済の値リスト
+            $uniquekeys = $this->getUniquekeys($tablename);   // テーブルのuniquekeys
+            $foreinkeycolumns = [];
             foreach ($file as $row) {
                 // 最終行の処理(最終行が空っぽの場合の対策
                 if ($row == [null]) continue; 
@@ -271,58 +104,16 @@ class CsvUploadCase {
                     }
                 } elseif ($row_count == 2) {    // 2行目はカラム名リスト
                     $rawcolumns = $row;
+                    $foreinkeycolumns = $this->getForeinKeyColumns($rawcolumns, $uniquekeys);
                 } else {                        // 3行目以後がデータ
                     // uplaodされたままの値を$rawformに入れる
-                    $colcnt = 0;
-                    foreach ($row AS $columnvalue) {
-                        // CSVの文字コードがSJISなのでUTF-8に変更
-                        $rawform[$rawcolumns[$colcnt]] = mb_convert_encoding($columnvalue, 'UTF-8', 'SJIS');
-                        $colcnt += 1;
-                    }
-                    // 行内のテーブル参照情報取得
-                    $foreginkeys = $this->getForeginkeysForUpload($rawform);
-                    if ($foreginkeys) {
-                        // 参照先の実体を確認する
-                        $foreginid = null;
-                        foreach ($foreginkeys as $foreginkey) {
-                            // テーブル参照値から参照テーブルidを取得
-                            // $iddictionary内にあるか確認
-                            if (array_key_exists($foreginkey, $iddictionary)) {
-                                $foreginid = $iddictionary[$foreginkey];
-                            } else {
-                                // 未登録の参照を$iddictionaryに追加する
-                                $findvalueservice = new FindValueService;
-                                $foreginid = $findvalueservice->findValue($foreginkey, 'id');
-                                $iddictionary[$foreginkey] = $foreginid;
-                            }
-                            if (!$foreginid) {
-                                if ($is_allowforeigninsert) {
-                                    if ($csvmode == 'csvcheck') {       // 2.チェックモード
-                                        $csverrors[] = strval($row_count-2).':△'.$foreginkey.' の登録を試みます';
-                                    } elseif ($csvmode == 'csvsave') {  // 3.登録実行モード
-                                        // ★未実装：参照元更新が許可されていれば処理
-                                        $errortips = $this->foreignkeyInsert($foreginkey);                                        
-                                        if ($errortips !== null && $errortips !== true) {
-                                            $csverrors[] = strval($row_count-2).':▼'.$this->errortipsTotext($errortips);
-                                            $upload += [
-                                                'tablename' => $tablename,
-                                                'row_count' => $row_count,
-                                            ];
-                                            return $upload;                                            
-                                        }                                      
-                                    }
-                                } else {
-                                    $csverrors[] = strval($row_count-2).':▼'.$foreginkey.' は未登録の参照です';
-                                    $can_gosave = false;
-                                }
-                            }
-                        }
-                    }           
+                    $rawform = $this->convertToUtf($rawcolumns, $row);
+                    // updateに必要な参照idを得る
+                    $rawform = $this->addForeignId($rawform, $foreinkeycolumns, $iddictionary);
                     // テーブルに登録できる値リストに更新
-                    $modelindex = $this->sessionservice->getSession('modelindex');
                     $opimizerawformwithiddictionaryservice = new OpimizeRawformWithIddictionaryService;
                     $form = $opimizerawformwithiddictionaryservice
-                    ->opimizeRawformWithIddictionary($tablename, $rawform, $foreginkeys, $iddictionary);
+                    ->opimizeRawformWithIddictionary($tablename, $rawform, $foreinkeycolumns, $iddictionary);
                     $get_bynameservice = new Get_ByNameService;
                     $add_bynametoformservice = new Add_ByNameToFormService;
                     // validation
@@ -330,6 +121,7 @@ class CsvUploadCase {
                         $id = 0;
                     } else {                            // $formの$idを探しに行く
                         // $form内のuniqueKeyの値を取得
+                        $modelindex = $this->sessionservice->getSession('modelindex');
                         $findkey = $this->getFindkeyForUpload($modelindex, $tablename, $form);
                         $findvalueservice  = new FindValueService;
                         $id = $findvalueservice->findValue($findkey, 'id');
@@ -393,45 +185,121 @@ class CsvUploadCase {
         return $upload;
     }
 
-    // $foreginkeys = [参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値),]
-    private function getForeginkeysForUpload($rawform) {
-        $foreginkeys =[];
-        $findidset = $this->getForeginFindidsetForUpload($rawform);
-        $modelindex = $this->sessionservice->getSession('modelindex');
-        foreach ($findidset as $foregintablename => $colandvalue) {
-            $foreginkey = $this->getFindkeyForUpload($modelindex, $foregintablename, $colandvalue);
-            $foreginkeys[] = $foreginkey;
+    private function convertToUtf($rawcolumns, $row) {
+        $colcnt = 0;
+        foreach ($row AS $columnvalue) {
+            // CSVの文字コードがSJISなのでUTF-8に変更
+            $rawform[$rawcolumns[$colcnt]] = mb_convert_encoding($columnvalue, 'UTF-8', 'SJIS');
+            $colcnt += 1;
         }
-        return $foreginkeys;
+        return $rawform;
+    }    
+ 
+    private function getUniquekeys($tablename) {
+        $modelindex = $this->sessionservice->getSession('modelindex');
+        $uniquekeys = $modelindex[$tablename]['modelname']::$uniquekeys;
+        return $uniquekeys;
     }
 
-    // $findidset = [参照テーブル名 => [参照カラム名 => urlencode(値), 参照カラム名 => urlencode(値),],]
-    private function getForeginFindidsetForUpload($rawform) {
-        $findidset = [];
-        foreach ($rawform as $columnname => $value) {
-            if (strripos($columnname, '_id_') && substr($columnname, -7) !== '_id_2nd' && $value !== '') {
-                // 一番後ろのテーブル名とカラム名
-                $foregintablename = substr($columnname, 0, strripos($columnname, '_id_'));
-                $foregincolname = substr($columnname, strripos($columnname, '_id_') + 4);
-                if (strripos($foregintablename, '_id_')) {
-                    $foregintablename = substr($foregintablename, strripos($foregintablename, '_id_') + 4);
+    private function getForeinKeyColumns($rawcolumns, $uniquekeys) {
+        $foreinkeycolumns = [];
+        foreach ($uniquekeys as $uniquekey) {
+            foreach ($uniquekey as $uniquekeycolumn) {
+                foreach ($rawcolumns as $rawcolumn) {
+                    // 参照値の$columunameならば
+                    if (strripos($rawcolumn, $uniquekeycolumn) !== false 
+                        && strripos($rawcolumn, '_id_') 
+                        && substr($rawcolumn, -7) !== '_id_2nd') {
+                        // 一番後ろのテーブル名とカラム名
+                        $foregintablename = $this->getForeginTablenameFromColumnname($rawcolumn);
+                        $foregincolname = $this-> getForeginColnameFromColumnname($rawcolumn);
+                        $foreignuniquekeys = $this->getUniquekeys($foregintablename);
+                        foreach ($foreignuniquekeys as $foreginuniquekey) {
+                            if (in_array($foregincolname, $foreginuniquekey)) {
+                                $foreinkeycolumns[$rawcolumn] = [$foregintablename => $foregincolname];
+                            }                               
+                        }            
+                    }
                 }
-                if (substr($foregintablename, 0, 4) == '2nd_') {
-                    $foregintablename = substr($foregintablename, 4);
-                }
-                if (substr($foregincolname, 0, 4) == '2nd_') {
-                    $foregincolname = substr($foregincolname, 4);
-                }
-                $foregintablename = Str::plural($foregintablename);
-                if (array_key_exists($foregintablename, $findidset)) {
-                    $findidset[$foregintablename] = 
-                        array_merge($findidset[$foregintablename],[ $foregincolname => urlencode($value) ]);
-                } else {
-                    $findidset[$foregintablename] = [ $foregincolname => urlencode($value) ];
-                }        
             }
         }
-        return $findidset;
+        return $foreinkeycolumns;
+    }
+
+    private function addForeignId($rawform, $foreignkeycolumns) {
+        // 参照Tableとuniquekey、&種類
+        $iddictionary = $this->sessionservice->getSession('iddictionary');
+        $foreigntablenames = [];
+        foreach ($foreignkeycolumns as $foreinkeycolumn => $param) {
+            $uniquekeys = [];
+            if (!in_array(key($param), $foreigntablenames)) {
+                $foreigntablename = key($param);
+                $foreignuniquekeys = $this->getUniquekeys($foreigntablename);
+                if (count($foreignuniquekeys) == 1) {
+                    $andseparater = '&&';
+                    $uniquekeys = $foreignuniquekeys[0];
+                } else {
+                    $andseparater = '&';
+                    foreach ($foreignuniquekeys as $foreignuniquekey) {
+                        $uniquekeys[] = $foreignuniquekey;
+                    }
+                }
+                $foreigntablenames[$foreigntablename] = [
+                    'andseparater'  => $andseparater,
+                    'uniquekeys'    => $uniquekeys,
+                    'findvalue'     => false,
+                ];
+            }
+        }
+        // 他のidが見つからないと、見つけられないidがある場合のために繰り返す
+        for ($i = 1; $i <= count($foreignkeycolumns); $i++) {
+            foreach ($foreigntablenames as $foreigntablename => $serchparams) {
+                if ($serchparams['findvalue'] == true) { continue;}
+                // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+                $foreginkey = $foreigntablename.'?';
+                foreach ($serchparams['uniquekeys'] as $uniquekey) {
+                    $foundvalue = null;
+                    foreach ($foreignkeycolumns as $foreignkeycolumn => $columnparam) {
+                        if (key($columnparam) == $foreigntablename && current($columnparam) == $uniquekey) {
+                            $foundvalue = $rawform[$foreignkeycolumn];
+                            $serchparams['findvalue'] = true;
+                        }
+                    }
+                    if (!$foundvalue && substr($uniquekey, -3) == '_id' && key_exists($uniquekey, $rawform)) {
+                        $foundvalue = $rawform[$uniquekey];
+                        $serchparams['findvalue'] = true;
+                    }
+                    $foreginkey .= $uniquekey.'='.$foundvalue.$andseparater;                   
+                }
+                if ($serchparams['findvalue'] == true) {
+                    $foreginkey = substr($foreginkey, 0, -strlen($andseparater));
+                    $addiddictionaryservice = new AddIddictionaryService;
+                    $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
+                    $rawform[Str::singular($foreigntablename).'_id'] = $iddictionary[$foreginkey];
+                }
+            }
+        }
+        return $rawform;
+    }
+
+    private function getForeginTablenameFromColumnname($columnname) {
+        $foregintablename = substr($columnname, 0, strripos($columnname, '_id_'));
+        if (strripos($foregintablename, '_id_')) {
+            $foregintablename = substr($foregintablename, strripos($foregintablename, '_id_') + 4);
+        }
+        if (substr($foregintablename, 0, 4) == '2nd_') {
+            $foregintablename = substr($foregintablename, 4);
+        }
+        $foregintablename = Str::plural($foregintablename);
+        return $foregintablename ;
+    }
+    
+    private function getForeginColnameFromColumnname($columnname) {
+        $foregincolname = substr($columnname, strripos($columnname, '_id_') + 4);
+        if (substr($foregincolname, 0, 4) == '2nd_') {
+            $foregincolname = substr($foregincolname, 4);
+        }
+        return $foregincolname ;
     }
      
 

@@ -11,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use App\Services\Database\ExcuteProcessService;
 use App\Services\Database\FindValueService;
-use App\Services\Database\AddIddictionarService;
+use App\Services\Database\AddIddictionaryService;
 use App\Services\Transwnet\TranswnetService;
 
 class TransStockshell implements ShouldQueue
@@ -72,7 +72,7 @@ class TransStockshell implements ShouldQueue
 
     private function updateNewTable($transrows, $newtablename) {
         $iddictionary = [];   // テーブル参照idリスト
-        $addiddictionarservice = new AddIddictionarService;
+        $addiddictionaryservice = new AddIddictionaryService;
         $findvalueservice = new FindValueService;
         $transwnetservice = new TranswnetService;
         $excuteprocessservice = new ExcuteProcessService;
@@ -82,11 +82,11 @@ class TransStockshell implements ShouldQueue
             $separatedshopcode = $transwnetservice->separateRawShopcode($shopcode);
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
             $foreginkey = 'companies?code='.urlencode($separatedshopcode['companycode']);
-            $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
+            $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
             $company_id = $iddictionary[$foreginkey];
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
             $foreginkey = 'businessunit?company_id='.$company_id.'&&code='.urlencode($separatedshopcode['businessunitcode']);
-            $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
+            $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
             $form['businessunit_id'] = $iddictionary[$foreginkey];
             $form['code'] = mb_convert_kana(trim($transrow->棚番号), "as");
             $form['code'] = $form['code'] == '' ? '0' : $form['code'];
@@ -98,8 +98,8 @@ class TransStockshell implements ShouldQueue
             $form['updated_at'] = $transrow->updated_at;
             $form['updated_by'] = 'tranwnet';
             $form += $transwnetservice->addCreatedToForm($transrow->created_at);
-            $findvalueset = $newtablename.'?businessunit_id='.$form['businessunit_id'].'&&code='.urlencode($form['code']);
-            $id = $findvalueservice->findValue($findvalueset, 'id');
+            $foreginkey = $newtablename.'?businessunit_id='.$form['businessunit_id'].'&&code='.urlencode($form['code']);
+            $id = $findvalueservice->findValue($foreginkey, 'id');
             $ret_id = $excuteprocessservice->excuteProcess($newtablename , $form, $id); 
         }
     }

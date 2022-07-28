@@ -59,9 +59,9 @@ class TransBrand implements ShouldQueue
             $form['image'] = '';
             $form['updated_at'] = $untreatedrow->updated_at;
             $form['updated_by'] = 'transwnet';
-            $findvalueset = $newtablename.'?name='.urlencode($form['name']);
+            $foreginkey = $newtablename.'?name='.urlencode($form['name']);
             $findvalueservice = new FindValueService;
-            $id = $findvalueservice->findValue($findvalueset, 'id');
+            $id = $findvalueservice->findValue($foreginkey, 'id');
             if ($id == 0) {
                 $transwnetservice = new TranswnetService;
                 $form += $transwnetservice->addCreatedToForm($untreatedrow->created_at);

@@ -59,20 +59,21 @@ class GetForeginSelectsService
         $sessionservice = new SessionService;
         $modelindex = $sessionservice->getSession('modelindex');
         $modelname = $modelindex[$tablename]['modelname'];
-        if ($modelname::count() > 100) {
-            return $idreferenceselects;
-        }
         $tablequery = $modelname::query();
         // from句
         $tablequery = $tablequery->from($tablename);
         $setwhereclausetoqueryservice = new SetWhereclauseToQueryService;
-        $tablequery = $setwhereclausetoqueryservice->setWhereclauseToQuery($tablequery, $where);
+        $tablequery = $setwhereclausetoqueryservice->setWhereclauseToQuery($tablename, $tablequery, $where);
         $queryservice = new QueryService;
         $concatclause = $queryservice->getConcatClause($concats, ' ', $referencename);
         $tablequery = $tablequery->select('id', DB::raw($concatclause));
         $rows = $tablequery->get();
-        foreach ($rows AS $row) {
-            $idreferenceselects[$row->id] = $row->$referencename;
+        if (count($rows) > 200) {
+            $idreferenceselects[0] = '200行以上は非表示';
+        } else {
+            foreach ($rows AS $row) {
+                $idreferenceselects[$row->id] = $row->$referencename;
+            }
         }
         return $idreferenceselects;
     }

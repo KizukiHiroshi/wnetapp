@@ -11,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use App\Services\Database\ExcuteProcessService;
 use App\Services\Database\FindValueService;
-use App\Services\Database\AddIddictionarService;
+use App\Services\Database\AddIddictionaryService;
 use App\Services\Transwnet\TranswnetService;
 
 class TransStockRyutu implements ShouldQueue
@@ -77,7 +77,7 @@ class TransStockRyutu implements ShouldQueue
 
     private function updateNewTable($transrows, $newtablename) {
         $iddictionary = [];   // テーブル参照idリスト
-        $addiddictionarservice = new AddIddictionarService;
+        $addiddictionaryservice = new AddIddictionaryService;
         $findvalueservice = new FindValueService;
         $transwnetservice = new TranswnetService;
         $excuteprocessservice = new ExcuteProcessService;
@@ -87,20 +87,20 @@ class TransStockRyutu implements ShouldQueue
             $separatedshopcode = $transwnetservice->separateRawShopcode($shopcode.'99999');
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
             $foreginkey = 'companies?code='.urlencode($separatedshopcode['companycode']);
-            $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
+            $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
             $company_id = $iddictionary[$foreginkey];
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
             $foreginkey = 'businessunit?company_id='.$company_id.'&&code='.urlencode($separatedshopcode['businessunitcode']);
-            $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
+            $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
             $form['businessunit_id'] = $iddictionary[$foreginkey];
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
             $foreginkey = 'productitems?code='.trim($transrow->ＪＡＮコード);
-            $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
+            $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
             $form['productitem_id'] = $iddictionary[$foreginkey];
             if ($form['productitem_id'] == NULL) { continue; }
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
             $foreginkey = 'stockshells?businessunit_id='.$form['businessunit_id'].'&&code='.urlencode(mb_convert_kana(trim($transrow->棚番号), "as"));
-            $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
+            $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
             $form['stockshell_id'] = $iddictionary[$foreginkey];
             $form['stockshellno'] = $transrow->棚内順 == NULL ? 0 : $transrow->棚内順;
             $form['stockshell_id_2nd'] = $form['stockshell_id'];
@@ -108,7 +108,7 @@ class TransStockRyutu implements ShouldQueue
             $form['currentstock'] = $transrow->現在庫 == NULL ? 0 : $transrow->現在庫;
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値) ※2=通常品
             $foreginkey = 'option_choices?variablename_system='.urlencode(strval('stockstatus_opt')).'&&no='.urlencode('2');
-            $iddictionary = $addiddictionarservice->addIddictionary($iddictionary, $foreginkey);
+            $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
             $form['stockstatus_opt'] = $iddictionary[$foreginkey];
             $form['is_autoreorder'] = $transrow->発注条件 == 1 ? 1 : 0;
             $form['reorderpoint'] = $transrow->発注点 == NULL ? 0 : $transrow->発注点;
@@ -119,8 +119,8 @@ class TransStockRyutu implements ShouldQueue
             $form['updated_by'] = 'transrow';
             $form += $transwnetservice->addCreatedToForm($transrow->created_at);
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
-            $findvalueset = $newtablename.'?businessunit_id='.$form['businessunit_id'].'&&productitem_id='.$form['productitem_id'];
-            $id = $findvalueservice->findValue($findvalueset, 'id');
+            $foreginkey = $newtablename.'?businessunit_id='.$form['businessunit_id'].'&&productitem_id='.$form['productitem_id'];
+            $id = $findvalueservice->findValue($foreginkey, 'id');
             $ret_id = $excuteprocessservice->excuteProcess($newtablename , $form, $id); 
         }
     }

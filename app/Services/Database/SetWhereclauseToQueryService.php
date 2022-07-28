@@ -5,8 +5,12 @@ namespace App\Services\Database;
 class SetWhereclauseToQueryService 
 {
     // $tablequeryに$whereclauseを追加する
-    public function setWhereclauseToQuery($tablequery, $where) {
+    public function setWhereclauseToQuery($tablename, $tablequery, $where) {
         foreach ($where as $columnname => $values) {
+            if (strpos($columnname, '.')) {
+                $columntable = substr($columnname, 0, strpos($columnname, '.'));
+                if ($columntable <> $tablename) { continue; }
+            }
             if (count($values) == 1) {
                 $is_or = false; 
                 $value = $values[0];

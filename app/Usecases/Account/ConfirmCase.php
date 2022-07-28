@@ -17,10 +17,10 @@ class ConfirmCase
         $memberid = 0;
         $userid = Auth::id();
         $tablename = 'members';
-        // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
-        $findvalueset = $tablename.'?user_id='.$userid;
+        // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+        $foreginkey = $tablename.'?user_id='.$userid;
         $findvalueservice = new FindValueService;
-        $memberid = $findvalueservice->findValue($findvalueset, 'id');
+        $memberid = $findvalueservice->findValue($foreginkey, 'id');
         return $memberid;
     }
 
@@ -32,10 +32,10 @@ class ConfirmCase
         // 所属事業所が持ってる機能
         // 部門から賦与された機能
         // $tablename = 'accounts';
-        // // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
-        // $findvalueset = $tablename.'?member_id='.urlencode(strval($memberid));
+        // // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+        // $foreginkey = $tablename.'?member_id='.urlencode(strval($memberid));
         // $findvalueservice = new FindValueService;
-        // $accountid = $findvalueservice->findValue($findvalueset, 'id');
+        // $accountid = $findvalueservice->findValue($foreginkey, 'id');
         // $getrowbyidservice = new GetRowByIdService;
         // $row = $getrowbyidservice->getRowById('accounts', $accountid);
         $accountvalue['name'] = '杵築(弘)';

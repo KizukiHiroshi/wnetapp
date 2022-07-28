@@ -77,9 +77,9 @@ class TransCompany implements ShouldQueue
             $form['can_work'] = 0;
             $form['updated_at'] = $untreatedrow->updated_at;
             $form['updated_by'] = 'transwnet';
-            $findvalueset = $newtablename.'?code='.urlencode($form['code']);
+            $foreginkey = $newtablename.'?code='.urlencode($form['code']);
             $findvalueservice = new FindValueService;
-            $id = $findvalueservice->findValue($findvalueset, 'id');
+            $id = $findvalueservice->findValue($foreginkey, 'id');
             if ($id == 0) {
                 $transwnetservice = new TranswnetService;
                 $form += $transwnetservice->addCreatedToForm($untreatedrow->created_at);

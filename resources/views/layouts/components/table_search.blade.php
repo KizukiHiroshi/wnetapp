@@ -49,11 +49,12 @@
                 @if (substr($columnname, -13) == '_id_reference')
                 <?php $foreignid = substr($columnname, 0, -10); ?>
                 <?php $selectname = str_replace('_2nd','', $columnname); ?>
+                <?php $withnoselect = count($foreignselects[$selectname]) == 1 ? '' : 'before'; ?>
                     @include('layouts/components/select', [
                         'name'      => 'search_'.$foreignid,
                         'selects'   => $foreignselects[$selectname],
                         'selected'  => $searchvalue,
-                        'withnoselect' => 'before',
+                        'withnoselect' => $withnoselect,
                         'required'  => 'false'
                         ])
                 @elseif (substr($columnname, -14) == '_opt_reference')

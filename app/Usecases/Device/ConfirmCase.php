@@ -30,11 +30,11 @@ class ConfirmCase
 
     // 登録済のデバイスかチェックする
     public function getDeviceId($devicecookie) {
-        // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+        // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
         $tablename = 'devices';
-        $findvalueset = $tablename.'?name='.urlencode($devicecookie['name']).'&key='.urlencode($devicecookie['key']);
+        $foreginkey = $tablename.'?name='.urlencode($devicecookie['name']).'&key='.urlencode($devicecookie['key']);
         $findvalueservice = new FindValueService;
-        $deviceid = $findvalueservice->findValue($findvalueset, 'id');
+        $deviceid = $findvalueservice->findValue($foreginkey, 'id');
         return $deviceid;
     }
 

@@ -6,7 +6,6 @@ use App\Services\Database\ExcuteCsvprocessService;
 use App\Services\Database\GetForeginSelectsService;
 use App\Services\Database\GetOptionSelectsService;
 use App\Services\SessionService;
-use App\Services\Table\AddSearchSelectsService;
 
 class GetMenuParamsService {
 
@@ -38,18 +37,13 @@ class GetMenuParamsService {
             $columnsprop = $sessionservice->getSession('columnsprop', $tablename);
             $cardcolumnsprop = $sessionservice->getSession('cardcolumnsprop', $columnsprop);
             if ($this->has_Serachinput($request)) { // 検索メニューからのリクエスト
-                $searchinput = $this->setSerachinput($request);
-                $searcherrors  =$this->validateSerch($tablename, $columnsprop, $searchinput);
+                $searchinput = $this->setSearchinput($request);
+                $searcherrors = $this->validateSearch($tablename, $columnsprop, $searchinput);
             } else {    // リスト表示からのリクエスト
                 $searchinput = $sessionservice->getSession('searchinput');
             }
-            $searchinput = $searchinput == NULL ? [] : $searchinput;
             $getforeginselectsservice = new GetForeginSelectsService;
             $foreignselects = $getforeginselectsservice->getForeginSelects($columnsprop, $searchinput);
-            // 参照セレクトが100行以上の時にNULLで返ってくるので、検索セレクトに変更する
-            $addsearchselectsservice = new AddSearchSelectsService;
-            $cardcolumnsprop = $addsearchselectsservice
-                ->AddSearchSelects($cardcolumnsprop, $foreignselects, $columnsprop);
             $getoptionselectsservice = new GetOptionSelectsService;
             $optionselects = $getoptionselectsservice->getOptionSelects($columnsprop);
             $sessionservice->putSession('cardcolumnsprop', $cardcolumnsprop);
@@ -85,11 +79,15 @@ class GetMenuParamsService {
     }
 
     // $requestからtable_searchの情報を抽出してSessionに保存する
-    private function setSerachinput($request) {
+    private function setSearchinput($request) {
         $searchinput =[];
         $rawparams = $request->all();
         foreach($rawparams as $rawname => $value) {
             if (substr($rawname, 0, 7) == 'search_') {
+                if (substr($rawname, -3) == '_id' && $value == "0") {
+                    // _id = 0 はセレクタの無選択
+                    $value = null;
+                }
                 $searchinput[substr($rawname,7)] = $value;
             }
         }
@@ -114,7 +112,7 @@ class GetMenuParamsService {
     }
 
     // 検索条件のValidation
-    private function validateSerch($tablename, $columnsprop, $searchinput) {
+    private function validateSearch($tablename, $columnsprop, $searchinput) {
         $searcherrors  = [];
         // 通常検索分
         $searcherrors += $this->getSearcherros('', $tablename, $columnsprop, $searchinput);
