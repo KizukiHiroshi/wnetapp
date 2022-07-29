@@ -37,7 +37,7 @@ class TransStockRyutu implements ShouldQueue
         // 管理済の日付を取得する
         $systemname = 'TransStockRyutu';
         $oldtablename = '２２：流通在庫管理';
-        $newtablename = 'stocks';
+        $newtablename = 'ryutu_stocks';
         while (true) {
             $transrows = $this->getTransRows($systemname, $oldtablename);
             //  レコードが無ければexit
@@ -101,10 +101,10 @@ class TransStockRyutu implements ShouldQueue
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
             $foreginkey = 'stockshells?businessunit_id='.$form['businessunit_id'].'&&code='.urlencode(mb_convert_kana(trim($transrow->棚番号), "as"));
             $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
-            $form['stockshell_id'] = $iddictionary[$foreginkey];
-            $form['stockshellno'] = $transrow->棚内順 == NULL ? 0 : $transrow->棚内順;
-            $form['stockshell_id_2nd'] = $form['stockshell_id'];
-            $form['stockshellno2'] = $form['stockshellno'];
+            $form['ryutu_stockshell_id'] = $iddictionary[$foreginkey];
+            $form['ryutu_stockshellno'] = $transrow->棚内順 == NULL ? 0 : $transrow->棚内順;
+            $form['ryutu_stockshell_id_2nd'] = $form['stockshell_id'];
+            $form['ryutu_stockshellno2'] = $form['stockshellno'];
             $form['currentstock'] = $transrow->現在庫 == NULL ? 0 : $transrow->現在庫;
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値) ※2=通常品
             $foreginkey = 'option_choices?variablename_system='.urlencode(strval('stockstatus_opt')).'&&no='.urlencode('2');
@@ -126,9 +126,9 @@ class TransStockRyutu implements ShouldQueue
     }
 
     private function getKnownshopandcode() {
-        $maxid = DB::table('stocks')->max('id');
+        $maxid = DB::table('ryutu_stocks')->max('id');
         if (!$maxid) { return ''; } 
-        $row = DB::table('stocks')->where('id', $maxid)->first();
+        $row = DB::table('ryutu_stocks')->where('id', $maxid)->first();
         $businessunit_id = $row->businessunit_id;
         $productitem_id = $row->productitem_id;
         $row = DB::table('businessunits')->where('id', $businessunit_id)->first();

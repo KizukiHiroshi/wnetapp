@@ -26,8 +26,10 @@ class Jancode implements Rule
     public function passes($attribute, $value)
     {
         if (preg_match("/^[0-9]+$/", $value) == false) { return false; }
-        if (strlen($value) <> 13) { 
+        if (strlen(trim($value)) > 13) { 
             return false; 
+        } else {
+            $value = substr('0000000000000'.trim($value), -13);
         }
         $checkdigit = (10 - ((intval(Substr($value, 2, 1)) + intval(Substr($value, 4, 1)) + 
                 intval(Substr($value, 6, 1)) + intval(Substr($value, 8, 1)) + 

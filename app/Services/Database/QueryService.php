@@ -9,6 +9,7 @@ namespace App\Services\Database;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Services\SessionService;
+use App\Services\Database\GetNoHeaderColumnnameService;
 
 class QueryService 
 {
@@ -116,18 +117,20 @@ class QueryService
         // 同じテーブルをJOINする際にエイリアスを作る
         $foreigntablenames = [];
         // join句にして追加する（$valueは'_id'の数)
+        $gettnoheadercolumnnameservice = new GetNoHeaderColumnnameService;
         foreach ($foreignkeys as $foreignkey => $value) {
+            $noheaderforeignkey = $gettnoheadercolumnnameservice->getNoHeaderColumnname($foreignkey);
             $sourcetablename = '';  // 参照元テーブル名
             $sourcecolumnname ='';  // 参照元カラム;
             $foreigntablename = ''; // 参照先テーブル名
             if ($value == 1) {  // '_id_'が含まれていない
                 $sourcetablename = $tablename;
                 $sourcecolumnname = $foreignkey;
-                $foreigntablename = Str::plural(substr($foreignkey, 0, -3));
+                $foreigntablename = Str::plural(substr($noheaderforeignkey, 0, -3));
             } else {
                 // 後ろから2つ目のテーブル名
                 // 一番後ろを消す
-                $sourcetablename = substr($foreignkey, 0, strrpos($foreignkey, '_id_'));
+                $sourcetablename = substr($noheaderforeignkey, 0, strrpos($noheaderforeignkey, '_id_'));
                 // 前に残っていればそれも消す
                 if (strrpos($sourcetablename, '_id_')) {
                     $sourcetablename = substr($sourcetablename, strrpos($sourcetablename, '_id_') +4);
@@ -142,14 +145,15 @@ class QueryService
             $jointablename = $foreigntablename;
             $jointableclauce = $foreigntablename;
             if (array_key_exists($foreigntablename, $foreigntablenames)) {
-                $cnt = $foreigntablenames[$foreigntablename]+1;
+                $foreigntablenames[$foreigntablename] += 1;
+                $cnt = $foreigntablenames[$foreigntablename];
                 $jointablename = $foreigntablename.strval($cnt);
                 $jointableclauce = $foreigntablename.' AS '.$jointablename;
             } else {
                 $foreigntablenames[$foreigntablename] = 0;
             }
             $tablequery = $tablequery
-                ->join($jointableclauce, $sourcetablename.'.'.$sourcecolumnname,'=', $jointablename.".id");
+                ->join($jointableclauce, $sourcetablename.'.'.$sourcecolumnname,'=', $jointablename.'.id');
         }
         return $tablequery;
     }
@@ -248,7 +252,7 @@ class QueryService
         }
         $concatclause = rtrim($concatclause, ", ");
         $concatclause .= ") as ";
-        $concatclause .= $referencedcolumnname;
+        $concatclause .= "'".$referencedcolumnname."'";
         return $concatclause;
     }
 

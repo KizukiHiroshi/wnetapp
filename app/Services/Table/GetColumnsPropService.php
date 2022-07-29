@@ -6,6 +6,7 @@ namespace App\Services\Table;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Services\Database\GetNoHeaderColumnnameService;
 use App\Services\Model\GetModelIndexService;
 
 class GetColumnsPropService {
@@ -40,9 +41,11 @@ class GetColumnsPropService {
             $isunique = in_array($columnname, $uniquekeys) ? TRUE : NULL;
             // foreign_idの場合
             if (substr($columnname,-3) == '_id' || substr($columnname,-7) == '_id_2nd') {
+                $gettnoheadercolumnnameservice = new GetNoHeaderColumnnameService;
+                $noheadercolumnname = $gettnoheadercolumnnameservice->getNoHeaderColumnname($columnname);
                 $refcolumnsprop = [];
                 // 参照キー(〇〇_id)の参照先を$columnspropに入れる再帰関数
-                $refcolumnsprop = $this->delveId($refcolumnsprop, $modelindex, $tablename, $columnname);
+                $refcolumnsprop = $this->delveId($refcolumnsprop, $modelindex, $tablename, $columnname, $noheadercolumnname);
                 // 参照値のnotnull値を管理する
                 $refcolumnsprop = $this->setNotnullgToRefcolumnsprop($refcolumnsprop);
                 // $refcolumnspropを参照の深い順に並べ替える
@@ -55,9 +58,6 @@ class GetColumnsPropService {
         return $columnsprop;
     }
 
-    private function makeService() {
-
-    }
     // テーブルのuniquekey取得
     private function getUniquekeys($modelindex, $tablename) {
         $model = $modelindex[$tablename];
@@ -109,20 +109,21 @@ class GetColumnsPropService {
         }
         return $newarray;
     }
+
     // 参照キー(〇〇_id)の参照先を$columnspropに入れる再帰関数
-    private function delveId ($refcolumnsprop, $modelindex, $tablename, $columnname) {
+    private function delveId ($refcolumnsprop, $modelindex, $tablename, $columnname, $noheadercolumnname) {
         $uniquekeys = $this->getUniquekeys($modelindex, $tablename);
         // '_id_'が含まれていればそこまで消す
-        if (strripos($columnname, '_id_') && substr($columnname,-7) !== '_id_2nd') {
-            if (strripos($columnname, '_id_2nd_')) {
-                $realcolumnname = substr($columnname, strripos($columnname, '_id_2nd_') + 8);
+        if (strripos($noheadercolumnname, '_id_') && substr($noheadercolumnname,-7) !== '_id_2nd') {
+            if (strripos($noheadercolumnname, '_id_2nd_')) {
+                $realcolumnname = substr($noheadercolumnname, strripos($noheadercolumnname, '_id_2nd_') + 8);
             } else {
-                $realcolumnname = substr($columnname, strripos($columnname, '_id_') + 4);
+                $realcolumnname = substr($noheadercolumnname, strripos($noheadercolumnname, '_id_') + 4);
             }
-         } else {
+        } else {
             $isunique = in_array($columnname, $uniquekeys) ? TRUE : NULL;
             $refcolumnsprop[$columnname] = $this->getColumnProp($tablename, $columnname, $columnname, $isunique);
-            $realcolumnname = $columnname ;
+            $realcolumnname = $noheadercolumnname ;
         }
         $foreigntablename = Str::plural(Str::before($realcolumnname, '_id'));
         $foreignuniquekeys = $this->getUniquekeys($modelindex, $foreigntablename);
@@ -132,9 +133,9 @@ class GetColumnsPropService {
         foreach($referencedcolumnnames AS $referencedcolumnname) {
             $referencedsortcolumnname
                 = $this->checkAlternativeSortColumn($referencedcolumnname, $foreigntablename);
-                $isunique = in_array($referencedcolumnname, $foreignuniquekeys) ? TRUE : NULL;
-                $newprop = [$columnname.'_'.$referencedcolumnname =>
-                $this->getColumnProp($foreigntablename, $referencedcolumnname, $referencedsortcolumnname, $isunique)];
+            $isunique = in_array($referencedcolumnname, $foreignuniquekeys) ? TRUE : NULL;
+            $newprop = [$columnname.'_'.$referencedcolumnname =>
+            $this->getColumnProp($foreigntablename, $referencedcolumnname, $referencedsortcolumnname, $isunique)];
             $refcolumnsprop = array_merge($refcolumnsprop, $newprop);
             if (substr($referencedcolumnname,-3) == '_id') {
                 $refcolumnname = $columnname.'_'.$referencedcolumnname;
@@ -143,7 +144,9 @@ class GetColumnsPropService {
         if ($refcolumnname == '') {
             return $refcolumnsprop;
         } else {
-            return $this->delveId ($refcolumnsprop, $modelindex, $foreigntablename, $refcolumnname);
+            $gettnoheadercolumnnameservice = new GetNoHeaderColumnnameService;
+            $noheadercolumnname = $gettnoheadercolumnnameservice->getNoHeaderColumnname($refcolumnname);
+            return $this->delveId ($refcolumnsprop, $modelindex, $foreigntablename, $refcolumnname, $noheadercolumnname);
         }
     }
     // $columnsprop取得

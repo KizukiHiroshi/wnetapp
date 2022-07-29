@@ -55,6 +55,7 @@ class GetForeginSelectsService
     // 参照用selects作成
     private function getIdReferenceSelects($referencename, $tablename, $concats, $where) {
         $idreferenceselects =[];
+        DB::enableQueryLog();
         // queryのfrom,join,select句を取得する
         $sessionservice = new SessionService;
         $modelindex = $sessionservice->getSession('modelindex');
@@ -62,12 +63,15 @@ class GetForeginSelectsService
         $tablequery = $modelname::query();
         // from句
         $tablequery = $tablequery->from($tablename);
+        // where句
         $setwhereclausetoqueryservice = new SetWhereclauseToQueryService;
         $tablequery = $setwhereclausetoqueryservice->setWhereclauseToQuery($tablename, $tablequery, $where);
         $queryservice = new QueryService;
+        // join句
         $concatclause = $queryservice->getConcatClause($concats, ' ', $referencename);
         $tablequery = $tablequery->select('id', DB::raw($concatclause));
         $rows = $tablequery->get();
+        $answer = DB::getQueryLog();
         if (count($rows) > 200) {
             $idreferenceselects[0] = '200行以上は非表示';
         } else {

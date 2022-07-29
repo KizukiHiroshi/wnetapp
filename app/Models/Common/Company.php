@@ -42,6 +42,9 @@ class Company extends Model
     public function performer_in_companies(){
         return $this->hasMany(PerformerInCompany::class);
     }
+    public function order_labels(){
+        return $this->hasMany(OrderLabel::class);
+    }
 
     protected function rules()
     {

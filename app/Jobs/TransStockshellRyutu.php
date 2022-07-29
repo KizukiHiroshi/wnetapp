@@ -37,7 +37,7 @@ class TransStockshellRyutu implements ShouldQueue
         // 管理済の日付を取得する
         $systemname = 'TransStockshellRyutu';
         $oldtablename = '２２：流通在庫管理';
-        $newtablename = 'stockshells';
+        $newtablename = 'ryutu_stockshells';
         while (true) {
             $transrows = $this->getTransRows($systemname, $oldtablename);
             //  レコードが無ければexit

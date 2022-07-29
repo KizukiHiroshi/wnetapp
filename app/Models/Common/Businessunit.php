@@ -32,7 +32,6 @@ class Businessunit extends Model
     ];
 
     // input has_many clause here
-
     public function devices() {
         return $this->hasMany(Device::class);
     }
@@ -47,6 +46,15 @@ class Businessunit extends Model
     }
     public function order_units(){
         return $this->hasMany(OrderUnit::class);
+    }
+    public function order_labels(){
+        return $this->hasMany(OrderLabel::class);
+    }
+    public function ryutu_stockshells(){
+        return $this->hasMany(RyutuStocshell::class);
+    }
+    public function ryutu_stocks(){
+        return $this->hasMany(RyutuStock::class);
     }
 
     protected function rules()
