@@ -99,7 +99,7 @@ class TransStockRyutu implements ShouldQueue
             $form['productitem_id'] = $iddictionary[$foreginkey];
             if ($form['productitem_id'] == NULL) { continue; }
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
-            $foreginkey = 'stockshells?businessunit_id='.$form['businessunit_id'].'&&code='.urlencode(mb_convert_kana(trim($transrow->棚番号), "as"));
+            $foreginkey = 'ryutu_stockshells?businessunit_id='.$form['businessunit_id'].'&&code='.urlencode(mb_convert_kana(trim($transrow->棚番号), "as"));
             $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
             $form['ryutu_stockshell_id'] = $iddictionary[$foreginkey];
             $form['ryutu_stockshellno'] = $transrow->棚内順 == NULL ? 0 : $transrow->棚内順;

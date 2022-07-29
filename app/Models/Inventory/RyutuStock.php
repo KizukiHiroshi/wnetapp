@@ -9,7 +9,7 @@ use App\ValidateTrait;
 
 use App\Models\Common\Businessunit;
 use App\Models\Common\Productitem;
-use App\Models\Common\Ryutustockshell;
+use App\Models\Common\Ryutu_stockshell;
 
 class RyutuStock extends Model
 {
@@ -22,22 +22,22 @@ class RyutuStock extends Model
         return $this->belongsTo(Productitem::class)->withDefault();
     }
     public function ryutu_stockshells(){
-        return $this->belongsTo(Ryutustockshell::class)->withDefault();
+        return $this->belongsTo(Ryutu_stockshell::class)->withDefault();
     }
     protected $guarded = [];
     static $tablecomment = '流通在庫';
     static $modelzone = '在庫管理';
     static $defaultsort = [
         'businessunit_id' => 'asc',
-        'ryutustockshell_id' => 'asc',
-        'ryutustockshellno' => 'asc',
+        'ryutu_stockshell_id' => 'asc',
+        'ryutu_stockshellno' => 'asc',
         'productitem_id' => 'asc',
     ];
     static $referencedcolumns = [
         'businessunit_id', 
         'productitem_id', 
-        'ryutustockshell_id', 
-        'ryutustockshellno', 
+        'ryutu_stockshell_id', 
+        'ryutu_stockshellno', 
     ];
     static $uniquekeys = [
        ['businessunit_id', 'productitem_id', ]
@@ -53,10 +53,10 @@ class RyutuStock extends Model
                 Rule::unique('ryutu_stocks')->ignore($this->id)->where(function($query){
                     $query->where('businessunit_id', $this->businessunit_id);
                 }),],
-            'ryutustockshell_id' => ['required','integer','numeric',],
-            'ryutustockshellno' => ['nullable','integer','numeric',],
-            'ryutustockshell_id_2nd' => ['required','integer','numeric',],
-            'ryutustockshellno2' => ['nullable','integer','numeric',],
+            'ryutu_stockshell_id' => ['required','integer','numeric',],
+            'ryutu_stockshellno' => ['nullable','integer','numeric',],
+            'ryutu_stockshell_id_2nd' => ['required','integer','numeric',],
+            'ryutu_stockshellno2' => ['nullable','integer','numeric',],
             'currentstock' => ['required','integer','numeric',],
             'stockstatus_opt' => ['required','integer','numeric',],
             'is_autoreorder' => ['required','boolean',],

@@ -20,7 +20,7 @@ class CreateRyutustocksTable extends Migration
             $table->foreignId('productitem_id')->comment('規番コード')->references('id')->on('productitems');
             $table->foreignId('ryutu_stockshell_id')->comment('棚番号')->references('id')->on('ryutu_stockshells');
             $table->integer('ryutu_stockshellno')->comment('棚内順')->nullable();
-            $table->foreignId('ryutu_stockshell_id_2nd')->comment('棚番号2')->references('id')->on('ryutu_stockshells');
+            $table->foreignId('ryutu_stockshell_id_2nd')->comment('棚番号2');
             $table->integer('ryutu_stockshellno2')->comment('棚番号2内順')->nullable();
             $table->integer('currentstock')->comment('現在庫数');
             $table->bigInteger('stockstatus_opt')->comment('在庫状態');

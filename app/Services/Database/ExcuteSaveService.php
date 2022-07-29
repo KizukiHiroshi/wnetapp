@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace App\Services\Database;
 
+use Illuminate\Support\Facades\DB;
 use App\Services\SessionService;
 
 class ExcuteSaveService 
@@ -24,7 +25,9 @@ class ExcuteSaveService
         } else {
             $targetrow = $modelname::findOrFail($id);
         }
+        DB::enableQueryLog();
         $targetrow->fill($form)->save();
+        $tempsql = DB::getQueryLog();
         return $targetrow->id;
     }
 }
