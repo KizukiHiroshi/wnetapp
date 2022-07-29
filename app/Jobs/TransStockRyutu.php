@@ -104,7 +104,7 @@ class TransStockRyutu implements ShouldQueue
             $form['ryutu_stockshell_id'] = $iddictionary[$foreginkey];
             $form['ryutu_stockshellno'] = $transrow->棚内順 == NULL ? 0 : $transrow->棚内順;
             $form['ryutu_stockshell_id_2nd'] = $form['ryutu_stockshell_id'];
-            $form['ryutu_stockshellno2'] = $form['stockshellno'];
+            $form['ryutu_stockshellno2'] = $form['ryutu_stockshellno'];
             $form['currentstock'] = $transrow->現在庫 == NULL ? 0 : $transrow->現在庫;
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値) ※2=通常品
             $foreginkey = 'option_choices?variablename_system='.urlencode(strval('stockstatus_opt')).'&&no='.urlencode('2');
