@@ -41,15 +41,15 @@ class TransStockRyutu implements ShouldQueue
         while (true) {
             $transrows = $this->getTransRows($systemname, $oldtablename);
             //  レコードが無ければexit
-            if ($transrows->count() == 0) {
-                 break;
-            }
             //  $newtablenameを更新する
             $this->updateNewTable($transrows, $newtablename);
             // 管理済履歴を更新する
             $transwnetservice = new TranswnetService;
             $transwnetservice->updateTablereplacement($systemname, $oldtablename);
-       }
+            if ($transrows->count() == 0) {
+                break;
+           }
+      }
    }
 
     private function getTransRows($systemname, $oldtablename) {
@@ -103,7 +103,7 @@ class TransStockRyutu implements ShouldQueue
             $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
             $form['ryutu_stockshell_id'] = $iddictionary[$foreginkey];
             $form['ryutu_stockshellno'] = $transrow->棚内順 == NULL ? 0 : $transrow->棚内順;
-            $form['ryutu_stockshell_id_2nd'] = $form['stockshell_id'];
+            $form['ryutu_stockshell_id_2nd'] = $form['ryutu_stockshell_id'];
             $form['ryutu_stockshellno2'] = $form['stockshellno'];
             $form['currentstock'] = $transrow->現在庫 == NULL ? 0 : $transrow->現在庫;
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値) ※2=通常品
