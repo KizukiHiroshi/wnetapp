@@ -56,6 +56,9 @@ class Businessunit extends Model
     public function ryutu_stocks(){
         return $this->hasMany(RyutuStock::class);
     }
+    public function getorder_labels(){
+        return $this->hasMany(GetorderLabel::class);
+    }
 
     protected function rules()
     {

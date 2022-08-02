@@ -6,7 +6,7 @@ namespace App\Services\Table;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use App\Services\Database\GetNoHeaderColumnnameService;
+use App\Services\Database\GetNoHeadernameService;
 use App\Services\Model\GetModelIndexService;
 
 class GetColumnsPropService {
@@ -31,18 +31,19 @@ class GetColumnsPropService {
     public function getColumnsProp($tablename) {
         $modelindexservice = new GetModelIndexService;
         $modelindex = $modelindexservice->getModelindex();
+        $gettnoheadernameservice = new GetNoHeadernameService;
         $columns = DB::select('show full columns from '.$tablename);
         $columnsprop = [];
         // テーブルのuniquekey取得
-        $uniquekeys = $this->getUniquekeys($modelindex, $tablename);
+        $noheadertablename = $gettnoheadernameservice->getNoHeadername($tablename);
+        $uniquekeys = $this->getUniquekeys($modelindex, $noheadertablename);
         foreach ($columns as $column) {
             $columnname = $column->Field;
             $sortcolumn = $columnname;
             $isunique = in_array($columnname, $uniquekeys) ? TRUE : NULL;
             // foreign_idの場合
             if (substr($columnname,-3) == '_id' || substr($columnname,-7) == '_id_2nd') {
-                $gettnoheadercolumnnameservice = new GetNoHeaderColumnnameService;
-                $noheadercolumnname = $gettnoheadercolumnnameservice->getNoHeaderColumnname($columnname);
+                $noheadercolumnname = $gettnoheadernameservice->getNoHeadername($columnname);
                 $refcolumnsprop = [];
                 // 参照キー(〇〇_id)の参照先を$columnspropに入れる再帰関数
                 $refcolumnsprop = $this->delveId($refcolumnsprop, $modelindex, $tablename, $columnname, $noheadercolumnname);
@@ -112,7 +113,9 @@ class GetColumnsPropService {
 
     // 参照キー(〇〇_id)の参照先を$columnspropに入れる再帰関数
     private function delveId ($refcolumnsprop, $modelindex, $tablename, $columnname, $noheadercolumnname) {
-        $uniquekeys = $this->getUniquekeys($modelindex, $tablename);
+        $gettnoheadernameservice = new GetNoHeadernameService;
+        $noheadertablename = $gettnoheadernameservice->getNoHeadername($tablename);
+        $uniquekeys = $this->getUniquekeys($modelindex, $noheadertablename);
         // '_id_'が含まれていればそこまで消す
         if (strripos($noheadercolumnname, '_id_') && substr($noheadercolumnname,-7) !== '_id_2nd') {
             if (strripos($noheadercolumnname, '_id_2nd_')) {
@@ -126,8 +129,10 @@ class GetColumnsPropService {
             $realcolumnname = $noheadercolumnname ;
         }
         $foreigntablename = Str::plural(Str::before($realcolumnname, '_id'));
-        $foreignuniquekeys = $this->getUniquekeys($modelindex, $foreigntablename);
-        $foreignmodel = $modelindex[$foreigntablename];
+        $gettnoheadernameservice = new GetNoHeadernameService;
+        $noheaderforeigntablename = $gettnoheadernameservice->getNoHeadername($foreigntablename);
+        $foreignuniquekeys = $this->getUniquekeys($modelindex, $noheaderforeigntablename);
+        $foreignmodel = $modelindex[$noheaderforeigntablename];
         $referencedcolumnnames = $foreignmodel['modelname']::$referencedcolumns;
         $refcolumnname = '';
         foreach($referencedcolumnnames AS $referencedcolumnname) {
@@ -144,8 +149,8 @@ class GetColumnsPropService {
         if ($refcolumnname == '') {
             return $refcolumnsprop;
         } else {
-            $gettnoheadercolumnnameservice = new GetNoHeaderColumnnameService;
-            $noheadercolumnname = $gettnoheadercolumnnameservice->getNoHeaderColumnname($refcolumnname);
+            $gettnoheadernameservice = new GetNoHeadernameService;
+            $noheadercolumnname = $gettnoheadernameservice->getNoHeadername($refcolumnname);
             return $this->delveId ($refcolumnsprop, $modelindex, $foreigntablename, $refcolumnname, $noheadercolumnname);
         }
     }

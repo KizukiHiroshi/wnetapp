@@ -37,7 +37,6 @@ class ConfirmCase
         // $findvalueservice = new FindValueService;
         // $accountid = $findvalueservice->findValue($foreginkey, 'id');
         // $getrowbyidservice = new GetRowByIdService;
-        // $row = $getrowbyidservice->getRowById('accounts', $accountid);
         $accountvalue['name'] = '杵築(弘)';
         $accountvalue['memberid'] = 1;
         return $accountvalue;

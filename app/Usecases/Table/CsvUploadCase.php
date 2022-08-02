@@ -11,8 +11,8 @@ use App\Services\Database\AddIddictionaryService;
 use App\Services\Database\ExcuteCsvprocessService;
 use App\Services\Database\FindValueService;
 use App\Services\File\KillMyFileService;
-use App\Services\Table\GetMenuParamsService;
 use App\Services\Table\OpimizeRawformWithIddictionaryService;
+use App\Services\Model\GetModelSelectParamsService;
 
 use SplFileObject;
 
@@ -29,9 +29,21 @@ class CsvUploadCase {
     
     // 指定Excelシートから出力したしたCSVファイルをアップロードする
     public function getParams($request, $csvmode) {
-        // Table選択、検索表示のパラメータを取得する
-        $getmenuparamsservice = new GetMenuParamsService;
-        $params = $getmenuparamsservice->getMenuParams($request);
+        $sessionservice = new SessionService;
+        // 現在のテーブル名をSessionに保存する
+        $tablename = $request->tablename;
+        $sessionservice->putSession('tablename', $tablename);
+        // 使用中のデバイス名を取得する
+        $devicename = $sessionservice->getSession('devicename');
+        // ModelIndexを取得する
+        $modelindex = $sessionservice->getSession('modelindex');
+        // パラメータを取得する
+        $params = [
+            'devicename'        => $devicename,
+        ];
+        // モデル選択部
+        $getmodelselectparamsservice = new GetModelSelectParamsService;
+        $params += $getmodelselectparamsservice->getModelselectParams($request, $modelindex);
         $upload = [];
         // ファイル選択済みなら値を得て処理する
         if ($csvmode !== 'csvselect') {

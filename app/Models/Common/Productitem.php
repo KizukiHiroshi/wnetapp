@@ -40,6 +40,12 @@ class Productitem extends Model
     public function ryutu_stocks(){
         return $this->hasMany(RyutuStock::class);
     }
+    public function order_details(){
+        return $this->hasMany(OrderDetail::class);
+    }
+    public function getorder_details(){
+        return $this->hasMany(GetorderDetail::class);
+    }
 
     protected function rules()
     {

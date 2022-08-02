@@ -7,14 +7,14 @@ use Illuminate\Http\Request;
 
 use App\Jobs\TransStockshellRyutu;
 use App\Jobs\TransStockRyutu;
-use App\Jobs\TransCompanyBuyer;
+use App\Jobs\TransOrder;
 
 class ScheduleJobController extends Controller
 {
     public function index(Request $request) {
         // $job = new TransStockshellRyutu();
-        $job = new TransStockRyutu();
-        // $job = new TransCompanyBuyer();
+        // $job = new TransStockRyutu();
+        $job = new TransOrder();
         $job->handle();
     }
 }

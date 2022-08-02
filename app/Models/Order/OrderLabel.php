@@ -40,6 +40,9 @@ class OrderLabel extends Model
     ];
 
     // input has_many clause here
+    public function order_details(){
+        return $this->hasMany(OrderDetail::class);
+    }
 
     protected function rules()
     {
@@ -57,9 +60,10 @@ class OrderLabel extends Model
             'tax_total' => ['required','integer','numeric',],
             'delivery-businessunit_id' => ['required','integer','numeric',],
             'published_on' => ['nullable','date',],
+            'is_recieved' => ['required','boolean',],
             'remark' => ['nullable','string',],
             'is_completed' => ['required','boolean',],
-            'transaction' => ['required','integer','numeric',],
+            'transaction_no' => ['required','integer','numeric',],
             'old13id' => ['nullable','integer','numeric',],
             'old14id' => ['nullable','integer','numeric',],
         ];

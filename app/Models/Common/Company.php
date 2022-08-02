@@ -45,6 +45,9 @@ class Company extends Model
     public function order_labels(){
         return $this->hasMany(OrderLabel::class);
     }
+    public function getorder_labels(){
+        return $this->hasMany(GetorderLabel::class);
+    }
 
     protected function rules()
     {

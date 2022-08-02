@@ -60,10 +60,10 @@ class TranswnetService {
         return $latest;
     }
 
-    public function updateTablereplacement($systemname, $oldtablename) {
+    public function updateTablereplacement($systemname, $oldtablename, $maxvalue = null) {
         $maxcreatedat = $this->getMaxAt('created_at', $oldtablename);
         $maxupdatedat = $this->getMaxAt('updated_at', $oldtablename);
-        $this->updateLatest($maxcreatedat, $maxupdatedat, $systemname);
+        $this->updateLatest($maxcreatedat, $maxupdatedat, $systemname, $maxvalue);
     } 
 
     private function getMaxAt($targetcolumn, $oldtablename) {
@@ -73,13 +73,16 @@ class TranswnetService {
         return $maxat;
     }
 
-    private function updateLatest($maxcreatedat, $maxupdatedat, $systemname) {
+    private function updateLatest($maxcreatedat, $maxupdatedat, $systemname, $maxvalue) {
         // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
         $foreginkey = 'tablereplacements?systemname='.urlencode($systemname);
         $findvalueservice = new FindValueService;
         $id = $findvalueservice->findValue($foreginkey, 'id');
         $form['latest_created'] = $maxcreatedat;
         $form['latest_updated'] = $maxupdatedat;
+        if ($maxvalue) {
+            $form['maxvalue'] = $maxvalue;
+        }
         $form['updated_at'] = time();
         $form['updated_by'] = 'transwnet';
         $excuteprocessservice = new ExcuteProcessService;
