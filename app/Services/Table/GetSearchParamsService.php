@@ -5,23 +5,18 @@ namespace App\Services\Table;
 use App\Services\Database\ExcuteCsvprocessService;
 use App\Services\Database\GetForeginSelectsService;
 use App\Services\Database\GetOptionSelectsService;
+use App\Services\Model\GetModelSelectService;
 use App\Services\SessionService;
 
-class GetMenuParamsService {
+class GetSearchParamsService {
 
     public function __construct() {
     }
     
     // Menu表示用のパラメータを取得する
-    public function getMenuParams($request) {
+    public function getSearchParams($request) {
         $tablename = $request->tablename;
-        // モデル選択に渡す現在のテーブル名
-        $selectedtable = $tablename;
         $sessionservice = new SessionService;
-        $modelindex = $sessionservice->getSession('modelindex');
-        // モデル選択用のセレクト
-        $modelselect = $this->getModelselect($modelindex);
-        $devicename = $sessionservice->getSession('devicename');;
         // ■search用の変数
         // 表示する項目リスト
         $cardcolumnsprop = null;
@@ -42,16 +37,14 @@ class GetMenuParamsService {
             } else {    // リスト表示からのリクエスト
                 $searchinput = $sessionservice->getSession('searchinput');
             }
+            // 外部テーブル参照用のセレクト
             $getforeginselectsservice = new GetForeginSelectsService;
-            $foreignselects = $getforeginselectsservice->getForeginSelects($columnsprop, $searchinput);
+            $foreignselects = $getforeginselectsservice->getForeginSelects($cardcolumnsprop, $searchinput);
+            // オプション選択用のセレクト
             $getoptionselectsservice = new GetOptionSelectsService;
             $optionselects = $getoptionselectsservice->getOptionSelects($columnsprop);
-            $sessionservice->putSession('cardcolumnsprop', $cardcolumnsprop);
         }
         $params = [
-            'devicename'        => $devicename,
-            'selectedtable'     => $selectedtable,
-            'modelselect'       => $modelselect,
             'cardcolumnsprop'   => $cardcolumnsprop,
             'searchinput'       => $searchinput,
             'searcherrors'      => $searcherrors,
@@ -59,23 +52,6 @@ class GetMenuParamsService {
             'optionselects'     => $optionselects,
         ];
         return $params;
-    }
-
-    /* getModelselect:モデル選択用のmodelzone,tablecommentのグループセレクト配列
-    tablename => [         // テーブルの物理名
-        'group'     => modelzone        // テーブルの属するゾーン
-        'value'     => tablecomment,    // テーブル和名
-    ] 
-    */
-    private function getModelselect($modelindex) {
-        $modelselect = []; // 返すグループセレクト配列名
-        foreach($modelindex as $key => $model) {
-            $modelselect[$key] = [
-                'group' => $model['modelzone'],
-                'value' => $model['tablecomment'],
-            ];
-        }
-        return $modelselect;
     }
 
     // $requestからtable_searchの情報を抽出してSessionに保存する

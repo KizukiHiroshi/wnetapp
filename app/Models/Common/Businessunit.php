@@ -32,6 +32,24 @@ class Businessunit extends Model
     ];
 
     // input has_many clause here
+    public function getorder_labels(){
+        return $this->hasMany(GetorderLabel::class);
+    }
+    public function members(){
+        return $this->hasMany(Member::class);
+    }
+    public function order_labels(){
+        return $this->hasMany(OrderLabel::class);
+    }
+    public function ryutu_stocks(){
+        return $this->hasMany(RyutuStock::class);
+    }
+    public function ryutu_stockshells(){
+        return $this->hasMany(RyutuStockshell::class);
+    }
+    public function stockshells(){
+        return $this->hasMany(Stockshell::class);
+    }
 
     protected function rules()
     {

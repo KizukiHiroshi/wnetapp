@@ -39,31 +39,33 @@ class GetorderLabel extends Model
     ];
 
     // input has_many clause here
+    public function getorder_details(){
+        return $this->hasMany(GetorderDetail::class);
+    }
 
     protected function rules()
     {
         return [
-            'getorder_no' => ['required','string','max:13',],
-            'getorder_on' => ['required','date',],
-            'getorder__company_id' => ['required','integer','numeric',],
-            'getorder__businessunit_id' => ['required','integer','numeric',],
-            'order__company_id' => ['required','integer','numeric',],
-            'order__businessunit_id' => ['required','integer','numeric',],
-            'guestorder_no' => ['nullable','string','max:20',],
-            'need_deliverydate' => ['required','boolean',],
-            'due_date' => ['nullable','date',],
-            'regularprice_total' => ['required','integer','numeric',],
-            'price_total' => ['required','integer','numeric',],
-            'tax_total' => ['required','integer','numeric',],
-            'delivery__businessunit_id' => ['required','integer','numeric',],
+            'getorderlabel_id' => ['required','integer','numeric',],
+            'detail_no' => ['required','integer','numeric',
+                Rule::unique('getorder_details')->ignore($this->id)->where(function($query){
+                    $query->where('getorderlabel_id', $this->getorderlabel_id);
+                }),],
+            'productitem_id' => ['required','integer','numeric',],
+            'regularprice' => ['required','integer','numeric',],
+            'price' => ['required','integer','numeric',],
+            'quantity' => ['required','integer','numeric',],
+            'taxrate' => ['required','integer','numeric',],
             'is_fixed' => ['required','boolean',],
-            'published_on' => ['nullable','date',],
-            'estimate_no' => ['nullable','string','max:13',],
             'remark' => ['nullable','string','max:255',],
+            'discount_amount' => ['required','integer','numeric',],
+            'allocation_quantity' => ['required','integer','numeric',],
+            'available_quantity' => ['required','integer','numeric',],
             'is_completed' => ['required','boolean',],
-            'transaction' => ['required','integer','numeric',],
+            'transaction_no' => ['required','integer','numeric',],
             'old13id' => ['nullable','integer','numeric',],
             'old14id' => ['nullable','integer','numeric',],
         ];
     }
+
 }

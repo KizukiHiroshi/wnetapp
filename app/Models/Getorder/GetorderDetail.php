@@ -55,7 +55,10 @@ class GetorderDetail extends Model
             'taxrate' => ['required','integer','numeric',],
             'is_fixed' => ['required','boolean',],
             'remark' => ['nullable','string','max:255',],
+<<<<<<< HEAD
             'discount_amount' => ['required','integer','numeric',],
+=======
+>>>>>>> 68e982505ccca6c88bf8bfe174179bbd3edad0a7
             'allocation_quantity' => ['required','integer','numeric',],
             'available_quantity' => ['required','integer','numeric',],
             'is_completed' => ['required','boolean',],

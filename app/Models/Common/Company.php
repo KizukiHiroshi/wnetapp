@@ -27,6 +27,27 @@ class Company extends Model
     ];
 
     // input has_many clause here
+    public function businessunits(){
+        return $this->hasMany(Businessunit::class);
+    }
+    public function buyer_in_companies(){
+        return $this->hasMany(BuyerInCompany::class);
+    }
+    public function departments(){
+        return $this->hasMany(Department::class);
+    }
+    public function getorder_labels(){
+        return $this->hasMany(GetorderLabel::class);
+    }
+    public function order_labels(){
+        return $this->hasMany(OrderLabel::class);
+    }
+    public function performer_in_companies(){
+        return $this->hasMany(PerformerInCompany::class);
+    }
+    public function vendor_in_companies(){
+        return $this->hasMany(VendorInCompany::class);
+    }
 
     protected function rules()
     {

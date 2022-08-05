@@ -39,27 +39,28 @@ class OrderLabel extends Model
     ];
 
     // input has_many clause here
+    public function order_details(){
+        return $this->hasMany(OrderDetail::class);
+    }
 
     protected function rules()
     {
         return [
-            'order_no' => ['required','string','max:13',],
-            'order_on' => ['required','date',],
-            'order__company_id' => ['required','integer','numeric',],
-            'order__businessunit_id' => ['required','integer','numeric',],
-            'getorder__company_id' => ['required','integer','numeric',],
-            'getorder__businessunit_id' => ['required','integer','numeric',],
-            'need_deliverydate' => ['required','boolean',],
-            'due_date' => ['nullable','date',],
-            'regularprice_total' => ['required','integer','numeric',],
-            'price_total' => ['required','integer','numeric',],
-            'tax_total' => ['required','integer','numeric',],
-            'delivery__businessunit_id' => ['required','integer','numeric',],
-            'is_recieved' => ['required','boolean',],
-            'published_on' => ['nullable','date',],
+            'orderlabel_id' => ['required','integer','numeric',],
+            'detail_no' => ['required','integer','numeric',
+                Rule::unique('order_details')->ignore($this->id)->where(function($query){
+                    $query->where('orderlabel_id', $this->orderlabel_id);
+                }),],
+            'productitem_id' => ['required','integer','numeric',],
+            'regularprice' => ['required','integer','numeric',],
+            'price' => ['required','integer','numeric',],
+            'quantity' => ['required','integer','numeric',],
+            'taxrate' => ['required','integer','numeric',],
+            'is_fixed' => ['required','boolean',],
             'remark' => ['nullable','string','max:255',],
+            'available_quantity' => ['required','integer','numeric',],
             'is_completed' => ['required','boolean',],
-            'transaction' => ['required','integer','numeric',],
+            'transaction_no' => ['required','integer','numeric',],
             'old13id' => ['nullable','integer','numeric',],
             'old14id' => ['nullable','integer','numeric',],
         ];

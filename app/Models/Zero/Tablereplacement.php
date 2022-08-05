@@ -40,7 +40,11 @@ class Tablereplacement extends Model
                 }),],
             'newtablename' => ['required','string','max:30',
                 Rule::unique('tablereplacements')->ignore($this->id)->where(function($query){
+<<<<<<< HEAD
                          $query->where('oldtablename', $this->oldtablename);
+=======
+                    $query->where('oldtablename', $this->oldtablename);
+>>>>>>> 68e982505ccca6c88bf8bfe174179bbd3edad0a7
                 }),],
             'latest_created' => ['required','date',],
             'latest_updated' => ['required','date',],

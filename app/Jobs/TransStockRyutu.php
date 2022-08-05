@@ -67,7 +67,7 @@ class TransStockRyutu implements ShouldQueue
             ->where('無効ＦＬＧ', '0')
             ->whereRaw("created_at > CONVERT(DATETIME, '".$latest_created."') or updated_at > CONVERT(DATETIME, '".$latest_updated."')")
             // 初期設定用：登録済みのコード取得
-            // ->whereRaw("convert(float,rtrim(convert(char, 在庫主体コード))+'.'+ＪＡＮコード) > convert(float,'".$knownshopandcode."')")
+            ->whereRaw("convert(float,rtrim(convert(char, 在庫主体コード))+'.'+ＪＡＮコード) > convert(float,'".$knownshopandcode."')")
             // ->whereRaw("convert(float,rtrim(convert(char, 在庫主体コード))+'.'+ＪＡＮコード) > convert(float,'5700.4005401159995')")
             ->orderByRaw("在庫主体コード, ＪＡＮコード")
             // ->limit(1000)

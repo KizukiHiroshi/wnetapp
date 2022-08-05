@@ -16,6 +16,7 @@ class CreateGetorderlabelsTable extends Migration
     {
         Schema::create('getorder_labels', function (Blueprint $table){
             $table->id()->comment('id');
+<<<<<<< HEAD
             $table->string('getorder_no', 13)->comment('受注No')->unique();
             $table->date('getorder_on')->comment('受注日');
             $table->foreignId('getorder__company_id')->comment('受注企業')->references('id')->on('companies');
@@ -24,6 +25,16 @@ class CreateGetorderlabelsTable extends Migration
             $table->foreignId('order__company_id')->comment('客先企業')->references('id')->on('companies');
             $table->foreignId('order__businessunit_id')->comment('客先事業所')->references('id')->on('businessunits');
             $table->string('guestorder_no', 20)->comment('客先注文番号')->nullable();
+=======
+            $table->string('getorder_no')->comment('受注No', 13)->unique();
+            $table->date('getorder_on')->comment('受注日');
+            $table->foreignId('getorder__company_id')->comment('受注企業')->references('id')->on('companies');
+            $table->foreignId('getorder__businessunit_id')->comment('受注事業所')->references('id')->on('businessunits');
+            $table->string('getordered_by')->comment('担当者', 12)->nullable();
+            $table->foreignId('order__company_id')->comment('客先企業')->references('id')->on('companies');
+            $table->foreignId('order__businessunit_id')->comment('客先事業所')->references('id')->on('businessunits');
+            $table->string('guestorder_no')->comment('客先注文番号', 20)->nullable();
+>>>>>>> 68e982505ccca6c88bf8bfe174179bbd3edad0a7
             $table->boolean('need_deliverydate')->comment('納期連絡有無')->default(0);
             $table->date('due_date')->comment('指定納期')->nullable();
             $table->integer('regularprice_total')->comment('定価合計');
@@ -32,17 +43,28 @@ class CreateGetorderlabelsTable extends Migration
             $table->foreignId('delivery__businessunit_id')->comment('出荷先')->references('id')->on('businessunits');
             $table->boolean('is_fixed')->comment('手配済')->default(0);
             $table->date('published_on')->comment('発行日')->nullable();
+<<<<<<< HEAD
             $table->string('estimate_no', 13)->comment('見積No')->nullable();
             $table->string('remark', 255)->comment('備考')->default('')->nullable();
+=======
+            $table->string('estimate_no')->comment('見積No', 13)->nullable();
+            $table->string('remark')->comment('備考')->default('')->nullable();
+>>>>>>> 68e982505ccca6c88bf8bfe174179bbd3edad0a7
             $table->boolean('is_completed')->comment('完了フラグ')->default(0);
             $table->bigInteger('transaction')->comment('取引管理No')->default(0);
             $table->integer('old13id')->comment('旧13ID')->default(0)->nullable();
             $table->integer('old14id')->comment('旧14ID')->default(0)->nullable();
             $table->softDeletes()->comment('削除日時');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
+<<<<<<< HEAD
             $table->string('created_by', 12)->comment('作成者');
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'))->comment('更新日時');
             $table->string('updated_by', 12)->comment('更新者');
+=======
+            $table->string('created_by')->comment('作成者', 12);
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'))->comment('更新日時');
+            $table->string('updated_by')->comment('更新者', 12);
+>>>>>>> 68e982505ccca6c88bf8bfe174179bbd3edad0a7
         });
         DB::statement("alter table wnetdb_test.getorder_labels comment '受注';");
     }

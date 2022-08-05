@@ -34,6 +34,18 @@ class Productitem extends Model
     ];
 
     // input has_many clause here
+    public function getorder_details(){
+        return $this->hasMany(GetorderDetail::class);
+    }
+    public function order_details(){
+        return $this->hasMany(OrderDetail::class);
+    }
+    public function ryutu_stocks(){
+        return $this->hasMany(RyutuStock::class);
+    }
+    public function stocks(){
+        return $this->hasMany(Stock::class);
+    }
 
     protected function rules()
     {

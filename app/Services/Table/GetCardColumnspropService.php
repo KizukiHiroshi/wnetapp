@@ -2,23 +2,21 @@
 declare(strict_types=1);
 namespace App\Services\Table;
 
-class ArangeColumnspropToCardService {
+class GetCardColumnspropService {
 
     public function __construct() {
     }
 
-    // columnspropのforeignをcard表示用に変更する
-    public function arangeColumnspropToCard($columnsprop) {
+    // columnspropにcard表示用のリファレンスを加える
+    public function getCardColumnsprop($columnsprop) {
         $cardcolumnsprop = [];
         $foreigncolumn = '';
         $foreignprop =[];
-        // $referencecolumns = $this->getReferenceColumns($columnsprop);
         $findreference = false;
         foreach ($columnsprop AS $columnname => $prop) {
-            if ($findreference && strpos($columnname, '_id_') === false) {
+            if ($findreference && substr($columnname, 0, strlen($foreigncolumn)) <> $foreigncolumn) {
                 // 参照用のカラムが終わったところに参照セレクトを入れる
                 $cardcolumnsprop[$foreigncolumn.'_reference'] = $foreignprop;
-                $prop['type'] = 'string';
                 $findreference = false;
             }
             if (substr($columnname, -4) == '_opt') {
@@ -29,14 +27,16 @@ class ArangeColumnspropToCardService {
             } elseif (strpos($columnname, '_id_') && substr($columnname, -2) !== 'id' && substr($columnname, -7) !== '_id_2nd') {
                 // 参照用のカラム
                 $cardcolumnsprop[$columnname] = $prop;
-                $findreference = true;
             } else {
                 // 参照idカラムか普通のカラム
                 $cardcolumnsprop[$columnname] = $prop;
                 if (substr($columnname, -3) == '_id' || substr($columnname, -7) == '_id_2nd') {
+                    // 参照セレクトのために参照idカラム名とpropを保存する
+                    $findreference = true;
                     $foreigncolumn = $columnname;
                     $foreignprop = $prop;
-                }
+                    $foreignprop['type'] = 'string';
+            }
             } 
         }
         return $cardcolumnsprop;

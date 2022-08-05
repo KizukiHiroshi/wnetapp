@@ -9,13 +9,14 @@ namespace App\Services\Database;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Services\SessionService;
-use App\Services\Database\GetNoHeaderColumnnameService;
+use App\Services\Database\GetNoHeadernameService;
 
 class QueryService 
 {
     // queryのfrom,join,select句を取得する
     public function getTableQuery($request, $displaymode, $tempsort = null) {
-        $tablename= $request->tablename;$sessionservice = new SessionService;
+        $tablename= $request->tablename;
+        $sessionservice = new SessionService;
         $searchinput = $sessionservice->getSession('searchinput');
         $columnsprop = $sessionservice->getSession('columnsprop');
         $modelindex = $sessionservice->getSession('modelindex');
@@ -39,7 +40,7 @@ class QueryService
         // from句
         $tablequery = $tablequery->from($tablename);
         // ForeignId用join句
-        $tablequery = $this->addIdJoinToQuery($tablequery, $tablename, $columnsprop);
+        $tablequery = $this->addJoinToQuery($tablequery, $tablename, $columnsprop, $where);
         // _opt用join句
         $tablequery = $this->addOptJoinToQuery($tablequery, $tablename, $columnsprop);
         // select句
@@ -104,7 +105,8 @@ class QueryService
     }
 
     // tablequeryにForeinId用のjoin句を足す
-    private function addIdJoinToQuery($tablequery, $tablename, $columnsprop) {
+    public function addJoinToQuery($tablequery, $tablename, $columnsprop, $where) {
+        //// 参照id分
         // '〇_id'と参照の深さを得る
         $foreignkeys = [];
         foreach ($columnsprop as $columnname => $poroperty) {
@@ -117,16 +119,22 @@ class QueryService
         // 同じテーブルをJOINする際にエイリアスを作る
         $foreigntablenames = [];
         // join句にして追加する（$valueは'_id'の数)
-        $gettnoheadercolumnnameservice = new GetNoHeaderColumnnameService;
+        $gettnoheadernameservice = new GetNoHeadernameService;
         foreach ($foreignkeys as $foreignkey => $value) {
-            $noheaderforeignkey = $gettnoheadercolumnnameservice->getNoHeaderColumnname($foreignkey);
+            $noheaderforeignkey = $gettnoheadernameservice->getNoHeadername($foreignkey);
             $sourcetablename = '';  // 参照元テーブル名
             $sourcecolumnname ='';  // 参照元カラム;
             $foreigntablename = ''; // 参照先テーブル名
             if ($value == 1) {  // '_id_'が含まれていない
-                $sourcetablename = $tablename;
+                if ($columnsprop[$foreignkey]['tablename'] <> $tablename
+                    && substr($columnsprop[$foreignkey]['tablename'], -strlen($tablename)) == $tablename) {
+                    $sourcetablename = $columnsprop[$foreignkey]['tablename'];
+                    $foreigntablename = $sourcetablename;
+                } else {
+                    $sourcetablename = $tablename;
+                    $foreigntablename = Str::plural(substr($noheaderforeignkey, 0, -3));
+                }
                 $sourcecolumnname = $foreignkey;
-                $foreigntablename = Str::plural(substr($noheaderforeignkey, 0, -3));
             } else {
                 // 後ろから2つ目のテーブル名
                 // 一番後ろを消す
@@ -140,7 +148,6 @@ class QueryService
                 $sourcecolumnname = substr($foreignkey, strrpos($foreignkey, '_id_') +4);
                 // 一番後ろのテーブル名
                 $foreigntablename = Str::plural(substr($sourcecolumnname, 0, -3));    
-
             }
             $jointablename = $foreigntablename;
             $jointableclauce = $foreigntablename;
@@ -152,8 +159,27 @@ class QueryService
             } else {
                 $foreigntablenames[$foreigntablename] = 0;
             }
-            $tablequery = $tablequery
-                ->join($jointableclauce, $sourcetablename.'.'.$sourcecolumnname,'=', $jointablename.'.id');
+            if ($sourcetablename <> $jointablename) {
+                $tablequery = $tablequery
+                ->join($jointableclauce, $sourcetablename.'.'.$sourcecolumnname,'=', $jointablename.'.id');    
+            } else {
+                $foreigntablenames[$foreigntablename] -= 1;
+            }
+        }
+        //// where分
+        foreach ($where as $columnname => $array) {
+            $jointablename = substr($columnname, 0, strpos($columnname,'.'));
+            if ($jointablename == $tablename) { continue; }
+            if (array_key_exists($jointablename, $foreigntablenames) && $foreigntablenames[$foreigntablename] > 0) { continue; }
+            if (substr($jointablename, -strlen($tablename)) == $tablename) {
+                $joincolumnname = substr($columnname, strpos($columnname,'.'));
+                $tablecolumnname = $joincolumnname;
+                if ($joincolumnname == '.id') {
+                    $joincolumnname = '.'.Str::singular($tablename).'_id';
+                }
+                $tablequery = $tablequery
+                ->join($jointablename, $tablename.$tablecolumnname,'=', $jointablename.$joincolumnname);               
+            }
         }
         return $tablequery;
     }

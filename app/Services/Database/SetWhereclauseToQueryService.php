@@ -9,11 +9,11 @@ class SetWhereclauseToQueryService
         foreach ($where as $columnname => $values) {
             if (strpos($columnname, '.')) {
                 $columntable = substr($columnname, 0, strpos($columnname, '.'));
-                if ($columntable <> $tablename) { continue; }
+                if ($columntable <> $tablename && substr($columntable, -strlen($tablename) -4) <> '_in_'.$tablename) { continue; }
             }
             if (count($values) == 1) {
                 $is_or = false; 
-                $value = $values[0];
+                $value = strval($values[0]);
                 if (strpos($value, ' ') !== false) {    // 同じカラムのAND要素
                     $subvalues = explode(' ', $value);
                     foreach ($subvalues as $subvalue) {

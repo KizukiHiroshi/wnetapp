@@ -14,4 +14,10 @@ class GetDeviceCookieService {
         $devicecookie['key'] = !$key ? '' : $key;
         return $devicecookie;
     }
+
+    // デバイスクッキー設定を取得する
+    public function getDeviceName() {
+        $devicename = Cookie::get('devicename');
+        return $devicename;
+    }
 }
