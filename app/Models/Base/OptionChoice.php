@@ -7,15 +7,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Validation\Rule;
 use App\ValidateTrait;
 
-use App\Models\Common\Jobtype;
 
 class OptionChoice extends Model
 {
     use SoftDeletes;
     use ValidateTrait;
-    public function jobtypes(){
-        return $this->belongsTo(Jobtype::class)->withDefault();
-    }
     protected $guarded = [];
     static $tablecomment = 'オプション選択肢';
     static $modelzone = '共通基礎';

@@ -30,14 +30,14 @@ class Stock extends Model
     static $defaultsort = [
         'businessunit_id' => 'asc',
         'stockshell_id' => 'asc',
-        'stockshellno1' => 'asc',
+        'stockshellno' => 'asc',
         'productitem_id' => 'asc',
     ];
     static $referencedcolumns = [
         'businessunit_id', 
         'productitem_id', 
         'stockshell_id', 
-        'stockshellno1', 
+        'stockshellno', 
     ];
     static $uniquekeys = [
        ['businessunit_id', 'productitem_id', ]

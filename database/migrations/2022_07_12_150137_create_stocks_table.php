@@ -28,14 +28,14 @@ class CreateStocksTable extends Migration
             $table->integer('reorderpoint')->comment('発注点')->nullable();
             $table->integer('maxstock')->comment('上限在庫数')->nullable();
             $table->date('stockupdeted_on')->comment('現在庫修正日')->default('2000/01/01')->nullable();
-            $table->string('remark')->comment('備考', 255)->nullable();
+            $table->string('remark', 255)->comment('備考')->nullable();
             $table->date('start_on')->comment('開始日')->default('2000/01/01')->nullable();
             $table->date('end_on')->comment('終了日')->default('2049/12/31')->nullable();
             $table->softDeletes()->comment('削除日時');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'))->comment('作成日時');
-            $table->string('created_by')->comment('作成者', 12);
+            $table->string('created_by', 12)->comment('作成者');
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'))->comment('更新日時');
-            $table->string('updated_by')->comment('更新者', 12);
+            $table->string('updated_by', 12)->comment('更新者');
             $table->unique(['businessunit_id','productitem_id',]);
         });
         DB::statement("alter table wnetdb_test.stocks comment '在庫';");

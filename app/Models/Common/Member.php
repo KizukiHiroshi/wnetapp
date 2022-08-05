@@ -15,13 +15,13 @@ class Member extends Model
 {
     use SoftDeletes;
     use ValidateTrait;
-    public function users() {
+    public function users(){
         return $this->belongsTo(User::class)->withDefault();
     }
-    public function businessunits() {
+    public function businessunits(){
         return $this->belongsTo(Businessunit::class)->withDefault();
     }
-    public function employtypes() {
+    public function employtypes(){
         return $this->belongsTo(Employtype::class)->withDefault();
     }
     protected $guarded = [];
@@ -48,12 +48,12 @@ class Member extends Model
             'user_id' => ['required','integer','numeric',],
             'businessunit_id' => ['required','integer','numeric',],
             'employtype_id' => ['required','integer','numeric',],
-            'code' => ['required','string','max:10','regex:/^[a-zA-Z0-9]/'],
+            'code' => ['required','string','max:10','regex:/^[a-zA-Z0-9]+$/'],
             'name_sei' => ['required','string','max:10','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
             'name_mei' => ['required','string','max:10','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
-            'name_kana' => ['required','string','max:20','regex:/^[ァ-ンヴー]/'],
+            'name_kana' => ['required','string','max:20','regex:/^[ァ-ンヴー]+$/'],
             'name_short' => ['required','string','max:12','regex:/[^\x01-\x7E\uFF61-\uFF9F()]/'],
-            'password' => ['required','string','max:16','regex:/^[a-zA-Z0-9-_]/'],
+            'password' => ['required','string','max:16','regex:/^[a-zA-Z0-9-_]+$/'],
             'email' => ['nullable','string','max:50','email'],
             'hourlywage' => ['nullable','integer','numeric',],
             'start_fulltime_on' => ['nullable','date',],

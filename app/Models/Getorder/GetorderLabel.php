@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Order;
+namespace App\Models\Getorder;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -10,7 +10,7 @@ use App\ValidateTrait;
 use App\Models\Common\Company;
 use App\Models\Common\Businessunit;
 
-class OrderLabel extends Model
+class GetorderLabel extends Model
 {
     use SoftDeletes;
     use ValidateTrait;
@@ -21,21 +21,21 @@ class OrderLabel extends Model
         return $this->belongsTo(Businessunit::class)->withDefault();
     }
     protected $guarded = [];
-    static $tablecomment = '発注';
-    static $modelzone = '発注入荷';
+    static $tablecomment = '受注';
+    static $modelzone = '受注出荷';
     static $defaultsort = [
-        'order_on' => 'asc',
-        'order_no' => 'asc',
+        'getorder_on' => 'asc',
+        'getorder_no' => 'asc',
     ];
     static $referencedcolumns = [
-        'order_on', 
-        'order_no', 
-        'order__company_id', 
-        'order__businessunit_id', 
+        'getorder_on', 
+        'getorder_no', 
         'getorder__company_id', 
+        'getorder__businessunit_id', 
+        'order__company_id', 
     ];
     static $uniquekeys = [
-       ['order_no'], 
+       ['getorder_no'], 
     ];
 
     // input has_many clause here
@@ -43,20 +43,22 @@ class OrderLabel extends Model
     protected function rules()
     {
         return [
-            'order_no' => ['required','string','max:13',],
-            'order_on' => ['required','date',],
-            'order__company_id' => ['required','integer','numeric',],
-            'order__businessunit_id' => ['required','integer','numeric',],
+            'getorder_no' => ['required','string','max:13',],
+            'getorder_on' => ['required','date',],
             'getorder__company_id' => ['required','integer','numeric',],
             'getorder__businessunit_id' => ['required','integer','numeric',],
+            'order__company_id' => ['required','integer','numeric',],
+            'order__businessunit_id' => ['required','integer','numeric',],
+            'guestorder_no' => ['nullable','string','max:20',],
             'need_deliverydate' => ['required','boolean',],
             'due_date' => ['nullable','date',],
             'regularprice_total' => ['required','integer','numeric',],
             'price_total' => ['required','integer','numeric',],
             'tax_total' => ['required','integer','numeric',],
             'delivery__businessunit_id' => ['required','integer','numeric',],
-            'is_recieved' => ['required','boolean',],
+            'is_fixed' => ['required','boolean',],
             'published_on' => ['nullable','date',],
+            'estimate_no' => ['nullable','string','max:13',],
             'remark' => ['nullable','string','max:255',],
             'is_completed' => ['required','boolean',],
             'transaction' => ['required','integer','numeric',],

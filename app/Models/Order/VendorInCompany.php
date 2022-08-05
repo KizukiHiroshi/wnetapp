@@ -13,7 +13,7 @@ class VendorInCompany extends Model
 {
     use SoftDeletes;
     use ValidateTrait;
-    public function companies() {
+    public function companies(){
         return $this->belongsTo(Company::class)->withDefault();
     }
     protected $guarded = [];
@@ -40,7 +40,7 @@ class VendorInCompany extends Model
             'pic' => ['nullable','string','max:20',],
             'telno' => ['nullable','string','max:14','regex:/^[a-zA-Z0-9-]+$/'],
             'faxno' => ['nullable','string','max:14','regex:/^[a-zA-Z0-9-]+$/'],
-            'emails' => ['nullable','string','max:200',],
+            'emails' => ['nullable','string','max:255',],
             'orderdayofweek' => ['nullable','string','max:7',],
             'ordertimeonday' => ['nullable','date',],
             'arrivaldayofweek' => ['nullable','string','max:7',],
@@ -48,17 +48,18 @@ class VendorInCompany extends Model
             'freeshippingamount' => ['nullable','integer','numeric',],
             'price_rounding_opt' => ['nullable','integer','numeric',],
             'is_cansenddirect' => ['nullable','boolean',],
-            'shippinggremarks' => ['nullable','string','max:200',],
+            'shippinggremarks' => ['nullable','string','max:255',],
             'closingdate_opt' => ['nullable','integer','numeric',],
             'tax_rounding_opt' => ['nullable','integer','numeric',],
             'shiftoftax_opt' => ['nullable','integer','numeric',],
             'paymentmethod_opt' => ['nullable','integer','numeric',],
             'accountspayable' => ['nullable','integer','numeric',],
-            'bankname' => ['nullable','string','max:20','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
-            'bankname_kana' => ['nullable','string','max:20','regex:/^[ァ-ンヴーッ]+$/'],
+            'bankno' => ['required','string','max:5',],
+            'bankname' => ['nullable','string','max:30','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
+            'bankname_kana' => ['nullable','string','max:30','regex:/^[ァ-ンヴーッ]+$/'],
             'bankbranchno' => ['nullable','string','max:5',],
-            'bankbranchname' => ['nullable','string','max:20','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
-            'bankbranchname_kana' => ['nullable','string','max:20','regex:/^[ァ-ンヴーッ]+$/'],
+            'bankbranchname' => ['nullable','string','max:30','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
+            'bankbranchname_kana' => ['nullable','string','max:30','regex:/^[ァ-ンヴーッ]+$/'],
             'bankdeposittype_opt' => ['nullable','integer','numeric',],
             'bankaccountnumber' => ['nullable','string','max:8',],
             'bankaccountname' => ['nullable','string','max:30',],
@@ -66,7 +67,7 @@ class VendorInCompany extends Model
             'is_vendorpaysfee' => ['nullable','boolean',],
             'orderpriority' => ['nullable','integer','numeric',],
             'ordermethod_opt' => ['nullable','integer','numeric',],
-            'remarks' => ['nullable','string','max:200',],
+            'remarks' => ['nullable','string','max:255',],
             'start_on' => ['nullable','date',],
             'end_on' => ['nullable','date',],
         ];

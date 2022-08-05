@@ -19,40 +19,22 @@ class Company extends Model
         'name_kana' => 'asc',
     ];
     static $referencedcolumns = [
+        'name', 
         'code', 
-        'name_short', 
     ];
     static $uniquekeys = [
        ['code'], 
     ];
 
     // input has_many clause here
-    public function edifiles() {
-        return $this->hasMany(Edifile::class);
-    }
-    public function businessunits() {
-        return $this->hasMany(Businessunit::class);
-    }
-    public function vendor_in_companies() {
-        return $this->hasMany(VendorInCompany::class);
-    }
-    public function buyer_in_companies(){
-        return $this->hasMany(BuyerInCompany::class);
-    }
-    public function performer_in_companies(){
-        return $this->hasMany(PerformerInCompany::class);
-    }
-    public function order_labels(){
-        return $this->hasMany(OrderLabel::class);
-    }
 
     protected function rules()
     {
         return [
-            'code' => ['required','string','max:4',Rule::unique('companies')->ignore($this->id),'regex:/\d{4}/'],
+            'code' => ['required','string','max:4','regex:/\d{4}/'],
             'name' => ['required','string','max:30','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
-            'name_kana' => ['required','string','max:30','regex:/^[^\x01-\x7E\uFF61-\uFF9F]+$/'],
-            'name_short' => ['required','string','max:10'],
+            'name_kana' => ['required','string','max:30','regex:/^[ァ-ンヴーッ]+$/'],
+            'name_short' => ['required','string','max:10','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
             'postalcode' => ['required','string','max:8','regex:/[0-9]{3}-?[0-9]{4}/'],
             'address1' => ['required','string','max:40',],
             'address2' => ['nullable','string','max:40',],
@@ -60,7 +42,7 @@ class Company extends Model
             'telno2' => ['nullable','string','max:14','regex:/^[a-zA-Z0-9-]+$/'],
             'faxno' => ['nullable','string','max:14','regex:/^[a-zA-Z0-9-]+$/'],
             'url' => ['nullable','string','max:100','url'],
-            'email' => ['nullable','string','max:255'],
+            'email' => ['nullable','string','max:255','email'],
             'remarks' => ['nullable','string','max:100',],
             'has_businessunit' => ['required','boolean',],
             'is_buyer' => ['required','boolean',],

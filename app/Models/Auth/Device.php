@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Auth;
+namespace App\Models\Common;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,14 +13,12 @@ class Device extends Model
 {
     use SoftDeletes;
     use ValidateTrait;
-    
-    public function users() {
+    public function users(){
         return $this->belongsTo(User::class)->withDefault();
     }
-    
     protected $guarded = [];
     static $tablecomment = 'デバイス';
-    static $modelzone = '認証';
+    static $modelzone = '共通';
     static $defaultsort = [
         'user_id' => 'asc',
         'name' => 'asc',

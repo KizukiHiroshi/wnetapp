@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Base;
+namespace App\Models\Zero;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,7 +14,7 @@ class Jobtype extends Model
     use ValidateTrait;
     protected $guarded = [];
     static $tablecomment = '業務種類';
-    static $modelzone = '共通基礎';
+    static $modelzone = 'システム開発';
     static $defaultsort = [
         'code' => 'asc',
     ];
@@ -26,24 +26,16 @@ class Jobtype extends Model
     ];
 
     // input has_many clause here
-    public function concerns() {
-        return $this->hasMany(Concern::class);
-    }
-    public function accountauthorities() {
-        return $this->hasMany(Accountauthority::class);
-    }
-    public function option_choices(){
-        return $this->hasMany(OptionChoice::class);
-    }
 
     protected function rules()
     {
         return [
-            'code' => ['required','string','max:3',Rule::unique('jobtypes')->ignore($this->id),'regex:/[0-9]{3}/'],
+            'code' => ['required','string','max:3','regex:/[0-9]{3}/'],
             'name' => ['required','string','max:20','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
-            'name_system' => ['required','string','max:40',Rule::unique('jobtypes')->ignore($this->id),'regex:/^[a-zA-Z0-9-_]+$/'],
+            'name_system' => ['required','string','max:40','regex:/^[a-zA-Z0-9-_]+$/'],
             'remarks' => ['nullable','string','max:80',],
+            'start_on' => ['nullable','date',],
+            'end_on' => ['nullable','date',],
         ];
     }
 }
-

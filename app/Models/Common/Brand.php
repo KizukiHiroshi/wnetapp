@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Validation\Rule;
 use App\ValidateTrait;
 
+
 class Brand extends Model
 {
     use SoftDeletes;
@@ -25,17 +26,14 @@ class Brand extends Model
     ];
 
     // input has_many clause here
-    public function products(){													
-        return $this->hasMany(Product::class);													
-    }													
 
     protected function rules()
     {
         return [
-            'name' => ['required','string','max:30',],
+            'name' => ['required','string','max:30','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
             'name_kana' => ['nullable','string','max:30',],
-            'url' => ['nullable','string','max:100','url'],
-            'image' => ['nullable','string','max:100',],
+            'url' => ['nullable','string','max:255','url'],
+            'image' => ['nullable','string','max:255','regex:/^[a-zA-Z0-9-_]+$/'],
             'remark' => ['nullable','string','max:255',],
             'start_on' => ['nullable','date',],
             'end_on' => ['nullable','date',],

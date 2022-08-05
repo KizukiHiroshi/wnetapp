@@ -4,6 +4,7 @@ namespace App\Models\Base;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Validation\Rule;
 use App\ValidateTrait;
 
 
@@ -15,13 +16,13 @@ class Sequence extends Model
     static $tablecomment = '連番管理';
     static $modelzone = '共通基礎';
     static $defaultsort = [
-        'key' => 'asc',
+        'name_system' => 'asc',
     ];
     static $referencedcolumns = [
-        'key', 
+        'name_system', 
     ];
     static $uniquekeys = [
-       ['key'], 
+       ['name_system'], 
     ];
 
     // input has_many clause here
@@ -30,10 +31,12 @@ class Sequence extends Model
     {
         return [
             'name' => ['required','string','max:64',],
-            'key' => ['required','string','max:64',],
+            'name_system' => ['required','string','max:64',],
+            'nowstring' => ['required','string','max:10',],
             'sequence' => ['required','integer','numeric',],
         ];
     }
+
     // 独自コネクション名
     // ※ここでしか使わないからあえて config に書かない
     const DB_CONNECTION = 'mysql_sequence';

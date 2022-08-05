@@ -32,22 +32,18 @@ class Product extends Model
     ];
 
     // input has_many clause here
-    public function productitems() {
-        return $this->hasMany(Productitem::class);
-    }
 
     protected function rules()
     {
         return [
             'brand_id' => ['required','integer','numeric',],
-            'name' => ['required','string','max:40',
+            'name' => ['required','string','max:30',
                 Rule::unique('products')->ignore($this->id)->where(function($query){
                     $query->where('brand_id', $this->brand_id);
-                })
-            ],
-            'name_kana' => ['nullable','string','max:70',],
-            'url' => ['nullable','string','max:100','url'],
-            'image' => ['nullable','string','max:100',],
+                }),'regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
+            'name_kana' => ['nullable','string','max:30',],
+            'url' => ['nullable','string','max:255','url'],
+            'image' => ['nullable','string','max:255',],
             'remark' => ['nullable','string','max:255',],
             'start_on' => ['nullable','date',],
             'end_on' => ['nullable','date',],

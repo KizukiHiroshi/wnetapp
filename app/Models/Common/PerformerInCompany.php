@@ -24,11 +24,9 @@ class PerformerInCompany extends Model
     ];
     static $referencedcolumns = [
         'company_id', 
-        'fiscalyearstart_on', 
-        'personnelyearstart_on', 
     ];
     static $uniquekeys = [
-       ['company_id'], 
+       ['company_id'], ['sequence_key'], 
     ];
 
     // input has_many clause here
@@ -37,6 +35,7 @@ class PerformerInCompany extends Model
     {
         return [
             'company_id' => ['required','integer','numeric',],
+            'sequence_key' => ['required','string','max:10',],
             'fiscalyearstart_on' => ['nullable','date',],
             'personnelyearstart_on' => ['nullable','date',],
             'start_on' => ['nullable','date',],

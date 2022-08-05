@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Base;
+namespace App\Models\Common;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,7 +14,7 @@ class CommonValue extends Model
     use ValidateTrait;
     protected $guarded = [];
     static $tablecomment = '共通変数';
-    static $modelzone = '共通基礎';
+    static $modelzone = '共通';
     static $defaultsort = [
         'name' => 'asc',
     ];
@@ -37,6 +37,8 @@ class CommonValue extends Model
             'value_2nd' => ['nullable','string','max:255',],
             'start_2nd_on' => ['nullable','date',],
             'remarks' => ['nullable','string','max:200',],
+            'start_on' => ['nullable','date',],
+            'end_on' => ['nullable','date',],
         ];
     }
 }
