@@ -31,6 +31,9 @@ class Stockshell extends Model
     ];
 
     // input has_many clause here
+    public function stocks(){
+        return $this->hasMany(Stock::class);
+    }
 
     protected function rules()
     {

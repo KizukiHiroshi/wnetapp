@@ -32,6 +32,9 @@ class Product extends Model
     ];
 
     // input has_many clause here
+    public function productitems(){
+        return $this->hasMany(Productitem::class);
+    }
 
     protected function rules()
     {

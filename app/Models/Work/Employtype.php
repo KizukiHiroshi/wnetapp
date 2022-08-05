@@ -26,6 +26,11 @@ class Employtype extends Model
        ['code'], ['name'], 
     ];
 
+    // input has_many clause here
+    public function members(){
+        return $this->hasMany(Member::class);
+    }
+
     protected function rules()
     {
         return [

@@ -26,6 +26,9 @@ class Brand extends Model
     ];
 
     // input has_many clause here
+    public function products(){
+        return $this->hasMany(Product::class);
+    }
 
     protected function rules()
     {

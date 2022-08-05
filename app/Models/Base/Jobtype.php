@@ -26,6 +26,9 @@ class Jobtype extends Model
     ];
 
     // input has_many clause here
+    public function concerns(){
+        return $this->hasMany(Concern::class);
+    }
 
     protected function rules()
     {

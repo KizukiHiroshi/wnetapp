@@ -33,11 +33,11 @@ class User extends Authenticatable
     public function accounts() {
         return $this->hasMany(Account::class);
     }
-    public function members() {
-        return $this->hasMany(Member::class);
-    }
-    public function devices() {
+    public function devices(){
         return $this->hasMany(Device::class);
+    }
+    public function members(){
+        return $this->hasMany(Member::class);
     }
 
     /**

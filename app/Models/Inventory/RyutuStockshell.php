@@ -31,6 +31,9 @@ class RyutuStockshell extends Model
     ];
 
     // input has_many clause here
+    public function ryutu_stocks(){
+        return $this->hasMany(RyutuStock::class);
+    }
 
     protected function rules()
     {
