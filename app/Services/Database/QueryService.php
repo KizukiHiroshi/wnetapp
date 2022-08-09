@@ -15,8 +15,7 @@ class QueryService
 {
     // queryのfrom,join,select句を取得する
     public function getTableQuery($request, $displaymode, $tempsort = null) {
-        $tablename= $request->tablename;
-        $sessionservice = new SessionService;
+        $tablename= $request->tablename;$sessionservice = new SessionService;
         $searchinput = $sessionservice->getSession('searchinput');
         $columnsprop = $sessionservice->getSession('columnsprop');
         $modelindex = $sessionservice->getSession('modelindex');
@@ -40,7 +39,7 @@ class QueryService
         // from句
         $tablequery = $tablequery->from($tablename);
         // ForeignId用join句
-        $tablequery = $this->addJoinToQuery($tablequery, $tablename, $columnsprop, $where);
+        $tablequery = $this->addIdJoinToQuery($tablequery, $tablename, $columnsprop);
         // _opt用join句
         $tablequery = $this->addOptJoinToQuery($tablequery, $tablename, $columnsprop);
         // select句
@@ -105,8 +104,7 @@ class QueryService
     }
 
     // tablequeryにForeinId用のjoin句を足す
-    public function addJoinToQuery($tablequery, $tablename, $columnsprop, $where) {
-        //// 参照id分
+    private function addIdJoinToQuery($tablequery, $tablename, $columnsprop) {
         // '〇_id'と参照の深さを得る
         $foreignkeys = [];
         foreach ($columnsprop as $columnname => $poroperty) {
@@ -126,15 +124,9 @@ class QueryService
             $sourcecolumnname ='';  // 参照元カラム;
             $foreigntablename = ''; // 参照先テーブル名
             if ($value == 1) {  // '_id_'が含まれていない
-                if ($columnsprop[$foreignkey]['tablename'] <> $tablename
-                    && substr($columnsprop[$foreignkey]['tablename'], -strlen($tablename)) == $tablename) {
-                    $sourcetablename = $columnsprop[$foreignkey]['tablename'];
-                    $foreigntablename = $sourcetablename;
-                } else {
-                    $sourcetablename = $tablename;
-                    $foreigntablename = Str::plural(substr($noheaderforeignkey, 0, -3));
-                }
+                $sourcetablename = $tablename;
                 $sourcecolumnname = $foreignkey;
+                $foreigntablename = Str::plural(substr($noheaderforeignkey, 0, -3));
             } else {
                 // 後ろから2つ目のテーブル名
                 // 一番後ろを消す
@@ -148,6 +140,7 @@ class QueryService
                 $sourcecolumnname = substr($foreignkey, strrpos($foreignkey, '_id_') +4);
                 // 一番後ろのテーブル名
                 $foreigntablename = Str::plural(substr($sourcecolumnname, 0, -3));    
+
             }
             $jointablename = $foreigntablename;
             $jointableclauce = $foreigntablename;
@@ -159,27 +152,8 @@ class QueryService
             } else {
                 $foreigntablenames[$foreigntablename] = 0;
             }
-            if ($sourcetablename <> $jointablename) {
-                $tablequery = $tablequery
-                ->join($jointableclauce, $sourcetablename.'.'.$sourcecolumnname,'=', $jointablename.'.id');    
-            } else {
-                $foreigntablenames[$foreigntablename] -= 1;
-            }
-        }
-        //// where分
-        foreach ($where as $columnname => $array) {
-            $jointablename = substr($columnname, 0, strpos($columnname,'.'));
-            if ($jointablename == $tablename) { continue; }
-            if (array_key_exists($jointablename, $foreigntablenames) && $foreigntablenames[$foreigntablename] > 0) { continue; }
-            if (substr($jointablename, -strlen($tablename)) == $tablename) {
-                $joincolumnname = substr($columnname, strpos($columnname,'.'));
-                $tablecolumnname = $joincolumnname;
-                if ($joincolumnname == '.id') {
-                    $joincolumnname = '.'.Str::singular($tablename).'_id';
-                }
-                $tablequery = $tablequery
-                ->join($jointablename, $tablename.$tablecolumnname,'=', $jointablename.$joincolumnname);               
-            }
+            $tablequery = $tablequery
+                ->join($jointableclauce, $sourcetablename.'.'.$sourcecolumnname,'=', $jointablename.'.id');
         }
         return $tablequery;
     }

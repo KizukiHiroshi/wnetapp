@@ -96,7 +96,16 @@
             </th>
             <td>
             @if($is_small) <small> @endif
-            @if (substr($columnname,-10) == '_reference')
+            @if (substr($columnname,-13) == 'opt_reference')
+                <?php $foreignid = substr($columnname,0,-10); ?>
+                <?php $selectname = str_replace('_2nd','', $columnname); ?>
+                @include('layouts/components/select', [
+                    'name'      => $foreignid,
+                    'selects'   => $optionselects[$selectname],
+                    'selected'  => $row->$foreignid,
+                    'readonly'  => $readonly,
+                ])
+            @elseif (substr($columnname,-10) == '_reference')
                 <?php $foreignid = substr($columnname,0,-10); ?>
                 <?php $selectname = str_replace('_2nd','', $columnname); ?>
                 @include('layouts/components/select', [

@@ -26,10 +26,10 @@ class TableController extends Controller
         ListCase $listcase,
         TableCase $tablecase
         ) {
-            $this->listcase = $listcase;
             $this->cardcase = $cardcase;
             $this->csvuploadcase = $csvuploadcase;
             $this->excutecase = $excutecase;
+            $this->listcase = $listcase;
             $this->tablecase = $tablecase;
     }
 

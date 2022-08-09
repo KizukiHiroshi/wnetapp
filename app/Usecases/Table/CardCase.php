@@ -4,10 +4,11 @@ namespace App\Usecases\Table;
 
 use App\Services\SessionService;
 use App\Services\Database\GetForeginSelectsService;
+use App\Services\Database\GetOptionSelectsService;
+use App\Services\Table\ArangeColumnspropToCardService;
 use App\Services\Table\GetEmptyRowService;
+use App\Services\Table\GetMenuParamsService;
 use App\Services\Table\GetRowByIdService;
-use App\Services\Model\GetModelSelectParamsService;
-
 
 class CardCase {
 
@@ -15,21 +16,13 @@ class CardCase {
     }
     
     public function getParams($request, $mode) {
-        $sessionservice = new SessionService;
-        // 現在のテーブル名をSessionに保存する
         $tablename = $request->tablename;
+        // 現在のテーブル名をSessionに保存する
+        $sessionservice = new SessionService;
         $sessionservice->putSession('tablename', $tablename);
-        // 使用中のデバイス名を取得する
-        $devicename = $sessionservice->getSession('devicename');
-        // ModelIndexを取得する
-        $modelindex = $sessionservice->getSession('modelindex');
-        // パラメータを取得する
-        $params = [
-            'devicename'        => $devicename,
-        ];
-        // モデル選択部
-        $getmodelselectparamsservice = new GetModelSelectParamsService;
-        $params += $getmodelselectparamsservice->getModelselectParams($request, $modelindex);
+        // Table選択、検索表示のパラメータを取得する
+        $getmenuparamsservice = new GetMenuParamsService;
+        $params = $getmenuparamsservice->getMenuParams($request);
         // Card表示用のパラメータを取得する
         $params += $this->getCardParams($request, $mode);
         return $params;
@@ -46,8 +39,18 @@ class CardCase {
         $success = $request->success !== '' ? $request->success : '';
         // テーブルの和名
         $tablecomment = $modelindex[$tablename]['tablecomment'];
-        // columnspropをcard表示用に変更する
-        $cardcolumnsprop = $sessionservice->getSession('cardcolumnsprop', $columnsprop);;
+        // columnspropのforeign_referenceをcard表示用に合体する
+        $arangecolumnsproptocardservice = new ArangeColumnspropToCardService;
+        $cardcolumnsprop = $arangecolumnsproptocardservice->arangeColumnspropToCard($columnsprop);
+        // foreignkey用のセレクトリストを用意する
+        $getforeginselectsservice = new GetForeginSelectsService;
+        $foreignselects = $getforeginselectsservice->getForeginSelects($columnsprop);
+        // option用のセレクトリストを用意する
+        $getoptionselectsservice = new GetOptionSelectsService;
+        $optionselects = $getoptionselectsservice->getOptionSelects($columnsprop);
+       
+        $page = $sessionservice->getSession('page');
+
         if ($mode !== 'create') {
             // 新規作成以外では表示するレコードの実体を取得する
             $getrowbyidservice = new GetRowByIdService;
@@ -57,11 +60,6 @@ class CardCase {
             $getemptyrowservice = new GetEmptyRowService;
             $row = $getemptyrowservice->getEmptyRow($cardcolumnsprop);
         }
-        // foreignkey用のセレクトリストを用意する
-        $searchinput = ['id' => $id];
-        $getforeginselectsservice = new GetForeginSelectsService;
-        $foreignselects = $getforeginselectsservice->getForeginSelects($cardcolumnsprop, $searchinput);
-        $page = $sessionservice->getSession('page');
         $params = [
             'mode'          => $mode,
             'tablename'     => $tablename,
@@ -69,22 +67,11 @@ class CardCase {
             'tablecomment'  => $tablecomment,
             'cardcolumnsprop'   => $cardcolumnsprop,
             'foreignselects' => $foreignselects,
+            'optionselects' => $optionselects,
             'row'           => $row,
             'page'          => $page,
         ];
         return $params;
     }
-
-    // // $requestからtable_searchの情報を抽出してSessionに保存する
-    // private function setIdToSearchinput($row) {
-    //     $input =[];
-    //     $rawparams = $row->toArray();
-    //     foreach($rawparams as $rawname => $value) {
-    //         if ($rawname == 'id') {
-    //             $input[$rawname] = $value;
-    //         }
-    //     }
-    //     return $input;
-    // }
-
 }
+
