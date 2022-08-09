@@ -5,7 +5,7 @@ namespace App\Models\Common;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Validation\Rule;
-use App\ValidateTrait;
+use App\Traits\ValidateTrait;
 
 
 class Company extends Model
@@ -68,7 +68,6 @@ class Company extends Model
             'has_businessunit' => ['required','boolean',],
             'is_buyer' => ['required','boolean',],
             'is_vendor' => ['required','boolean',],
-            'can_work' => ['required','boolean',],
             'start_on' => ['nullable','date',],
             'end_on' => ['nullable','date',],
         ];

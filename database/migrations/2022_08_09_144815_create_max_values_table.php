@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
-class CreatePerformerincompaniesTable extends Migration
+class CreateMaxvaluesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,15 +14,12 @@ class CreatePerformerincompaniesTable extends Migration
      */
     public function up()
     {
-        Schema::create('performer_in_companies', function (Blueprint $table){
+        Schema::create('max_values', function (Blueprint $table){
             $table->id()->comment('id');
-            $table->foreignId('company_id')->comment('企業名')->references('id')->on('companies');
-            $table->string('sequence_key', 10)->comment('シーケンスキー')->unique();
-            $table->boolean('can_order')->comment('発注機能有無')->default(0);
-            $table->boolean('can_getorder')->comment('受注機能有無')->default(0);
-            $table->boolean('can_work')->comment('勤怠機能有無')->default(0);
-            $table->date('fiscalyearstart_on')->comment('会計年度開始日')->default('2000/03/01')->nullable();
-            $table->date('personnelyearstart_on')->comment('人事年度開始日')->default('2000/03/16')->nullable();
+            $table->string('name', 30)->comment('変数名')->unique();
+            $table->string('name_system', 30)->comment('システム変数名')->unique();
+            $table->string('value', 255)->comment('値');
+            $table->string('remarks', 200)->comment('備考')->nullable();
             $table->date('start_on')->comment('開始日')->default('2000/01/01')->nullable();
             $table->date('end_on')->comment('終了日')->default('2049/12/31')->nullable();
             $table->softDeletes()->comment('削除日時');
@@ -31,7 +28,7 @@ class CreatePerformerincompaniesTable extends Migration
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'))->comment('更新日時');
             $table->string('updated_by', 12)->comment('更新者');
         });
-        DB::statement("alter table wnetdb_test.performer_in_companies comment '利用企業';");
+        DB::statement("alter table wnetdb_test.max_values comment '最大値管理';");
     }
 
     /**
@@ -41,6 +38,6 @@ class CreatePerformerincompaniesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('performer_in_companies');
+        Schema::dropIfExists('max_values');
     }
 }

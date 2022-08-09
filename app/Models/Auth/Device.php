@@ -5,7 +5,7 @@ namespace App\Models\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Validation\Rule;
-use App\ValidateTrait;
+use App\Traits\ValidateTrait;
 
 use App\Models\Common\User;
 

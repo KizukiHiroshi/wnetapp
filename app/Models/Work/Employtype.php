@@ -5,7 +5,7 @@ namespace App\Models\Work;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Validation\Rule;
-use App\ValidateTrait;
+use App\Traits\ValidateTrait;
 
 
 class Employtype extends Model

@@ -5,7 +5,7 @@ namespace App\Models\Common;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Validation\Rule;
-use App\ValidateTrait;
+use App\Traits\ValidateTrait;
 
 
 class Brand extends Model
