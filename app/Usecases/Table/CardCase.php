@@ -9,6 +9,7 @@ use App\Services\Table\ArangeColumnspropToCardService;
 use App\Services\Table\GetEmptyRowService;
 use App\Services\Table\GetMenuParamsService;
 use App\Services\Table\GetRowByIdService;
+use App\Services\Table\GetSearchConditionsService;
 
 class CardCase {
 
@@ -16,12 +17,12 @@ class CardCase {
     }
     
     public function getParams($request, $mode) {
+        $sessionservice = new SessionService;
+        $getmenuparamsservice = new GetMenuParamsService;
         $tablename = $request->tablename;
         // 現在のテーブル名をSessionに保存する
-        $sessionservice = new SessionService;
         $sessionservice->putSession('tablename', $tablename);
         // Table選択、検索表示のパラメータを取得する
-        $getmenuparamsservice = new GetMenuParamsService;
         $params = $getmenuparamsservice->getMenuParams($request);
         // Card表示用のパラメータを取得する
         $params += $this->getCardParams($request, $mode);
@@ -30,8 +31,10 @@ class CardCase {
 
     // Card表示用のパラメータを取得する
     public function getCardParams($request, $mode) {
-        $tablename = $request->tablename;
         $sessionservice = new SessionService;
+        $getmenuparamsservice = new GetMenuParamsService;
+        $getsearchconditionsservice = new GetSearchConditionsService;
+        $tablename = $request->tablename;
         $modelindex = $sessionservice->getSession('modelindex');
         $columnsprop = $sessionservice->getSession('columnsprop', $tablename);
         $id = $request->id;
@@ -42,15 +45,6 @@ class CardCase {
         // columnspropのforeign_referenceをcard表示用に合体する
         $arangecolumnsproptocardservice = new ArangeColumnspropToCardService;
         $cardcolumnsprop = $arangecolumnsproptocardservice->arangeColumnspropToCard($columnsprop);
-        // foreignkey用のセレクトリストを用意する
-        $getforeginselectsservice = new GetForeginSelectsService;
-        $foreignselects = $getforeginselectsservice->getForeginSelects($columnsprop);
-        // option用のセレクトリストを用意する
-        $getoptionselectsservice = new GetOptionSelectsService;
-        $optionselects = $getoptionselectsservice->getOptionSelects($columnsprop);
-       
-        $page = $sessionservice->getSession('page');
-
         if ($mode !== 'create') {
             // 新規作成以外では表示するレコードの実体を取得する
             $getrowbyidservice = new GetRowByIdService;
@@ -60,6 +54,13 @@ class CardCase {
             $getemptyrowservice = new GetEmptyRowService;
             $row = $getemptyrowservice->getEmptyRow($cardcolumnsprop);
         }
+        // foreignkey用のセレクトリストを用意する
+        $getforeginselectsservice = new GetForeginSelectsService;
+        $foreignselects = $getforeginselectsservice->getForeginSelects($columnsprop);
+        // option用のセレクトリストを用意する
+        $getoptionselectsservice = new GetOptionSelectsService;
+        $optionselects = $getoptionselectsservice->getOptionSelects($columnsprop);
+        $page = $sessionservice->getSession('page');
         $params = [
             'mode'          => $mode,
             'tablename'     => $tablename,

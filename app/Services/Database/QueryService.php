@@ -16,19 +16,19 @@ class QueryService
     // queryのfrom,join,select句を取得する
     public function getTableQuery($request, $displaymode, $tempsort = null) {
         $tablename= $request->tablename;$sessionservice = new SessionService;
-        $searchinput = $sessionservice->getSession('searchinput');
+        $searchconditions = $sessionservice->getSession('searchconditions');
         $columnsprop = $sessionservice->getSession('columnsprop');
         $modelindex = $sessionservice->getSession('modelindex');
         $getwhereservice = new GetWhereService;
-        $where = $getwhereservice->getWhere($searchinput, $columnsprop);
+        $where = $getwhereservice->getWhere($searchconditions, $columnsprop);
         $modelname = $modelindex[$tablename]['modelname'];
         // Trashの扱い
         if ($displaymode == 'card') {
             $tablequery = $modelname::withTrashed();
-        } elseif (isset($searchinput['trashed'])) {   // 検索条件から
-            if ($searchinput['trashed'] == 'with') {
+        } elseif (isset($searchconditions['trashed'])) {   // 検索条件から
+            if ($searchconditions['trashed'] == 'with') {
                 $tablequery = $modelname::withTrashed();
-            } elseif ($searchinput['trashed'] == 'only') {
+            } elseif ($searchconditions['trashed'] == 'only') {
                 $tablequery = $modelname::onlyTrashed();
             } else {
                 $tablequery = $modelname::query();

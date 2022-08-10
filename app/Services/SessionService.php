@@ -21,7 +21,7 @@ class SessionService
         'screen_height'     => ['is_array' => false, 'service' => '', 'redirect' => ''],
         'lastsort'          => ['is_array' => false, 'service' => '', 'redirect' => ''],
         'iddictionary'      => ['is_array' => true, 'service' => '', 'redirect' => ''],
-        'searchinput'       => ['is_array' => true, 'service' => '', 'redirect' => ''],
+        'searchconditions'       => ['is_array' => true, 'service' => '', 'redirect' => ''],
         'accountvalue'      => ['is_array' => true, 'service' => '', 'redirect' => ''],
     ];
 

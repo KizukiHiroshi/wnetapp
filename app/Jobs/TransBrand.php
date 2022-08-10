@@ -50,6 +50,7 @@ class TransBrand implements ShouldQueue
 
     private function updateNewTable($untreatedrows, $newtablename ) {
         $getfuriganaservice = new GetFuriganaService;
+        $findvalueservice = new FindValueService;
         foreach ($untreatedrows as $untreatedrow) {
             $form = [];
             $rawbrand = mb_convert_kana(trim($untreatedrow->メーカー名), "a");
@@ -60,7 +61,6 @@ class TransBrand implements ShouldQueue
             $form['updated_at'] = $untreatedrow->updated_at;
             $form['updated_by'] = 'transwnet';
             $foreginkey = $newtablename.'?name='.urlencode($form['name']);
-            $findvalueservice = new FindValueService;
             $id = $findvalueservice->findValue($foreginkey, 'id');
             if ($id == 0) {
                 $transwnetservice = new TranswnetService;

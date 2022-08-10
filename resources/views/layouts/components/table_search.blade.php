@@ -39,9 +39,9 @@
                 && substr($columnname,-4) !== '_opt')
             <?php
             $realcolumnname = substr($columnname, -10) == '_reference' ? substr($columnname,0,-10) : $columnname;
-            $searchvalue = array_key_exists($realcolumnname, $searchinput) ? $searchinput[$realcolumnname] : '';
-            $biginvalue = array_key_exists('bigin_'.$realcolumnname, $searchinput) ? $searchinput['bigin_'.$realcolumnname] : '';
-            $endvalue = array_key_exists('end_'.$realcolumnname, $searchinput) ? $searchinput['end_'.$realcolumnname] : '';
+            $searchvalue = array_key_exists($realcolumnname, $searchconditions) ? $searchconditions[$realcolumnname] : '';
+            $biginvalue = array_key_exists('bigin_'.$realcolumnname, $searchconditions) ? $searchconditions['bigin_'.$realcolumnname] : '';
+            $endvalue = array_key_exists('end_'.$realcolumnname, $searchconditions) ? $searchconditions['end_'.$realcolumnname] : '';
             ?>
             <tr>           
                 <th>{{ $prop['comment'] }}</th>
@@ -99,7 +99,7 @@
                         <input type="date" name="{{ 'search_'.'end_'.$columnname }}" style="font-size:0.75em" value="{{ $endvalue }}" class="w-30">
                         </div>    
                         @if ($columnname == 'deleted_at')
-                            <?php $trashed = array_key_exists('trashed', $searchinput) ? $searchinput['trashed'] : 'no';?>
+                            <?php $trashed = array_key_exists('trashed', $searchconditions) ? $searchconditions['trashed'] : 'no';?>
                             <div>
                             @include('layouts/components/radio', [
                                 'name'      => 'search_'.'trashed',

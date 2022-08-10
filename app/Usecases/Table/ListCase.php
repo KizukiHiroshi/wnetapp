@@ -40,7 +40,7 @@ class ListCase {
         $withdownload = NULL;
         $mode = '';
         $page = $request->page ? $request->page : $this->sessionservice->getSession('page');
-        $searchinput = $params['searchinput'];
+        $searchconditions = $params['searchconditions'];
         if (array_key_exists($tablename, $modelindex)) {
             // リストの画面当たり行数
             $paginatecnt = $this->sessionservice->getSession('paginatecnt');
@@ -60,8 +60,8 @@ class ListCase {
             // 表示するListの実体を取得する
             $is_pagerequest = $this->getIspagerequest($request);
             if ($is_pagerequest) {
-                $searchinput = $this->sessionservice->getSession('searchinput');
-                $searchinput = is_null($searchinput) ? [] : $searchinput;
+                $searchconditions = $this->sessionservice->getSession('searchconditions');
+                $searchconditions = is_null($searchconditions) ? [] : $searchconditions;
             }
             $gettablerowsservice = new GetTableRowsService;
             $rows = $gettablerowsservice->getTableRows($request, $tempsort);
@@ -86,7 +86,7 @@ class ListCase {
             'withbutton'    => $withbutton,
             'withdownload'  => $withdownload,
             'mode'          => $mode,
-            'searchinput'   => $searchinput,    // 元の$paramsを上書きする
+            'searchconditions'   => $searchconditions,    // 元の$paramsを上書きする
         ];
         return $params;
     }

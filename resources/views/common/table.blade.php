@@ -30,7 +30,7 @@ if ($tablecomment !== '') {
         <!-- 検索条件入力 -->
         @if ($mode == 'list')
         @include('layouts/components/table_search', [
-            'searchinput'       => $searchinput,
+            'searchconditions'       => $searchconditions,
             'searcherrors'      => $searcherrors, 
             'cardcolumnsprop'   => $cardcolumnsprop,
             'foreignselects'    => $foreignselects,

@@ -13,11 +13,11 @@ class GetFormforSearchService {
 
     // searchで入力されたbigin_,end_ヘッダー付検索条件を、
     // validationの対象にするために元のカラム名に戻す
-    public function getFormforSearch($withhearder, $columnsprop, $searchinput) {
+    public function getFormforSearch($withhearder, $columnsprop, $searchconditions) {
         $form = [];
         foreach ($columnsprop as $columnname => $value) {
-            if (array_key_exists($withhearder.$columnname, $searchinput)) {
-                $form[$columnname] = $searchinput[$withhearder.$columnname];
+            if (array_key_exists($withhearder.$columnname, $searchconditions)) {
+                $form[$columnname] = $searchconditions[$withhearder.$columnname];
             }
         }
         return $form;

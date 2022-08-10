@@ -6,16 +6,16 @@ class GetWhereService
 {
     // $requestから検索要素を抽出する
     // 'string'は like
-    public function getWhere($searchinput, $columnsprop) {
+    public function getWhere($searchconditions, $columnsprop) {
         $where =[];
-        if ($searchinput) {
+        if ($searchconditions) {
             // 文字の検索
             foreach ($columnsprop as $columnname => $prop) {
-                if (array_key_exists($columnname, $searchinput)
-                    && $searchinput[$columnname] !== null) {
+                if (array_key_exists($columnname, $searchconditions)
+                    && $searchconditions[$columnname] !== null) {
                     if ($prop['type'] == 'string') {
                         // ' ' スペース検索でAND検索（半角に直しておく）
-                        $words = str_replace('　', ' ', $searchinput[$columnname]);;
+                        $words = str_replace('　', ' ', $searchconditions[$columnname]);;
                         // ' ' スペース毎に%を補完する
                         $wordsarray = explode(' ', $words);
                         $words = '';
@@ -33,7 +33,7 @@ class GetWhereService
                         }
                         $where[$prop['tablename'].'.'.$prop['realcolumn']] = $values;
                     } else {
-                        $where[$prop['tablename'].'.'.$prop['realcolumn']] = [$searchinput[$columnname]];
+                        $where[$prop['tablename'].'.'.$prop['realcolumn']] = [$searchconditions[$columnname]];
                     }
                 }
             }
@@ -41,20 +41,20 @@ class GetWhereService
             foreach ($columnsprop as $columnname => $prop) {
                 $bigin = 'bigin_'.$columnname;
                 $end = 'end_'.$columnname;
-                if (array_key_exists($bigin, $searchinput)
-                    && $searchinput[$bigin] !== null) {
-                    $value = '>=|'.$searchinput[$bigin];        // '|'は不等式と値の間のキャラクター
-                    if (array_key_exists($end, $searchinput)
-                        && $searchinput[$end] !== null) {
-                        $value  .= ' <=|'.$searchinput[$end];   // 先頭のスペースがアンド検索要素
+                if (array_key_exists($bigin, $searchconditions)
+                    && $searchconditions[$bigin] !== null) {
+                    $value = '>=|'.$searchconditions[$bigin];        // '|'は不等式と値の間のキャラクター
+                    if (array_key_exists($end, $searchconditions)
+                        && $searchconditions[$end] !== null) {
+                        $value  .= ' <=|'.$searchconditions[$end];   // 先頭のスペースがアンド検索要素
                     }
                     $where[$prop['tablename'].'.'.$columnname] = [$value];
-                } elseif (array_key_exists($end, $searchinput)
-                    && $searchinput[$end] !== null) {
-                    $value = '<=|'.$searchinput[$end];              // '|'は不等式と値の間のキャラクター
-                    if (array_key_exists($bigin, $searchinput)
-                        && $searchinput[$bigin] !== null) {
-                        $value  .= ' >=|'.$searchinput[$bigin];     // 先頭のスペースがアンド検索要素
+                } elseif (array_key_exists($end, $searchconditions)
+                    && $searchconditions[$end] !== null) {
+                    $value = '<=|'.$searchconditions[$end];              // '|'は不等式と値の間のキャラクター
+                    if (array_key_exists($bigin, $searchconditions)
+                        && $searchconditions[$bigin] !== null) {
+                        $value  .= ' >=|'.$searchconditions[$bigin];     // 先頭のスペースがアンド検索要素
                     }
                     $where[$prop['tablename'].'.'.$columnname] = [$value];
                 }

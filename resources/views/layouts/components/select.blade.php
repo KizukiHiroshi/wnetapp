@@ -18,8 +18,8 @@
   $required = $withnoselect == '' ? 'required' : '';
 ?>
 
-<div>
-    <select name="{{ $name }}" {{ $required }} class="form-control form-control-sm" {{ $size }}">
+<div class="border-bottom border-3">
+    <select name="{{ $name }}" {{ $required }} class="form-control form-control-sm" {{ $size }}>
         @if ($withnoselect === 'before')
         <option value="">選択しない</option>
         @endif

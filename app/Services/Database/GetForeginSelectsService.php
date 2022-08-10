@@ -14,7 +14,7 @@ class GetForeginSelectsService
     }
 
     // card表示用にforeignkey用のセレクトリストを用意する
-    public function getForeginSelects($columnsprop, $searchinput = NULL) {
+    public function getForeginSelects($columnsprop, $searchconditions = NULL) {
         $foreignselects = [];
         $concats = [];           // 合体する参照先カラムの配列
         // 必要なセレクトをまず決める
@@ -41,9 +41,9 @@ class GetForeginSelectsService
                     }
                 }
             }
-            // searchinputに該当条件があれば、where句として追加する
+            // searchconditionsに該当条件があれば、where句として追加する
             $getwhereservice = new GetWhereService;
-            $where = $getwhereservice->getWhere($searchinput, $columnsprop);    
+            $where = $getwhereservice->getWhere($searchconditions, $columnsprop);    
             $foreignselectrows = $this->getIdReferenceSelects($forerignreferencename, $referencetablename, $concats, $where);
             $foreignselects[$forerignreferencename] = $foreignselectrows;
             // 参照内容を初期化

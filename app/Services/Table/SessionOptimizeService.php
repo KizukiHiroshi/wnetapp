@@ -19,7 +19,7 @@ class SessionOptimizeService {
             $sessionservice->putSession('tablename', $tablename);
             $sessionservice->forgetSession('columnsprop');
             $sessionservice->forgetSession('cardcolumnsprop');
-            $sessionservice->forgetSession('searchinput');
+            $sessionservice->forgetSession('searchconditions');
             $sessionservice->forgetSession('lastsort');
             $sessionservice->forgetSession('page');
         }

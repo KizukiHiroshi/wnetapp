@@ -31,7 +31,7 @@ class Sequence extends Model
     {
         return [
             'name' => ['required','string','max:64',],
-            'name_system' => ['required','string','max:64',],
+            'key' => ['required','string','max:64',],
             'nowstring' => ['required','string','max:10',],
             'sequence' => ['required','integer','numeric',],
         ];
