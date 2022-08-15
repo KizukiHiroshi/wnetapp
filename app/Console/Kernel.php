@@ -2,6 +2,11 @@
 
 namespace App\Console;
 
+/*
+タスクスケジューラの名称は「tranwnet」
+上記を見失って誤って作ったのが「laravelcron」
+*/
+
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 

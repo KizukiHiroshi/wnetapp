@@ -40,7 +40,7 @@ class TransFirstOrder implements ShouldQueue
     {
         // 旧テーブルの登録履歴をチェックする
         // 管理済の日付を取得する
-        $systemname = 'TransOrder';
+        $systemname = 'TransFirstOrder';
         $oldtablename = '１３：店舗発注明細';
         while (true) {
             $maxvalue = $this->getKnownshopandcode($systemname);
@@ -225,8 +225,6 @@ class TransFirstOrder implements ShouldQueue
         $form['remark'] = $transrow->備考;
         // is_completed
         $form['is_completed'] = 0;
-        // transaction_no
-        $form['alltransaction_no'] = $sequenceservice->getNewNo('alltransaction_no');
         // old13id
         $form['old13id'] = $transrow->発生ＩＤ;
         // old14id
@@ -238,6 +236,8 @@ class TransFirstOrder implements ShouldQueue
             // order_no
             $gettransactionnoservice = new GetTransactionNoService;
             $form['order_no'] = $gettransactionnoservice->getTransactionNo($key, $rawyear);
+            // transaction_no
+            $form['alltransaction_no'] = $sequenceservice->getNewNo('alltransaction_no');
         }
         $order_label_id = $excuteprocessservice->excuteProcess('order_labels' , $form, $id);
         return $order_label_id;
@@ -274,8 +274,6 @@ class TransFirstOrder implements ShouldQueue
         $form['available_quantity'] = 0;
         // is_completed
         $form['is_completed'] = 0;
-        // transaction_no
-        $form['alltransaction_no'] = $sequenceservice->getNewNo('alltransaction_no');
         // old13
         $form['old13id'] = $transrow->発生ＩＤ;
         // old14
@@ -286,6 +284,10 @@ class TransFirstOrder implements ShouldQueue
         //      
         $foreginkey = 'order_details?old13id='.$form['old13id'];
         $id = $findvalueservice->findValue($foreginkey, 'id');
+        if ($id == 0) {
+            // transaction_no
+            $form['alltransaction_no'] = $sequenceservice->getNewNo('alltransaction_no');
+        }
         $ret_id = $excuteprocessservice->excuteProcess('order_details' , $form, $id); 
         $detailacount = [
             'regularprice'    => $transrow->販売単価 * $transrow->決定発注数,
@@ -384,7 +386,7 @@ class TransFirstOrder implements ShouldQueue
             +'-'+RTRIM(convert(CHAR, 店コード))
             +'-'+RTRIM(convert(CHAR, ISNULL(客注区分, 0)))
             +'-'+RTRIM(convert(CHAR, 発生ＩＤ))")
-            ->limit(1000)
+            ->limit(500)
             ->get();
         return $transrows;
     }
