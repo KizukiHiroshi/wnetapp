@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
-class CreateGetorderlabelsTable extends Migration
+class CreateGetorderLabelsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -35,7 +35,7 @@ class CreateGetorderlabelsTable extends Migration
             $table->string('estimate_no', 13)->comment('見積No')->nullable();
             $table->string('remark', 255)->comment('備考')->default('')->nullable();
             $table->boolean('is_completed')->comment('完了フラグ')->default(0);
-            $table->bigInteger('transaction')->comment('取引管理No')->default(0);
+            $table->bigInteger('alltransaction_no')->comment('取引管理No')->default(0);
             $table->integer('old13id')->comment('旧13ID')->default(0)->nullable();
             $table->integer('old14id')->comment('旧14ID')->default(0)->nullable();
             $table->softDeletes()->comment('削除日時');

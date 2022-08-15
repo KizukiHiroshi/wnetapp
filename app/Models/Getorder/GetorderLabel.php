@@ -46,10 +46,10 @@ class GetorderLabel extends Model
     protected function rules()
     {
         return [
-            'getorderlabel_id' => ['required','integer','numeric',],
+            'getorder_label_id' => ['required','integer','numeric',],
             'detail_no' => ['required','integer','numeric',
                 Rule::unique('getorder_details')->ignore($this->id)->where(function($query){
-                    $query->where('getorderlabel_id', $this->getorderlabel_id);
+                    $query->where('getorder_label_id', $this->getorder_label_id);
                 }),],
             'productitem_id' => ['required','integer','numeric',],
             'regularprice' => ['required','integer','numeric',],
@@ -62,7 +62,7 @@ class GetorderLabel extends Model
             'allocation_quantity' => ['required','integer','numeric',],
             'available_quantity' => ['required','integer','numeric',],
             'is_completed' => ['required','boolean',],
-            'transaction_no' => ['required','integer','numeric',],
+            'alltransaction_no' => ['required','integer','numeric',],
             'old13id' => ['nullable','integer','numeric',],
             'old14id' => ['nullable','integer','numeric',],
         ];

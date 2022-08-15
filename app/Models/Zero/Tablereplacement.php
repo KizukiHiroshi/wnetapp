@@ -37,6 +37,7 @@ class Tablereplacement extends Model
             'systemname' => ['required','string','max:30',],
             'oldtablename' => ['required','string','max:30',
                 Rule::unique('tablereplacements')->ignore($this->id)->where(function($query){
+                    $query->where('name', $this->oldtablename);
                 }),],
             'newtablename' => ['required','string','max:30',
                 Rule::unique('tablereplacements')->ignore($this->id)->where(function($query){

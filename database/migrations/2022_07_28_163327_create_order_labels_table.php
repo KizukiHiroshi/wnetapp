@@ -25,6 +25,7 @@ class CreateOrderlabelsTable extends Migration
             $table->foreignId('getorder__businessunit_id')->comment('発注先事業所')->references('id')->on('businessunits');
             $table->boolean('need_deliverydate')->comment('納期連絡有無')->default(0);
             $table->date('due_date')->comment('指定納期')->nullable();
+            $table->integer('detail_count')->comment('明細行数');
             $table->integer('regularprice_total')->comment('定価合計');
             $table->integer('price_total')->comment('金額合計');
             $table->integer('tax_total')->comment('消費税金額');
@@ -33,7 +34,7 @@ class CreateOrderlabelsTable extends Migration
             $table->date('published_on')->comment('発行日')->nullable();
             $table->string('remark', 255)->comment('備考')->default('')->nullable();
             $table->boolean('is_completed')->comment('完了フラグ')->default(0);
-            $table->bigInteger('transaction_no')->comment('取引管理No')->default(0);
+            $table->bigInteger('alltransaction_no')->comment('取引管理No')->default(0);
             $table->integer('old13id')->comment('旧13ID')->default(0)->nullable();
             $table->integer('old14id')->comment('旧14ID')->default(0)->nullable();
             $table->softDeletes()->comment('削除日時');
@@ -41,6 +42,7 @@ class CreateOrderlabelsTable extends Migration
             $table->string('created_by', 12)->comment('作成者');
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'))->comment('更新日時');
             $table->string('updated_by', 12)->comment('更新者');
+            $table->unique(['order_no','order__company_id',]);
         });
         DB::statement("alter table wnetdb_test.order_labels comment '発注';");
     }

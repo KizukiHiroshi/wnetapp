@@ -16,7 +16,7 @@ class CreateOrderdetailsTable extends Migration
     {
         Schema::create('order_details', function (Blueprint $table){
             $table->id()->comment('id');
-            $table->foreignId('orderlabel_id')->comment('発注No')->references('id')->on('orderlabels');
+            $table->foreignId('order_label_id')->comment('発注No')->references('id')->on('order_labels');
             $table->integer('detail_no')->comment('発注行No');
             $table->foreignId('productitem_id')->comment('規番コード')->references('id')->on('productitems');
             $table->integer('regularprice')->comment('定価');
@@ -27,7 +27,7 @@ class CreateOrderdetailsTable extends Migration
             $table->string('remark', 255)->comment('備考')->default('')->nullable();
             $table->integer('available_quantity')->comment('入荷済数量')->default(0);
             $table->boolean('is_completed')->comment('完了フラグ')->default(0);
-            $table->bigInteger('transaction_no')->comment('取引管理No')->default(0);
+            $table->bigInteger('alltransaction_no')->comment('取引管理No')->default(0);
             $table->integer('old13id')->comment('旧13ID')->default(0)->nullable();
             $table->integer('old14id')->comment('旧14ID')->default(0)->nullable();
             $table->softDeletes()->comment('削除日時');
@@ -35,7 +35,7 @@ class CreateOrderdetailsTable extends Migration
             $table->string('created_by', 12)->comment('作成者');
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'))->comment('更新日時');
             $table->string('updated_by', 12)->comment('更新者');
-            $table->unique(['orderlabel_id','detail_no',]);
+            $table->unique(['order_label_id','detail_no',]);
         });
         DB::statement("alter table wnetdb_test.order_details comment '発注明細';");
     }

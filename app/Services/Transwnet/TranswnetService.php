@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace App\Services\Transwnet;
 
 use Illuminate\Support\Facades\DB;
+use App\Services\Database\AddIddictionaryService;
 use App\Services\Database\ExcuteProcessService;
 use App\Services\Database\FindValueService;
 
@@ -13,7 +14,7 @@ class TranswnetService {
 
     public function separateRawShopcode($shopcode) {
         $rawcompany = intval(intval($shopcode) / 100000);
-        $companycode = substr('0000'.strval($rawcompany),-4);
+        $companycode = substr('0000'.strval($rawcompany), -4);
         if ($companycode == '0000') { $companycode = '0001'; }
         $businessunitcode = substr('00000'.$shopcode, -5);
         $separatedshopcode = [
@@ -23,31 +24,18 @@ class TranswnetService {
         return $separatedshopcode;
     }
 
-    public function getFindvaluesetByRawShopcode($shopcode) {
-        $findvalueservice = new FindValueService;
-        $rawcompany = intval(intval($shopcode) / 100000);
-        $companycode = substr('0000'.strval($rawcompany),-4);
+    public function addIdBySeparatedShopcode($separatedshopcode, $iddictionary) {
+        $addiddictionaryservice = new AddIddictionaryService;
+        $companycode = $separatedshopcode['companycode'];
         // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
         $foreginkey = 'companies?code='.urlencode($companycode);
-        $company_id = strval($findvalueservice->findValue($foreginkey, 'id'));
-        $businessunitcode = substr('00000'.$shopcode, -5);
+        $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
+        $company_id = $iddictionary[$foreginkey];
+        $businessunitcode = $separatedshopcode['businessunitcode'];
         // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
-        $foreginkey = 'businessunits?company_id='.urlencode($company_id).'&&code='.urlencode($businessunitcode);
-        return $foreginkey;
-    }
-
-    public function getBusinessunitIdByRawShopcode($shopcode) {
-        $findvalueservice = new FindValueService;
-        $rawcompany = intval(intval($shopcode) / 100000);
-        $companycode = substr('0000'.strval($rawcompany),-4);
-        // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
-        $foreginkey = 'companies?code='.urlencode($companycode);
-        $company_id = strval($findvalueservice->findValue($foreginkey, 'id'));
-        $businessunitcode = substr('00000'.$shopcode, -5);
-        // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
-        $foreginkey = 'businessunits?company_id='.urlencode($company_id).'&&code='.urlencode($businessunitcode);
-        $businessunit_id = $findvalueservice->findValue($foreginkey, 'id');
-        return $businessunit_id;
+        $foreginkey = 'businessunits?company_id='.$company_id.'&&code='.urlencode($businessunitcode);
+        $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
+        return $iddictionary;
     }
 
     public function getLatest($mode, $systemname) {

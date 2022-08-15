@@ -5,6 +5,7 @@ namespace App\Services\Database;
 use Illuminate\Support\Facades\DB;
 use App\Services\SessionService;
 use App\Services\Database\QueryService;
+use App\Services\Database\GetNoHeadernameService;
 use App\Services\Database\GetWhereService;
 use App\Services\Database\SetWhereclauseToQueryService;
 
@@ -54,23 +55,25 @@ class GetForeginSelectsService
 
     // 参照用selects作成
     private function getIdReferenceSelects($referencename, $tablename, $concats, $where) {
+        $gettnoheadernameservice = new GetNoHeadernameService;
+        $noheadertablename = $gettnoheadernameservice->getNoHeadername($tablename);
         $idreferenceselects =[];
         DB::enableQueryLog();
         // queryのfrom,join,select句を取得する
         $sessionservice = new SessionService;
         $modelindex = $sessionservice->getSession('modelindex');
-        $modelname = $modelindex[$tablename]['modelname'];
+        $modelname = $modelindex[$noheadertablename]['modelname'];
         $tablequery = $modelname::query();
         // from句
-        $tablequery = $tablequery->from($tablename);
+        $tablequery = $tablequery->from($noheadertablename);
         // where句
         $setwhereclausetoqueryservice = new SetWhereclauseToQueryService;
-        $tablequery = $setwhereclausetoqueryservice->setWhereclauseToQuery($tablename, $tablequery, $where);
+        $tablequery = $setwhereclausetoqueryservice->setWhereclauseToQuery($noheadertablename, $tablequery, $where);
         $queryservice = new QueryService;
         // join句
         $concatclause = $queryservice->getConcatClause($concats, ' ', $referencename);
         $tablequery = $tablequery->select('id', DB::raw($concatclause));
-        $rows = $tablequery->get();
+        $rows = $tablequery->limit(300)->get();
         $answer = DB::getQueryLog();
         if (count($rows) > 200) {
             $idreferenceselects[0] = '200行以上は非表示';

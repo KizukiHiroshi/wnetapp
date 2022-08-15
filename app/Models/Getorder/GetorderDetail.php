@@ -14,7 +14,7 @@ class GetorderDetail extends Model
 {
     use SoftDeletes;
     use ValidateTrait;
-    public function getorderlabels(){
+    public function getorder_labels(){
         return $this->belongsTo(Getorderlabel::class)->withDefault();
     }
     public function productitems(){
@@ -24,18 +24,18 @@ class GetorderDetail extends Model
     static $tablecomment = '受注明細';
     static $modelzone = '受注出荷';
     static $defaultsort = [
-        'getorderlabel_id' => 'asc',
+        'getorder_label_id' => 'asc',
         'detail_no' => 'asc',
     ];
     static $referencedcolumns = [
-        'getorderlabel_id', 
+        'getorder_label_id', 
         'detail_no', 
         'productitem_id', 
         'price', 
         'quantity', 
     ];
     static $uniquekeys = [
-       ['getorderlabel_id', 'detail_no', ]
+       ['getorder_label_id', 'detail_no', ]
     ];
 
     // input has_many clause here
@@ -43,10 +43,10 @@ class GetorderDetail extends Model
     protected function rules()
     {
         return [
-            'getorderlabel_id' => ['required','integer','numeric',],
+            'getorder_label_id' => ['required','integer','numeric',],
             'detail_no' => ['required','integer','numeric',
                 Rule::unique('getorder_details')->ignore($this->id)->where(function($query){
-                    $query->where('getorderlabel_id', $this->getorderlabel_id);
+                    $query->where('getorder_label_id', $this->getorder_label_id);
                 }),],
             'productitem_id' => ['required','integer','numeric',],
             'regularprice' => ['required','integer','numeric',],
@@ -59,7 +59,7 @@ class GetorderDetail extends Model
             'allocation_quantity' => ['required','integer','numeric',],
             'available_quantity' => ['required','integer','numeric',],
             'is_completed' => ['required','boolean',],
-            'transaction_no' => ['required','integer','numeric',],
+            'alltransaction_no' => ['required','integer','numeric',],
             'old13id' => ['nullable','integer','numeric',],
             'old14id' => ['nullable','integer','numeric',],
         ];

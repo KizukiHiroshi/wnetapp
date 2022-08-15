@@ -109,37 +109,39 @@ class QueryService
         $foreignkeys = [];
         foreach ($columnsprop as $columnname => $poroperty) {
             if (substr($columnname, -3) == '_id' && strpos($columnname, '_id_2nd_') == false) {
-                $foreignkeys[$columnname] = substr_count($columnname, '_id');
+                $foreignkeys[$columnname] = substr_count($columnname, '_id_');
             }
         }
         // 参照の浅い順に並べ替える
         asort($foreignkeys);
         // 同じテーブルをJOINする際にエイリアスを作る
         $foreigntablenames = [];
-        // join句にして追加する（$valueは'_id'の数)
+        // join句にして追加する（$valueは'_id_'の数)
         $gettnoheadernameservice = new GetNoHeadernameService;
         foreach ($foreignkeys as $foreignkey => $value) {
-            $noheaderforeignkey = $gettnoheadernameservice->getNoHeadername($foreignkey);
             $sourcetablename = '';  // 参照元テーブル名
             $sourcecolumnname ='';  // 参照元カラム;
             $foreigntablename = ''; // 参照先テーブル名
-            if ($value == 1) {  // '_id_'が含まれていない
+            if ($value == 0) {  // '_id_'が含まれていない
                 $sourcetablename = $tablename;
                 $sourcecolumnname = $foreignkey;
+                $noheaderforeignkey = $gettnoheadernameservice->getNoHeadername($foreignkey);
                 $foreigntablename = Str::plural(substr($noheaderforeignkey, 0, -3));
             } else {
                 // 後ろから2つ目のテーブル名
                 // 一番後ろを消す
-                $sourcetablename = substr($noheaderforeignkey, 0, strrpos($noheaderforeignkey, '_id_'));
+                $sourcetablename = substr($foreignkey, 0, strrpos($foreignkey, '_id_'));
                 // 前に残っていればそれも消す
                 if (strrpos($sourcetablename, '_id_')) {
                     $sourcetablename = substr($sourcetablename, strrpos($sourcetablename, '_id_') +4);
                 }
-                $sourcetablename = Str::plural($sourcetablename);
+                $noheadersourcetablename = $gettnoheadernameservice->getNoHeadername($sourcetablename);
+                $sourcetablename = Str::plural($noheadersourcetablename);
                 // 一番後ろの'〇_id'
                 $sourcecolumnname = substr($foreignkey, strrpos($foreignkey, '_id_') +4);
                 // 一番後ろのテーブル名
-                $foreigntablename = Str::plural(substr($sourcecolumnname, 0, -3));    
+                $noheadersourcecolumnname = $gettnoheadernameservice->getNoHeadername($sourcecolumnname);
+                $foreigntablename = Str::plural(substr($noheadersourcecolumnname, 0, -3));    
 
             }
             $jointablename = $foreigntablename;

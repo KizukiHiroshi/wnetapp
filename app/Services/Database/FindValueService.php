@@ -14,9 +14,6 @@ class FindValueService
     // $findvalueset = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
     public function findValue($findvalueset, $targetcolumn = NULL) {
         if ($targetcolumn == NULL) { $targetcolumn = 'id'; }
-        if (strpos($findvalueset, 'businessunit_id=32') > 0) {
-            $ansewr = 1;
-        }
         $findvalue = 0;
         $tablename = Str::plural(Str::before($findvalueset,'?'));
         $is_joinedunique = strpos(Str::after($findvalueset,'?'),'&&',) !== false ? true : false;

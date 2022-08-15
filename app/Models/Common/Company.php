@@ -19,8 +19,8 @@ class Company extends Model
         'name_kana' => 'asc',
     ];
     static $referencedcolumns = [
-        'name', 
         'code', 
+        'name_short', 
     ];
     static $uniquekeys = [
        ['code'], 

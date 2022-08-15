@@ -6,8 +6,9 @@
 declare(strict_types=1);
 namespace App\Services\Table;
 
-use App\Services\SessionService;
 use Illuminate\Support\Str;
+use App\Services\SessionService;
+use App\Services\Database\GetNoHeadernameService;
 
 class SortService
 {
@@ -91,9 +92,11 @@ class SortService
     // テーブル既存のソート順を追加する
     private function addDefaultsortToTempsort($tempsort, $tablename, $modelindex, $showcolumns) {
         // テーブル既存のソート順を取得する
-        $defaultsort = $modelindex[$tablename]['modelname']::$defaultsort;
+        $gettnoheadernameservice = new GetNoHeadernameService;
+        $noheadertablename = $gettnoheadernameservice->getNoHeadername($tablename);
+        $defaultsort = $modelindex[$noheadertablename]['modelname']::$defaultsort;
         // テーブル既存のソート順をTempsortのformに変える
-        $defaultsort = $this->setDefaultsortToTempsortForm($tablename, $defaultsort, $modelindex);
+        $defaultsort = $this->setDefaultsortToTempsortForm($noheadertablename, $defaultsort, $modelindex);
         $newarray = $defaultsort;
         $temparray = $tempsort;
         $knownkeys = $showcolumns;
