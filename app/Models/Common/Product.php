@@ -43,7 +43,7 @@ class Product extends Model
             'name' => ['required','string','max:30',
                 Rule::unique('products')->ignore($this->id)->where(function($query){
                     $query->where('brand_id', $this->brand_id);
-                }),'regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
+                }),],
             'name_kana' => ['nullable','string','max:30',],
             'url' => ['nullable','string','max:255','url'],
             'image' => ['nullable','string','max:255',],

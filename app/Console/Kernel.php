@@ -37,17 +37,17 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->job(new TransCompany());
-        // $schedule->job(new TransCompanyVendor());
-        // $schedule->job(new TransCompanyBuyer());
-        // $schedule->job(new TransBusinessunit());
-        // $schedule->job(new TransBrand());
-        // $schedule->job(new TransProduct());
-        // $schedule->job(new TransProductItem());
-        // $schedule->job(new TransStockshell());
-        // $schedule->job(new TransStockshellRyutu());
-        // $schedule->job(new TransStock());
-        // $schedule->job(new TransStockRyutu());
+        $schedule->job(new TransCompany());
+        $schedule->job(new TransCompanyVendor());
+        $schedule->job(new TransCompanyBuyer());
+        $schedule->job(new TransBusinessunit());
+        $schedule->job(new TransBrand());
+        $schedule->job(new TransProduct());
+        $schedule->job(new TransProductItem());
+        $schedule->job(new TransStockshell());
+        $schedule->job(new TransStockshellRyutu());
+        $schedule->job(new TransStock());
+        $schedule->job(new TransStockRyutu());
         $schedule->job(new TransFirstOrder());
     }
 
