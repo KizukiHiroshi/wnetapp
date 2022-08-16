@@ -68,7 +68,6 @@ class TransStockRyutu implements ShouldQueue
             ->whereRaw("created_at > CONVERT(DATETIME, '".$latest_created."') or updated_at > CONVERT(DATETIME, '".$latest_updated."')")
             // 初期設定用：登録済みのコード取得
             ->whereRaw("convert(float,rtrim(convert(char, 在庫主体コード))+'.'+ＪＡＮコード) > convert(float,'".$knownshopandcode."')")
-            // ->whereRaw("convert(float,rtrim(convert(char, 在庫主体コード))+'.'+ＪＡＮコード) > convert(float,'5700.4005401159995')")
             ->orderByRaw("在庫主体コード, ＪＡＮコード")
             // ->limit(1000)
             ->get();
@@ -98,8 +97,9 @@ class TransStockRyutu implements ShouldQueue
             $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
             $form['productitem_id'] = $iddictionary[$foreginkey];
             if ($form['productitem_id'] == NULL) { continue; }
+            $shellcode = strval($transrow->棚番号) == '' ? '0' : mb_convert_kana(trim($transrow->棚番号), "as");
             // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
-            $foreginkey = 'ryutu_stockshells?businessunit_id='.$form['businessunit_id'].'&&code='.urlencode(mb_convert_kana(trim($transrow->棚番号), "as"));
+            $foreginkey = 'ryutu_stockshells?businessunit_id='.$form['businessunit_id'].'&&code='.urlencode($shellcode);
             $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
             $form['ryutu_stockshell_id'] = $iddictionary[$foreginkey];
             $form['ryutu_stockshellno'] = $transrow->棚内順 == NULL ? 0 : $transrow->棚内順;

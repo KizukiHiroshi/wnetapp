@@ -54,7 +54,7 @@ class VendorInCompany extends Model
             'shiftoftax_opt' => ['nullable','integer','numeric',],
             'paymentmethod_opt' => ['nullable','integer','numeric',],
             'accountspayable' => ['nullable','integer','numeric',],
-            'bankno' => ['required','string','max:5',],
+            'bankno' => ['nullable','string','max:5',],
             'bankname' => ['nullable','string','max:30','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
             'bankname_kana' => ['nullable','string','max:30','regex:/^[ァ-ンヴーッ]+$/'],
             'bankbranchno' => ['nullable','string','max:5',],

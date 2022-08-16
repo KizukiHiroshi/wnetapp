@@ -42,29 +42,29 @@ class TransFirstOrder implements ShouldQueue
         // 管理済の日付を取得する
         $systemname = 'TransFirstOrder';
         $oldtablename = '１３：店舗発注明細';
-        while (true) {
+        // while (true) {
             $maxvalue = $this->getKnownshopandcode($systemname);
             $transrows = $this->getTransRows($systemname, $oldtablename, $maxvalue);
             // $newtablenameを更新する
-            $maxvalue = $this->updateNewTable($transrows);
+            $maxvalue = $this->updateNewTable($transrows, $maxvalue);
             // 管理済履歴を更新する
             $transwnetservice = new TranswnetService;
             $transwnetservice->updateTablereplacement($systemname, $oldtablename, $maxvalue);
             //  レコードが無ければexit
-            if ($transrows->count() == 0) {
-                break;
-           }
-        }
+        //     if ($transrows->count() == 0) {
+        //         break;
+        //    }
+        // }
     }
 
     // $newtablenameを更新する
-    private function updateNewTable($transrows) {
+    private function updateNewTable($transrows, $maxvalue) {
         $dictionaries = [
             'id' => [],
             'companykey' => [],
             'nowstring' => [],
         ];
-        $templabelkey = '';         // labelを更新するかどうか判断するkey
+        $templabelkey = $maxvalue;         // labelを更新するかどうか判断するkey
         $order_label_id = null;      // label
         $labelaccount = [];         // labelの集計値
         $labelaccount = $this->resetLabelAccount($labelaccount);
@@ -164,6 +164,9 @@ class TransFirstOrder implements ShouldQueue
         // 発注元のid
         $shopcode = $transrow->店コード;
         $separatedshopcode = $transwnetservice->separateRawShopcode($shopcode);
+        if ($separatedshopcode['companycode'] == null || $separatedshopcode['businessunitcode'] == null ) {
+            $find = 0;
+        }
         $dictionaries['id'] = $transwnetservice->addIdBySeparatedShopcode($separatedshopcode, $dictionaries['id']);
         // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
         $foreginkey = 'companies?code='.urlencode($separatedshopcode['companycode']);
@@ -190,10 +193,14 @@ class TransFirstOrder implements ShouldQueue
         $form['order__businessunit_id'] = $businessunit_id;
         // ordered_by
         $biko = trim($transrow->備考);
-        $ordered_by = strpos($biko, ' ') ? substr($biko, 0, strpos($biko, ' ')) : $biko;
+        $ordered_by = trim(strpos($biko, ' ') ? substr($biko, 0, strpos($biko, ' ')) : $biko);
+        $ordered_by = mb_substr($ordered_by, 0, 6);
         $form['ordered_by'] = $ordered_by;
         // 店コードによって発注先を取得
         $getorderseparatedshopcode = $this->getGetorderSeparatedShopcode($transrow, $dictionaries);
+        if ($getorderseparatedshopcode == null ) {
+            $find = 0;
+        }
         $dictionaries['id'] = $transwnetservice->addIdBySeparatedShopcode($getorderseparatedshopcode, $dictionaries['id']);
         // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
         $foreginkey = 'companies?code='.urlencode($getorderseparatedshopcode['companycode']);
@@ -230,15 +237,12 @@ class TransFirstOrder implements ShouldQueue
         // old14id
         $form['created_by'] = $ordered_by;
         $form['updated_by'] = $ordered_by;
-        $foreginkey = 'order_labels?old13id='.$form['old13id'];
-        $id = $findvalueservice->findValue($foreginkey, 'id');
-        if ($id == 0) {
-            // order_no
-            $gettransactionnoservice = new GetTransactionNoService;
-            $form['order_no'] = $gettransactionnoservice->getTransactionNo($key, $rawyear);
-            // transaction_no
-            $form['alltransaction_no'] = $sequenceservice->getNewNo('alltransaction_no');
-        }
+        // order_no
+        $gettransactionnoservice = new GetTransactionNoService;
+        $form['order_no'] = $gettransactionnoservice->getTransactionNo($key, $rawyear);
+        // transaction_no
+        $form['alltransaction_no'] = $sequenceservice->getNewNo('alltransaction_no');
+        $id = 0;
         $order_label_id = $excuteprocessservice->excuteProcess('order_labels' , $form, $id);
         return $order_label_id;
     }
@@ -279,6 +283,7 @@ class TransFirstOrder implements ShouldQueue
         // old14
         $biko = trim($transrow->備考);
         $ordered_by = strpos($biko, ' ') ? substr($biko, 0, strpos($biko, ' ')) : $biko;
+        $ordered_by = mb_substr($ordered_by, 0, 6);
         $form['created_by'] = $ordered_by;
         $form['updated_by'] = $ordered_by;
         //      
@@ -321,7 +326,7 @@ class TransFirstOrder implements ShouldQueue
                     'businessunitcode' => '99999',
                 ];
             } else {
-
+                return null;
             }
         } elseif (intval($shopcode / 100000) == 2 || intval($shopcode / 100000) == 3) {
             $getseparatedshopcode = [
@@ -379,18 +384,18 @@ class TransFirstOrder implements ShouldQueue
             or convert(int, 店コード/100000) = 8990 
             or convert(int, 店コード/100000) = 9200 
             or convert(int, 店コード/100000) = 9500 
-            or convert(int, 店コード/100000) = 9505)")
+            or convert(int, 店コード/100000) = 9505) AND (店コード % 100000 <> 99999)")
             ->whereRaw("(convert(VARCHAR, 店発注日, 112)+'-'+RTRIM(convert(CHAR, 店コード))
             +'-'+RTRIM(convert(CHAR, ISNULL(客注区分,0)))+'-'+RTRIM(convert(CHAR, 発生ＩＤ)) > '".$maxvalue."')")
             ->orderByRaw("convert(VARCHAR, 店発注日, 112)
             +'-'+RTRIM(convert(CHAR, 店コード))
             +'-'+RTRIM(convert(CHAR, ISNULL(客注区分, 0)))
             +'-'+RTRIM(convert(CHAR, 発生ＩＤ))")
-            ->limit(100)
+            ->limit(3000)
             ->get();
         return $transrows;
     }
-
+    
     private function getKnownshopandcode($systemname) {
         $row = DB::table('tablereplacements')
             ->where('systemname', $systemname)

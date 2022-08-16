@@ -74,7 +74,6 @@ class TransCompany implements ShouldQueue
                 $form['is_buyer'] = 1;
                 $form['is_vendor'] = 0;    
             }
-            $form['can_work'] = 0;
             $form['updated_at'] = $untreatedrow->updated_at;
             $form['updated_by'] = 'transwnet';
             $foreginkey = $newtablename.'?code='.urlencode($form['code']);

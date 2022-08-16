@@ -40,13 +40,13 @@ class TransStockshellRyutu implements ShouldQueue
         $newtablename = 'ryutu_stockshells';
         while (true) {
             $transrows = $this->getTransRows($systemname, $oldtablename);
-            //  レコードが無ければexit
+            //  $newtablenameを更新する
             $this->updateNewTable($transrows, $newtablename);
             // 管理済履歴を更新する
             $transwnetservice = new TranswnetService;
             $transwnetservice->updateTablereplacement($systemname, $oldtablename);
+            //  レコードが無ければexit
             if ($transrows->count() == 0) { break; }
-            //  $newtablenameを更新する
         }
    }
 
@@ -89,7 +89,7 @@ class TransStockshellRyutu implements ShouldQueue
             $foreginkey = 'businessunit?company_id='.$company_id.'&&code='.urlencode($businessunitcode);
             $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
             $form['businessunit_id'] = $iddictionary[$foreginkey];
-            $form['code'] = mb_convert_kana(trim($transrow->棚番号), "as");
+            $form['code'] = (strval($transrow->棚番号) == '' ? '0' : mb_convert_kana(trim($transrow->棚番号), "as"));
             $form['name'] = '-';
             $form['remark'] = '';
             $form['updated_at'] = $transrow->updated_at == null ? '2000/01/01' : $transrow->updated_at;

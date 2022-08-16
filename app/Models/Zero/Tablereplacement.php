@@ -45,7 +45,7 @@ class Tablereplacement extends Model
                 }),],
             'latest_created' => ['required','date',],
             'latest_updated' => ['required','date',],
-            'maxvalue' => ['required','string','max:50',],
+            'maxvalue' => ['nullable','string','max:50',],
             'remarks' => ['nullable','string','max:200',],
             'start_on' => ['nullable','date',],
             'end_on' => ['nullable','date',],

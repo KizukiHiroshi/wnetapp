@@ -16,7 +16,7 @@ class CreateOrderlabelsTable extends Migration
     {
         Schema::create('order_labels', function (Blueprint $table){
             $table->id()->comment('id');
-            $table->string('order_no', 13)->comment('発注No')->unique();
+            $table->string('order_no', 13)->comment('発注No');
             $table->date('order_on')->comment('発注日');
             $table->foreignId('order__company_id')->comment('発注企業')->references('id')->on('companies');
             $table->foreignId('order__businessunit_id')->comment('発注事業所')->references('id')->on('businessunits');

@@ -28,10 +28,16 @@ class TranswnetService {
         $addiddictionaryservice = new AddIddictionaryService;
         $companycode = $separatedshopcode['companycode'];
         // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
+        if ($companycode == null) {
+            $stop = 0;
+        }
         $foreginkey = 'companies?code='.urlencode($companycode);
         $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);
         $company_id = $iddictionary[$foreginkey];
         $businessunitcode = $separatedshopcode['businessunitcode'];
+        if ($businessunitcode == null) {
+            $stop = 0;
+        }
         // $foreginkey = 参照テーブル名?参照カラム名=urlencode(値)&参照カラム名=urlencode(値)
         $foreginkey = 'businessunits?company_id='.$company_id.'&&code='.urlencode($businessunitcode);
         $iddictionary = $addiddictionaryservice->addIddictionary($iddictionary, $foreginkey);

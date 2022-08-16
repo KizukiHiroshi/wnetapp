@@ -64,7 +64,10 @@ class TransProduct implements ShouldQueue
             ->table('wise_login.'.$oldtablename)
             ->select('メーカー名', '商品名', DB::raw('max(created_at) as created_at'), DB::raw('max(updated_at) as updated_at'))
             ->where('仮本区分', '1')
-            ->whereRaw("created_at > CONVERT(DATETIME, '".$latest_created."') or updated_at > CONVERT(DATETIME, '".$latest_updated."')")
+            ->where(function($query) use($latest_created, $latest_updated) {
+                $query->where('created_at', '>', $latest_created)
+                        ->orWhere('updated_at', '>', $latest_updated);
+            })
             ->groupBy('メーカー名', '商品名')
             ->get();
         return $transrows;

@@ -53,9 +53,9 @@ class Company extends Model
     {
         return [
             'code' => ['required','string','max:4','regex:/\d{4}/'],
-            'name' => ['required','string','max:30','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
-            'name_kana' => ['required','string','max:30','regex:/^[ァ-ンヴーッ]+$/'],
-            'name_short' => ['required','string','max:10','regex:/[^\x01-\x7E\uFF61-\uFF9F]/'],
+            'name' => ['required','string','max:30',],
+            'name_kana' => ['required','string','max:30',],
+            'name_short' => ['required','string','max:10',],
             'postalcode' => ['required','string','max:8','regex:/[0-9]{3}-?[0-9]{4}/'],
             'address1' => ['required','string','max:40',],
             'address2' => ['nullable','string','max:40',],
