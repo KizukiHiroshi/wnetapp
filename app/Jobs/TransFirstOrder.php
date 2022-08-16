@@ -97,7 +97,7 @@ class TransFirstOrder implements ShouldQueue
         $maxvalue = str_replace('-', '', substr($transrow->店発注日,0,10)).
         '-'.trim(strval($transrow->店コード)).
         '-'.trim(strval($transrow->客注区分)).
-        '-'.trim(strval($transrow->発注ＩＤ));
+        '-'.trim(strval($transrow->発生ＩＤ));
         return $maxvalue;
     }
 
@@ -386,7 +386,7 @@ class TransFirstOrder implements ShouldQueue
             +'-'+RTRIM(convert(CHAR, 店コード))
             +'-'+RTRIM(convert(CHAR, ISNULL(客注区分, 0)))
             +'-'+RTRIM(convert(CHAR, 発生ＩＤ))")
-            ->limit(500)
+            ->limit(100)
             ->get();
         return $transrows;
     }
