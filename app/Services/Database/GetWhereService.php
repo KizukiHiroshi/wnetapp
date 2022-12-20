@@ -7,6 +7,11 @@ class GetWhereService
     // $requestから検索要素を抽出する
     // 'string'は like
     public function getWhere($searchconditions, $columnsprop) {
+        // if (strpos($rawname, '_id_')) {
+        //     // _id_を含む列名は参照値= 0 はセレクタの無選択
+        //     $searchconditions[substr($rawname, strrpos($rawname, '_id_') +4)] = $value;
+        // } else {
+        // }
         $where =[];
         if ($searchconditions) {
             // 文字の検索

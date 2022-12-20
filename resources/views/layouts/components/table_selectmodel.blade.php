@@ -6,7 +6,7 @@
             <div class="d-flex justify-content-between ml-2 mt-1">
                 <p class="mt-1 mb-0">テーブル</p>
                 @include('layouts/components/button', [
-                    'value'     => '表示',
+                    'value'     => '選択',
                     'formaction'=> '/table/'.$tablename,
                 ])
                 @include('layouts/components/button', [
@@ -20,7 +20,7 @@
                     'formaction'=> '/table/'.$tablename.'/create',
                 ])
                 @include('layouts/components/button', [
-                    'value'     => '戻る',
+                    'value'     => 'メニューへ戻る',
                     'color'     => 'secondary',
                     'formaction'=> '/jobmenu',
                 ])

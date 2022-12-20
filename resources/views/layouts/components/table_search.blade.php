@@ -13,7 +13,8 @@
             <tr>
             <td width="25%">
                 @include('layouts/components/button', [
-                    'value'     => '検索実行',
+                    'value'     => '検索表示',
+                    'color'     => 'outline-primary',
                 ])
             </td>
             <td><div class="pt-1">検索条件</div></td>

@@ -17,7 +17,7 @@ class GetSearchConditionsService {
                     // _id = 0 はセレクタの無選択
                     $value = null;
                 }
-                $searchconditions[substr($rawname,7)] = $value;
+                $searchconditions[substr($rawname, 7)] = $value;
             }
         }
         $sessionservice->putSession('searchconditions', $searchconditions);

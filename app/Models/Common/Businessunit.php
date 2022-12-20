@@ -23,7 +23,6 @@ class Businessunit extends Model
         'code' => 'asc',
     ];
     static $referencedcolumns = [
-        'company_id', 
         'code', 
         'name', 
     ];

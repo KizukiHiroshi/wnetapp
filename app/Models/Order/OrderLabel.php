@@ -30,6 +30,7 @@ class OrderLabel extends Model
     static $referencedcolumns = [
         'order_on', 
         'order_no', 
+        'order__company_id', 
         'order__businessunit_id', 
     ];
     static $uniquekeys = [

@@ -11,7 +11,9 @@
         <form id="table_download" action="{{ $href }}" method="get">
             @include('layouts/components/button', [
                 'margin'    => 'mt-0 p-1',
-                'value'     => $withdownload['value']]) 
+                'value'     => $withdownload['value'], 
+                'color'     => 'outline-primary',
+            ])
         </form>
         </div>
         @endif
